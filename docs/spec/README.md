@@ -40,6 +40,12 @@ Hệ thống tài liệu spec được chia thành các file chuyên sâu phục
 4. [api-contracts.md](./api-contracts.md):
    - Đặc tả chi tiết các RESTful Endpoints (`/api/v1/games/*`, `/api/v1/users/*`, `/api/v1/leaderboard/*`).
    - Request / Response JSON Schema chuẩn mực, HTTP status codes và cơ chế xử lý lỗi nhất quán.
+5. [leaderboard-and-battle.md](./leaderboard-and-battle.md):
+   - Đặc tả hệ thống Bảng Xếp Hạng Toàn Cầu & Đấu Đối Kháng 1v1 Realtime.
+   - Cơ chế tính điểm ELO/Trophy, phân tầng rank, bảo vệ hạng (Demotion Shield), thưởng chuỗi thắng.
+   - Thuật toán ghép cặp thích ứng (Adaptive Matchmaking) và cơ chế Bot thông minh dự phòng.
+   - Luật thi đấu 1v1, xử lý ngắt kết nối (Grace Period) / bỏ cuộc (Forfeit).
+   - Thiết kế CSDL PostgreSQL, SignalR BattleHub WebSocket protocol và tiêu chí nghiệm thu (Given-When-Then).
 
 ---
 
