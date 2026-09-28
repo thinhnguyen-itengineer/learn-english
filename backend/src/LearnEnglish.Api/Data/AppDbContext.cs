@@ -1,0 +1,136 @@
+using System.Text.Json;
+using LearnEnglish.Api.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
+
+namespace LearnEnglish.Api.Data;
+
+public class AppDbContext : DbContext
+{
+    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
+    {
+    }
+
+    public DbSet<User> Users => Set<User>();
+    public DbSet<UserProfile> UserProfiles => Set<UserProfile>();
+    public DbSet<Topic> Topics => Set<Topic>();
+    public DbSet<Word> Words => Set<Word>();
+    public DbSet<Sentence> Sentences => Set<Sentence>();
+    public DbSet<GameSession> GameSessions => Set<GameSession>();
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+
+        // User
+        modelBuilder.Entity<User>(entity =>
+        {
+            entity.ToTable("users");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+            entity.Property(e => e.Username).HasMaxLength(100).IsRequired();
+            entity.HasIndex(e => e.Username).IsUnique();
+            entity.Property(e => e.Email).HasMaxLength(255);
+            entity.HasIndex(e => e.Email).IsUnique();
+
+            entity.HasOne(e => e.Profile)
+                .WithOne(p => p.User)
+                .HasForeignKey<UserProfile>(p => p.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // UserProfile
+        modelBuilder.Entity<UserProfile>(entity =>
+        {
+            entity.ToTable("user_profiles");
+            entity.HasKey(e => e.UserId);
+            entity.Property(e => e.DisplayName).HasMaxLength(100).IsRequired();
+            entity.Property(e => e.AvatarUrl).HasMaxLength(500);
+            entity.HasIndex(e => e.TotalXp);
+            entity.HasIndex(e => e.CurrentStreak);
+        });
+
+        // Topic
+        modelBuilder.Entity<Topic>(entity =>
+        {
+            entity.ToTable("topics");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Name).HasMaxLength(150).IsRequired();
+            entity.Property(e => e.Slug).HasMaxLength(150).IsRequired();
+            entity.HasIndex(e => e.Slug).IsUnique();
+            entity.Property(e => e.IconName).HasMaxLength(50).HasDefaultValue("BookOpen");
+            entity.Property(e => e.DifficultyLevel).HasMaxLength(20).HasDefaultValue("Easy");
+        });
+
+        // Word
+        modelBuilder.Entity<Word>(entity =>
+        {
+            entity.ToTable("words");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Term).HasMaxLength(100).IsRequired();
+            entity.Property(e => e.Phonetic).HasMaxLength(100);
+            entity.Property(e => e.PartOfSpeech).HasMaxLength(50);
+            entity.Property(e => e.DefinitionVi).HasMaxLength(255).IsRequired();
+            entity.Property(e => e.AudioUrl).HasMaxLength(500);
+            entity.Property(e => e.DifficultyLevel).HasMaxLength(20).HasDefaultValue("Easy");
+
+            entity.HasOne(e => e.Topic)
+                .WithMany(t => t.Words)
+                .HasForeignKey(e => e.TopicId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasIndex(e => e.TopicId);
+        });
+
+        // Sentence
+        modelBuilder.Entity<Sentence>(entity =>
+        {
+            entity.ToTable("sentences");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.EnglishText).IsRequired();
+            entity.Property(e => e.VietnameseTranslation).IsRequired();
+            entity.Property(e => e.DifficultyLevel).HasMaxLength(20).HasDefaultValue("Easy");
+
+            var valueComparer = new Microsoft.EntityFrameworkCore.ChangeTracking.ValueComparer<List<string>>(
+                (c1, c2) => (c1 == null && c2 == null) || (c1 != null && c2 != null && c1.SequenceEqual(c2)),
+                c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
+                c => c.ToList());
+
+            entity.Property(e => e.Tokens)
+                .HasConversion(
+                    v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
+                    v => JsonSerializer.Deserialize<List<string>>(v, (JsonSerializerOptions?)null) ?? new List<string>()
+                )
+                .Metadata.SetValueComparer(valueComparer);
+
+            entity.HasOne(e => e.Topic)
+                .WithMany(t => t.Sentences)
+                .HasForeignKey(e => e.TopicId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasIndex(e => e.TopicId);
+        });
+
+        // GameSession
+        modelBuilder.Entity<GameSession>(entity =>
+        {
+            entity.ToTable("game_sessions");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.GameType).HasConversion<string>().HasMaxLength(50).IsRequired();
+            entity.Property(e => e.Status).HasConversion<string>().HasMaxLength(30).IsRequired();
+            entity.Property(e => e.AccuracyRate).HasPrecision(5, 2);
+
+            entity.HasOne(e => e.User)
+                .WithMany(u => u.GameSessions)
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.Topic)
+                .WithMany(t => t.GameSessions)
+                .HasForeignKey(e => e.TopicId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasIndex(e => e.UserId);
+            entity.HasIndex(e => e.CompletedAt);
+        });
+    }
+}
