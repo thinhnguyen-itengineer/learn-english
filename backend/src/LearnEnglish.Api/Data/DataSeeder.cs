@@ -11,6 +11,8 @@ public static class DataSeeder
         {
             await SeedBattleDataAsync(context);
             await SeedNewMiniGamesAsync(context);
+            await SeedSkillDomainsAsync(context);
+            await SeedRetentionDataAsync(context);
             return;
         }
 
@@ -244,6 +246,7 @@ public static class DataSeeder
         // 4. Seed Season & Battle Leaderboard
         await SeedBattleDataAsync(context);
         await SeedNewMiniGamesAsync(context);
+        await SeedSkillDomainsAsync(context);
     }
 
     public static async Task SeedBattleDataAsync(AppDbContext context)
@@ -927,6 +930,177 @@ public static class DataSeeder
             };
 
             context.GrammarDetectiveQuestions.AddRange(gdCases);
+        }
+
+        await context.SaveChangesAsync();
+    }
+
+    public static async Task SeedSkillDomainsAsync(AppDbContext context)
+    {
+        if (await context.SkillDomains.AnyAsync())
+        {
+            return;
+        }
+
+        var domains = new List<SkillDomain>
+        {
+            new()
+            {
+                Code = "LISTENING",
+                NameVi = "Kỹ Năng Nghe",
+                NameEn = "Listening Academy",
+                Description = "Rèn luyện khả năng nhận diện âm thanh bản xứ, chép chính tả và phản xạ nghe hiểu tức thì.",
+                IconName = "Headphones",
+                ThemeColor = "sky-500",
+                DisplayOrder = 1,
+                IsActive = true
+            },
+            new()
+            {
+                Code = "READING",
+                NameVi = "Kỹ Năng Đọc",
+                NameEn = "Reading Academy",
+                Description = "Mở rộng vốn từ vựng theo ngữ cảnh, đọc lướt nắm keyword và phản xạ nhận diện nghĩa.",
+                IconName = "BookOpen",
+                ThemeColor = "emerald-500",
+                DisplayOrder = 2,
+                IsActive = true
+            },
+            new()
+            {
+                Code = "WRITING",
+                NameVi = "Kỹ Năng Viết",
+                NameEn = "Writing Academy",
+                Description = "Làm chủ cú pháp câu, cụm từ học thuật Collocations và thám tử sửa lỗi ngữ pháp.",
+                IconName = "PenTool",
+                ThemeColor = "amber-500",
+                DisplayOrder = 3,
+                IsActive = true
+            },
+            new()
+            {
+                Code = "SPEAKING",
+                NameVi = "Kỹ Năng Nói",
+                NameEn = "Speaking Academy",
+                Description = "Chuẩn hóa phát âm âm vị, đánh bắt trọng âm và luyện nhại giọng ngữ điệu tự nhiên.",
+                IconName = "Mic",
+                ThemeColor = "rose-500",
+                DisplayOrder = 4,
+                IsActive = true
+            }
+        };
+
+        context.SkillDomains.AddRange(domains);
+        await context.SaveChangesAsync();
+
+        var games = new List<SkillDomainGame>
+        {
+            // LISTENING
+            new() { SkillDomainCode = "LISTENING", GameTypeCode = "AUDIO_BLITZ", DisplayTitle = "Audio Blitz (Nghe & Điền Chính Tả)", DifficultyTier = "A1_A2", IsPrimary = true, DisplayOrder = 1 },
+            new() { SkillDomainCode = "LISTENING", GameTypeCode = "DICTATION_DASH", DisplayTitle = "Dictation Dash (Chép Chính Tả Biểu Mẫu)", DifficultyTier = "B1_B2", IsPrimary = true, DisplayOrder = 2 },
+            new() { SkillDomainCode = "LISTENING", GameTypeCode = "SPEED_AUDIO_MATCH", DisplayTitle = "Speed Audio Match (Phản Xạ Âm Thanh Siêu Tốc)", DifficultyTier = "A1_A2", IsPrimary = false, DisplayOrder = 3 },
+            new() { SkillDomainCode = "LISTENING", GameTypeCode = "SHADOWING_BEAT", DisplayTitle = "Shadowing Beat (Luyện Nhại Giọng Ngắt Nhịp)", DifficultyTier = "IELTS_ADVANCED", IsPrimary = false, DisplayOrder = 4 },
+
+            // READING
+            new() { SkillDomainCode = "READING", GameTypeCode = "WORD_MATCH", DisplayTitle = "Word Match (Ghép Thẻ Từ Vựng & Nghĩa)", DifficultyTier = "A1_A2", IsPrimary = true, DisplayOrder = 1 },
+            new() { SkillDomainCode = "READING", GameTypeCode = "FALLING_WORDS", DisplayTitle = "Speed Falling Word (Từ Rơi Tốc Độ Cao)", DifficultyTier = "B1_B2", IsPrimary = true, DisplayOrder = 2 },
+            new() { SkillDomainCode = "READING", GameTypeCode = "CLOZE_MASTER", DisplayTitle = "Cloze Master (Điền Từ Ngữ Cảnh & Collocation)", DifficultyTier = "B1_B2", IsPrimary = true, DisplayOrder = 3 },
+            new() { SkillDomainCode = "READING", GameTypeCode = "SKIM_SCAN_SPRINT", DisplayTitle = "Skim & Scan Sprint (Đọc Lướt Bắt Chi Tiết)", DifficultyTier = "IELTS_ADVANCED", IsPrimary = false, DisplayOrder = 4 },
+
+            // WRITING
+            new() { SkillDomainCode = "WRITING", GameTypeCode = "SENTENCE_SCRAMBLE", DisplayTitle = "Sentence Scramble (Sắp Xếp Trật Tự Câu)", DifficultyTier = "A1_A2", IsPrimary = true, DisplayOrder = 1 },
+            new() { SkillDomainCode = "WRITING", GameTypeCode = "GRAMMAR_DETECTIVE", DisplayTitle = "Grammar Detective (Thám Tử Bắt Lỗi Ngữ Pháp)", DifficultyTier = "B1_B2", IsPrimary = true, DisplayOrder = 2 },
+            new() { SkillDomainCode = "WRITING", GameTypeCode = "COLLOCATION_CHAIN", DisplayTitle = "Collocation Chain (Chuỗi Cụm Từ Cố Định)", DifficultyTier = "IELTS_ADVANCED", IsPrimary = false, DisplayOrder = 3 },
+            new() { SkillDomainCode = "WRITING", GameTypeCode = "PARAPHRASE_RUSH", DisplayTitle = "Paraphrase Rush (Viết Lại Câu Học Thuật)", DifficultyTier = "IELTS_ADVANCED", IsPrimary = false, DisplayOrder = 4 },
+
+            // SPEAKING
+            new() { SkillDomainCode = "SPEAKING", GameTypeCode = "MINIMAL_PAIRS", DisplayTitle = "Minimal Pairs Duel (Đấu Sĩ Phân Biệt Cặp Âm)", DifficultyTier = "A1_A2", IsPrimary = true, DisplayOrder = 1 },
+            new() { SkillDomainCode = "SPEAKING", GameTypeCode = "STRESS_HUNTER", DisplayTitle = "Word Stress Hunter (Săn Trọng Âm Từ Vựng)", DifficultyTier = "B1_B2", IsPrimary = true, DisplayOrder = 2 },
+            new() { SkillDomainCode = "SPEAKING", GameTypeCode = "INTONATION_CURVE", DisplayTitle = "Intonation Curve (Đường Cong Ngữ Điệu Câu)", DifficultyTier = "B1_B2", IsPrimary = false, DisplayOrder = 3 },
+            new() { SkillDomainCode = "SPEAKING", GameTypeCode = "FLUENCY_SPRINT", DisplayTitle = "45-Sec Fluency Sprint (Phản Xạ Nói Tự Nhiên)", DifficultyTier = "IELTS_ADVANCED", IsPrimary = false, DisplayOrder = 4 }
+        };
+
+        context.SkillDomainGames.AddRange(games);
+        await context.SaveChangesAsync();
+
+        // Seed initial progress for sample ranked users so leaderboard & radar look great
+        var sampleUserIds = new[]
+        {
+            Guid.Parse("b1111111-1111-1111-1111-111111111111"), // Alex Trần
+            Guid.Parse("b2222222-2222-2222-2222-222222222222"), // Minh Vũ
+            Guid.Parse("b3333333-3333-3333-3333-333333333333")  // Sarah Nguyễn
+        };
+
+        foreach (var uid in sampleUserIds)
+        {
+            if (!await context.UserSkillProgresses.AnyAsync(p => p.UserId == uid))
+            {
+                context.UserSkillProgresses.AddRange(
+                    new UserSkillProgress { UserId = uid, SkillDomainCode = "LISTENING", MasteryScore = 85.0m, TotalXp = 1250, GamesPlayed = 42, PerfectGames = 12 },
+                    new UserSkillProgress { UserId = uid, SkillDomainCode = "READING", MasteryScore = 80.0m, TotalXp = 1100, GamesPlayed = 38, PerfectGames = 9 },
+                    new UserSkillProgress { UserId = uid, SkillDomainCode = "WRITING", MasteryScore = 70.0m, TotalXp = 850, GamesPlayed = 25, PerfectGames = 6 },
+                    new UserSkillProgress { UserId = uid, SkillDomainCode = "SPEAKING", MasteryScore = 45.0m, TotalXp = 320, GamesPlayed = 12, PerfectGames = 2 }
+                );
+            }
+        }
+        await context.SaveChangesAsync();
+    }
+
+    private static async Task SeedRetentionDataAsync(AppDbContext context)
+    {
+        var sampleLeaderId = Guid.Parse("b1111111-1111-1111-1111-111111111111"); // Alex Trần
+        var user2Id = Guid.Parse("b2222222-2222-2222-2222-222222222222"); // Minh Vũ
+        var user3Id = Guid.Parse("b3333333-3333-3333-3333-333333333333"); // Sarah Nguyễn
+
+        // 1. Seed sample StudySquad if none exists
+        if (!await context.StudySquads.AnyAsync())
+        {
+            var squad = new StudySquad
+            {
+                SquadCode = "IELTS9",
+                Name = "The IELTS Overcomers",
+                Description = "Biệt đội cày 5,000 XP mỗi tuần để chinh phục học bổng và IELTS 8.0!",
+                LeaderUserId = sampleLeaderId,
+                MaxMembers = 10,
+                CurrentMembersCount = 3,
+                TotalAccumulatedXp = 2750,
+                CreatedAt = DateTime.UtcNow.AddDays(-5)
+            };
+
+            context.StudySquads.Add(squad);
+            context.SquadMembers.AddRange(
+                new SquadMember { SquadId = squad.Id, UserId = sampleLeaderId, Role = "Leader", WeeklyContributedXp = 1250, JoinedAt = DateTime.UtcNow.AddDays(-5) },
+                new SquadMember { SquadId = squad.Id, UserId = user2Id, Role = "Member", WeeklyContributedXp = 850, JoinedAt = DateTime.UtcNow.AddDays(-4) },
+                new SquadMember { SquadId = squad.Id, UserId = user3Id, Role = "Member", WeeklyContributedXp = 650, JoinedAt = DateTime.UtcNow.AddDays(-3) }
+            );
+        }
+
+        // 2. Seed default Weekly Leagues if none
+        if (!await context.WeeklyLeagues.AnyAsync())
+        {
+            var nowVn = DateTime.UtcNow.AddHours(7);
+            var today = DateOnly.FromDateTime(nowVn);
+            int diff = (7 + (int)today.DayOfWeek - (int)DayOfWeek.Monday) % 7;
+            var monday = today.AddDays(-diff);
+            var sunday = monday.AddDays(6);
+
+            var sapphireRoom = new WeeklyLeague
+            {
+                LeagueTier = 4, // Sapphire
+                WeekStartDate = monday,
+                WeekEndDate = sunday,
+                RoomCode = "Sapphire-Room-142",
+                MaxParticipants = 30,
+                Status = "Active",
+                CreatedAt = DateTime.UtcNow
+            };
+            context.WeeklyLeagues.Add(sapphireRoom);
+
+            context.WeeklyLeagueMembers.AddRange(
+                new WeeklyLeagueMember { LeagueId = sapphireRoom.Id, UserId = sampleLeaderId, WeeklyXp = 2450, OutcomeStatus = "Pending" },
+                new WeeklyLeagueMember { LeagueId = sapphireRoom.Id, UserId = user2Id, WeeklyXp = 1620, OutcomeStatus = "Pending" },
+                new WeeklyLeagueMember { LeagueId = sapphireRoom.Id, UserId = user3Id, WeeklyXp = 1590, OutcomeStatus = "Pending" }
+            );
         }
 
         await context.SaveChangesAsync();

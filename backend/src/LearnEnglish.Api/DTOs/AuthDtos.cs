@@ -14,6 +14,7 @@ public record UserSummaryDto
     public string DisplayName { get; init; } = string.Empty;
     public bool IsGuest { get; init; }
     public int TotalXp { get; init; }
+    public int Coins { get; init; }
     public int CurrentLevel { get; init; }
     public int CurrentStreak { get; init; }
 }
@@ -25,6 +26,7 @@ public record UserProfileDto
     public string DisplayName { get; init; } = string.Empty;
     public string? AvatarUrl { get; init; }
     public int TotalXp { get; init; }
+    public int Coins { get; init; }
     public int CurrentLevel { get; init; }
     public int CurrentLevelXp { get; init; }
     public int NextLevelXp { get; init; }

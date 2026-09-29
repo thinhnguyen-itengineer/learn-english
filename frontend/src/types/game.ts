@@ -29,6 +29,7 @@ export interface UserProfileDto {
   displayName: string;
   avatarUrl?: string;
   totalXp: number;
+  coins?: number;
   currentLevel: number;
   currentLevelXp: number;
   nextLevelXp: number;
@@ -400,4 +401,84 @@ export interface MatchHistoryResponse {
   summary: MatchHistorySummaryDto;
   history: MatchHistoryItemDto[];
 }
+
+// 4-Skills Gamified Learning Hub Types
+export type SkillDomainCode = 'LISTENING' | 'READING' | 'WRITING' | 'SPEAKING';
+
+export interface SkillDomainGameDto {
+  id: string;
+  skillDomainCode: SkillDomainCode;
+  gameTypeCode: string;
+  displayTitle: string;
+  difficultyTier: 'A1_A2' | 'B1_B2' | 'IELTS_ADVANCED';
+  isPrimary: boolean;
+  displayOrder: number;
+}
+
+export interface SkillDomainDto {
+  code: SkillDomainCode;
+  nameVi: string;
+  nameEn: string;
+  description: string;
+  iconName: string;
+  themeColor: string;
+  displayOrder: number;
+  masteryScore: number; // 0 - 100
+  totalXp: number;
+  gamesPlayed: number;
+  perfectGames: number;
+  badgeLevel: string; // e.g. 'Bronze Ear', 'Master Decoder'
+  badgeTier: 'Bronze' | 'Silver' | 'Gold' | 'Diamond';
+  games: SkillDomainGameDto[];
+}
+
+export interface SkillRadarDto {
+  listening: number;
+  reading: number;
+  writing: number;
+  speaking: number;
+  weakestSkill: SkillDomainCode;
+  strongestSkill: SkillDomainCode;
+  recommendedGameCode: string;
+  recommendedGameTitle: string;
+}
+
+export interface SkillsOverviewResponse {
+  skills: SkillDomainDto[];
+  radar: SkillRadarDto;
+}
+
+export interface DailyBalancedStatusDto {
+  practiceDate: string;
+  completedListening: boolean;
+  completedReading: boolean;
+  completedWriting: boolean;
+  completedSpeaking: boolean;
+  completedCount: number; // 0 to 4
+  allCompleted: boolean;
+  bonusClaimed: boolean;
+  rewardCoins: number;
+  rewardXp: number;
+}
+
+export interface ClaimBonusResponse {
+  success: boolean;
+  message: string;
+  rewardCoins: number;
+  rewardXp: number;
+  totalCoins: number;
+  totalXp: number;
+}
+
+export interface RecommendedSkillDto {
+  skillDomainCode: SkillDomainCode;
+  skillNameVi: string;
+  skillNameEn: string;
+  currentMastery: number;
+  reason: string;
+  recommendedGameCode: string;
+  recommendedGameTitle: string;
+  difficultyTier: string;
+}
+
 

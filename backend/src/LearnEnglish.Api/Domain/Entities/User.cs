@@ -14,4 +14,10 @@ public class User
     public UserRank? Rank { get; set; }
     public ICollection<GameSession> GameSessions { get; set; } = new List<GameSession>();
     public ICollection<MatchParticipant> MatchParticipations { get; set; } = new List<MatchParticipant>();
+    public ICollection<UserSkillProgress> SkillProgresses { get; set; } = new List<UserSkillProgress>();
+    public ICollection<DailyBalancedProgress> DailyBalancedProgresses { get; set; } = new List<DailyBalancedProgress>();
+    public UserHabitState? HabitState { get; set; }
+    public ICollection<UserMistakeBank> MistakeBanks { get; set; } = new List<UserMistakeBank>();
+    public ICollection<WeeklyLeagueMember> LeagueMemberships { get; set; } = new List<WeeklyLeagueMember>();
+    public ICollection<SquadMember> SquadMemberships { get; set; } = new List<SquadMember>();
 }

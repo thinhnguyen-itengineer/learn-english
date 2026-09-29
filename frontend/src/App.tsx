@@ -13,6 +13,7 @@ import { BattleLeaderboardModal } from './components/BattleLeaderboardModal';
 import { Battle1v1Game } from './components/Battle1v1Game';
 import { MatchmakingRadar, MatchmakingPlayer } from './components/ui/MatchmakingRadar';
 import { MatchResultModal, MatchResultData } from './components/ui/MatchResultModal';
+import { TidMiniGameModal } from './components/TidMiniGameModal';
 import { 
   CompleteSessionRequest, 
   CompleteSessionResponse, 
@@ -66,6 +67,22 @@ export function App() {
   const [summaryResult, setSummaryResult] = useState<CompleteSessionResponse | null>(null);
   const [showWeeklyLeaderboard, setShowWeeklyLeaderboard] = useState<boolean>(false);
   const [weeklyLeaderboardData, setWeeklyLeaderboardData] = useState<LeaderboardResponse | null>(null);
+
+  // 4-Skills TID Mini-Games state
+  const [activeTidGame, setActiveTidGame] = useState<string | null>(null);
+
+  const refreshProfileAndRank = async () => {
+    try {
+      const [prof, rank] = await Promise.all([
+        api.getProfile().catch(() => null),
+        api.getMyRank().catch(() => null)
+      ]);
+      if (prof) setProfile(prof);
+      if (rank) setMyRank(rank);
+    } catch (err) {
+      console.warn('Failed to refresh profile:', err);
+    }
+  };
 
   // Initialize data on mount
   useEffect(() => {
@@ -401,6 +418,8 @@ export function App() {
             onStartGame={handleStartGame} 
             onStart1v1Battle={handleStart1v1Battle}
             onOpenBattleLeaderboard={() => setShowBattleLeaderboard(true)}
+            onPlayTidGame={(gameCode) => setActiveTidGame(gameCode)}
+            onRefreshProfile={refreshProfileAndRank}
             isLoading={isLoading} 
           />
         )}
@@ -512,6 +531,18 @@ export function App() {
         <LeaderboardModal
           data={weeklyLeaderboardData}
           onClose={() => setShowWeeklyLeaderboard(false)}
+        />
+      )}
+
+      {/* Designer TID 4-Skills Interactive Mini-Games Modal */}
+      {activeTidGame && (
+        <TidMiniGameModal
+          gameCode={activeTidGame}
+          onClose={() => setActiveTidGame(null)}
+          onComplete={(score, xpEarned) => {
+            console.log('TID Mini-game finished:', { score, xpEarned });
+            refreshProfileAndRank();
+          }}
         />
       )}
     </div>

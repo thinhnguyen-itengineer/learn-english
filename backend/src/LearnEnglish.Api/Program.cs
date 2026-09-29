@@ -54,11 +54,27 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // 2. Configure Dependency Injection
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IGameService, GameService>();
+builder.Services.AddScoped<ISkillService, SkillService>();
 builder.Services.AddSingleton<IEloRatingCalculator, EloRatingCalculator>();
 builder.Services.AddSingleton<IBattleSessionManager, BattleSessionManager>();
 builder.Services.AddSingleton<MatchmakingQueueService>();
 builder.Services.AddSingleton<IMatchmakingQueueService>(sp => sp.GetRequiredService<MatchmakingQueueService>());
 builder.Services.AddHostedService(sp => sp.GetRequiredService<MatchmakingQueueService>());
+
+// Retention & Gamification Subsystem Services
+builder.Services.AddScoped<ISrsClinicService, SrsClinicService>();
+builder.Services.AddScoped<IHabitService, HabitService>();
+builder.Services.AddScoped<IWeeklyLeagueService, WeeklyLeagueService>();
+builder.Services.AddScoped<IStudySquadService, StudySquadService>();
+builder.Services.AddScoped<IAsyncChallengeService, AsyncChallengeService>();
+builder.Services.AddScoped<ISpeechAiService, SpeechAiService>();
+
+// Retention Background Workers
+builder.Services.AddHostedService<LearnEnglish.Api.BackgroundWorkers.MidnightStreakProtectionWorker>();
+builder.Services.AddHostedService<LearnEnglish.Api.BackgroundWorkers.WeeklyLeagueFinalizationWorker>();
+builder.Services.AddHostedService<LearnEnglish.Api.BackgroundWorkers.SrsReviewDecayWorker>();
+builder.Services.AddHostedService<LearnEnglish.Api.BackgroundWorkers.SquadWeeklyResetWorker>();
+
 builder.Services.AddSignalR();
 
 // 3. Configure JWT Authentication
@@ -160,7 +176,81 @@ using (var scope = app.Services.CreateScope())
     try
     {
         var db = services.GetRequiredService<AppDbContext>();
-        await db.Database.EnsureCreatedAsync();
+        try
+        {
+            await db.Database.MigrateAsync();
+            logger.LogInformation("Database migrated successfully via EF Core migrations.");
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "MigrateAsync note: falling back to dynamic schema sync.");
+            await db.Database.EnsureCreatedAsync();
+        }
+
+        // For SQLite in development, EnsureCreatedAsync() does not add newly defined tables or columns to an existing database file.
+        // We ensure all missing tables and columns (like Coins in user_profiles) are created safely without wiping user data.
+        if (db.Database.ProviderName?.Contains("Sqlite", StringComparison.OrdinalIgnoreCase) == true)
+        {
+            // 1. Ensure Coins column in user_profiles
+            try
+            {
+                var hasCoins = false;
+                var conn = db.Database.GetDbConnection();
+                if (conn.State != System.Data.ConnectionState.Open)
+                {
+                    await conn.OpenAsync();
+                }
+                using var cmd = conn.CreateCommand();
+                cmd.CommandText = "PRAGMA table_info(user_profiles);";
+                using var reader = await cmd.ExecuteReaderAsync();
+                while (await reader.ReadAsync())
+                {
+                    var colName = reader.GetString(1);
+                    if (string.Equals(colName, "Coins", StringComparison.OrdinalIgnoreCase))
+                    {
+                        hasCoins = true;
+                        break;
+                    }
+                }
+                await reader.CloseAsync();
+
+                if (!hasCoins)
+                {
+                    using var alterCmd = conn.CreateCommand();
+                    alterCmd.CommandText = "ALTER TABLE user_profiles ADD COLUMN Coins INTEGER NOT NULL DEFAULT 0;";
+                    await alterCmd.ExecuteNonQueryAsync();
+                    logger.LogInformation("Added missing 'Coins' column to 'user_profiles' table.");
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogWarning(ex, "Could not check or add Coins column to user_profiles table.");
+            }
+
+            // 2. Ensure missing tables and indexes
+            var createScript = db.Database.GenerateCreateScript();
+            var statements = createScript
+                .Replace("CREATE TABLE ", "CREATE TABLE IF NOT EXISTS ", StringComparison.OrdinalIgnoreCase)
+                .Replace("CREATE UNIQUE INDEX ", "CREATE UNIQUE INDEX IF NOT EXISTS ", StringComparison.OrdinalIgnoreCase)
+                .Replace("CREATE INDEX ", "CREATE INDEX IF NOT EXISTS ", StringComparison.OrdinalIgnoreCase)
+                .Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+            foreach (var stmt in statements)
+            {
+                if (!string.IsNullOrWhiteSpace(stmt))
+                {
+                    try
+                    {
+                        await db.Database.ExecuteSqlRawAsync(stmt + ";");
+                    }
+                    catch
+                    {
+                        // Ignore harmless warnings (e.g. index already exists)
+                    }
+                }
+            }
+        }
+
         await DataSeeder.SeedAsync(db);
         logger.LogInformation("Database initialized and seeded successfully.");
     }

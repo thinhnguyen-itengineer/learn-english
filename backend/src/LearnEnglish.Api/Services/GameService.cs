@@ -9,14 +9,33 @@ namespace LearnEnglish.Api.Services;
 public class GameService : IGameService
 {
     private readonly AppDbContext _context;
+    private readonly ISkillService _skillService;
+    private readonly IHabitService _habitService;
+    private readonly IWeeklyLeagueService _leagueService;
+    private readonly IStudySquadService _squadService;
 
-    public GameService(AppDbContext context)
+    public GameService(
+        AppDbContext context,
+        ISkillService skillService,
+        IHabitService habitService,
+        IWeeklyLeagueService leagueService,
+        IStudySquadService squadService)
     {
         _context = context;
+        _skillService = skillService;
+        _habitService = habitService;
+        _leagueService = leagueService;
+        _squadService = squadService;
     }
 
     public async Task<object> StartGameSessionAsync(Guid userId, StartGameRequest request)
     {
+        var userExists = await _context.Users.AnyAsync(u => u.Id == userId);
+        if (!userExists)
+        {
+            throw new UnauthorizedAccessException("Người dùng không tồn tại hoặc phiên đăng nhập đã hết hạn.");
+        }
+
         var topic = await _context.Topics
             .Include(t => t.Words)
             .Include(t => t.Sentences)
@@ -449,6 +468,12 @@ public class GameService : IGameService
 
     public async Task<CompleteSessionResponse> CompleteGameSessionAsync(Guid userId, CompleteSessionRequest request)
     {
+        var userExists = await _context.Users.AnyAsync(u => u.Id == userId);
+        if (!userExists)
+        {
+            throw new UnauthorizedAccessException("Người dùng không tồn tại hoặc phiên đăng nhập đã hết hạn.");
+        }
+
         var session = await _context.GameSessions
             .FirstOrDefaultAsync(s => s.Id == request.SessionId && s.UserId == userId);
 
@@ -607,6 +632,19 @@ public class GameService : IGameService
         }
 
         await _context.SaveChangesAsync();
+
+        // Update skill domain mastery & daily balanced progress
+        try
+        {
+            await _skillService.RecordSkillProgressOnGameCompleteAsync(userId, session.GameType.ToString(), accuracy, xpEarned);
+            await _habitService.RecordActivityAndCheckStreakAsync(userId, xpEarned);
+            await _leagueService.RecordLeagueXpAsync(userId, xpEarned);
+            await _squadService.RecordSquadXpAsync(userId, xpEarned);
+        }
+        catch
+        {
+            // Non-blocking progress recording
+        }
 
         return new CompleteSessionResponse
         {

@@ -65,6 +65,7 @@ public class AuthController : ControllerBase
                 DisplayName = profile.DisplayName,
                 IsGuest = true,
                 TotalXp = profile.TotalXp,
+                Coins = profile.Coins,
                 CurrentLevel = profile.CurrentLevel,
                 CurrentStreak = profile.CurrentStreak
             }
@@ -87,7 +88,7 @@ public class AuthController : ControllerBase
 
         if (user == null || user.Profile == null)
         {
-            return NotFound("Hồ sơ người dùng không tồn tại.");
+            return Unauthorized(new { error = "Hồ sơ người dùng không tồn tại hoặc phiên đăng nhập đã hết hạn." });
         }
 
         var profile = user.Profile;
@@ -102,6 +103,7 @@ public class AuthController : ControllerBase
             DisplayName = profile.DisplayName,
             AvatarUrl = profile.AvatarUrl,
             TotalXp = profile.TotalXp,
+            Coins = profile.Coins,
             CurrentLevel = profile.CurrentLevel,
             CurrentLevelXp = Math.Max(0, profile.TotalXp - currentLevelBaseXp),
             NextLevelXp = Math.Max(100, nextLevelBaseXp - currentLevelBaseXp),

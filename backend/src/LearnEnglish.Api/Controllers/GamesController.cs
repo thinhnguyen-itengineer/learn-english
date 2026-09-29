@@ -32,6 +32,10 @@ public class GamesController : ControllerBase
             var result = await _gameService.StartGameSessionAsync(userId, request);
             return Ok(result);
         }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Unauthorized(new { error = ex.Message });
+        }
         catch (KeyNotFoundException ex)
         {
             return NotFound(new { error = ex.Message });
@@ -55,6 +59,10 @@ public class GamesController : ControllerBase
         {
             var result = await _gameService.CompleteGameSessionAsync(userId, request);
             return Ok(result);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Unauthorized(new { error = ex.Message });
         }
         catch (KeyNotFoundException ex)
         {

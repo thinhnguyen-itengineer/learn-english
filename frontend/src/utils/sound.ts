@@ -72,6 +72,16 @@ class SoundEffects {
     } catch {}
   }
 
+  // Alias for wrong buzzer
+  playWrong() {
+    this.playError();
+  }
+
+  // Alias for correct chime
+  playCorrect() {
+    this.playSuccess();
+  }
+
   // Victory fanfare
   playVictory() {
     try {
@@ -144,3 +154,4 @@ class SoundEffects {
 }
 
 export const sound = new SoundEffects();
+export const soundManager = sound;

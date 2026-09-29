@@ -6,6 +6,7 @@ public class UserProfile
     public string DisplayName { get; set; } = string.Empty;
     public string? AvatarUrl { get; set; }
     public int TotalXp { get; set; }
+    public int Coins { get; set; } = 350;
     public int CurrentLevel { get; set; } = 1;
     public int CurrentStreak { get; set; }
     public int HighestStreak { get; set; }

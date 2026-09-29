@@ -24,6 +24,18 @@ public class AppDbContext : DbContext
     public DbSet<AudioBlitzQuestion> AudioBlitzQuestions => Set<AudioBlitzQuestion>();
     public DbSet<ClozeQuestion> ClozeQuestions => Set<ClozeQuestion>();
     public DbSet<GrammarDetectiveQuestion> GrammarDetectiveQuestions => Set<GrammarDetectiveQuestion>();
+    public DbSet<SkillDomain> SkillDomains => Set<SkillDomain>();
+    public DbSet<SkillDomainGame> SkillDomainGames => Set<SkillDomainGame>();
+    public DbSet<UserSkillProgress> UserSkillProgresses => Set<UserSkillProgress>();
+    public DbSet<DailyBalancedProgress> DailyBalancedProgresses => Set<DailyBalancedProgress>();
+    public DbSet<UserMistakeBank> UserMistakeBanks => Set<UserMistakeBank>();
+    public DbSet<UserHabitState> UserHabitStates => Set<UserHabitState>();
+    public DbSet<WeeklyLeague> WeeklyLeagues => Set<WeeklyLeague>();
+    public DbSet<WeeklyLeagueMember> WeeklyLeagueMembers => Set<WeeklyLeagueMember>();
+    public DbSet<StudySquad> StudySquads => Set<StudySquad>();
+    public DbSet<SquadMember> SquadMembers => Set<SquadMember>();
+    public DbSet<AsyncChallenge> AsyncChallenges => Set<AsyncChallenge>();
+    public DbSet<AsyncChallengeAttempt> AsyncChallengeAttempts => Set<AsyncChallengeAttempt>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -331,6 +343,245 @@ public class AppDbContext : DbContext
                 .OnDelete(DeleteBehavior.Cascade);
 
             entity.HasIndex(e => new { e.TopicId, e.DifficultyLevel });
+        });
+
+        // SkillDomain
+        modelBuilder.Entity<SkillDomain>(entity =>
+        {
+            entity.ToTable("skill_domains");
+            entity.HasKey(e => e.Code);
+            entity.Property(e => e.Code).HasMaxLength(20);
+            entity.Property(e => e.NameVi).HasMaxLength(100).IsRequired();
+            entity.Property(e => e.NameEn).HasMaxLength(100).IsRequired();
+            entity.Property(e => e.Description);
+            entity.Property(e => e.IconName).HasMaxLength(50).IsRequired();
+            entity.Property(e => e.ThemeColor).HasMaxLength(30).IsRequired();
+            entity.Property(e => e.DisplayOrder).HasDefaultValue(0);
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+        });
+
+        // SkillDomainGame
+        modelBuilder.Entity<SkillDomainGame>(entity =>
+        {
+            entity.ToTable("skill_domain_games");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.SkillDomainCode).HasMaxLength(20).IsRequired();
+            entity.Property(e => e.GameTypeCode).HasMaxLength(50).IsRequired();
+            entity.Property(e => e.DisplayTitle).HasMaxLength(150).IsRequired();
+            entity.Property(e => e.DifficultyTier).HasMaxLength(30).HasDefaultValue("B1_B2");
+            entity.Property(e => e.IsPrimary).HasDefaultValue(true);
+            entity.Property(e => e.DisplayOrder).HasDefaultValue(0);
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+
+            entity.HasOne(e => e.SkillDomain)
+                .WithMany(s => s.Games)
+                .HasForeignKey(e => e.SkillDomainCode)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasIndex(e => new { e.SkillDomainCode, e.GameTypeCode }).IsUnique();
+        });
+
+        // UserSkillProgress
+        modelBuilder.Entity<UserSkillProgress>(entity =>
+        {
+            entity.ToTable("user_skill_progress");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.SkillDomainCode).HasMaxLength(20).IsRequired();
+            entity.Property(e => e.MasteryScore).HasPrecision(5, 2).HasDefaultValue(0m);
+            entity.Property(e => e.TotalXp).HasDefaultValue(0);
+            entity.Property(e => e.GamesPlayed).HasDefaultValue(0);
+            entity.Property(e => e.PerfectGames).HasDefaultValue(0);
+
+            entity.HasOne(e => e.User)
+                .WithMany(u => u.SkillProgresses)
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.SkillDomain)
+                .WithMany(s => s.UserProgresses)
+                .HasForeignKey(e => e.SkillDomainCode)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasIndex(e => new { e.UserId, e.SkillDomainCode }).IsUnique();
+        });
+
+        // DailyBalancedProgress
+        modelBuilder.Entity<DailyBalancedProgress>(entity =>
+        {
+            entity.ToTable("daily_balanced_progress");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.PracticeDate).IsRequired();
+            entity.Property(e => e.CompletedListening).HasDefaultValue(false);
+            entity.Property(e => e.CompletedReading).HasDefaultValue(false);
+            entity.Property(e => e.CompletedWriting).HasDefaultValue(false);
+            entity.Property(e => e.CompletedSpeaking).HasDefaultValue(false);
+            entity.Property(e => e.BonusClaimed).HasDefaultValue(false);
+
+            entity.HasOne(e => e.User)
+                .WithMany(u => u.DailyBalancedProgresses)
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasIndex(e => new { e.UserId, e.PracticeDate }).IsUnique();
+        });
+
+        // UserMistakeBank
+        modelBuilder.Entity<UserMistakeBank>(entity =>
+        {
+            entity.ToTable("user_mistake_banks");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.QuestionId).HasMaxLength(100).IsRequired();
+            entity.Property(e => e.OriginGameType).HasMaxLength(50).IsRequired();
+            entity.Property(e => e.SkillType).HasMaxLength(20).IsRequired();
+            entity.Property(e => e.Prompt).IsRequired();
+            entity.Property(e => e.Phonetic).HasMaxLength(100);
+            entity.Property(e => e.AudioUrl).HasMaxLength(500);
+            entity.Property(e => e.CorrectAnswer).HasMaxLength(500).IsRequired();
+            entity.Property(e => e.EaseFactor).HasPrecision(4, 2).HasDefaultValue(2.50m);
+            entity.Property(e => e.IntervalDays).HasDefaultValue(1);
+            entity.Property(e => e.RepetitionCount).HasDefaultValue(0);
+            entity.Property(e => e.ConsecutiveSuccesses).HasDefaultValue(0);
+            entity.Property(e => e.Status).HasMaxLength(20).HasDefaultValue("Learning");
+
+            entity.HasOne(e => e.User)
+                .WithMany(u => u.MistakeBanks)
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasIndex(e => new { e.UserId, e.Status, e.NextReviewDate });
+            entity.HasIndex(e => new { e.UserId, e.SkillType });
+            entity.HasIndex(e => new { e.UserId, e.QuestionId });
+        });
+
+        // UserHabitState
+        modelBuilder.Entity<UserHabitState>(entity =>
+        {
+            entity.ToTable("user_habit_states");
+            entity.HasKey(e => e.UserId);
+            entity.Property(e => e.CurrentStreak).HasDefaultValue(0);
+            entity.Property(e => e.MaxStreak).HasDefaultValue(0);
+            entity.Property(e => e.StreakFreezeCount).HasDefaultValue(0);
+
+            entity.HasOne(e => e.User)
+                .WithOne(u => u.HabitState)
+                .HasForeignKey<UserHabitState>(e => e.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // WeeklyLeague
+        modelBuilder.Entity<WeeklyLeague>(entity =>
+        {
+            entity.ToTable("weekly_leagues");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.RoomCode).HasMaxLength(50).IsRequired();
+            entity.Property(e => e.Status).HasMaxLength(20).HasDefaultValue("Active");
+            entity.Property(e => e.MaxParticipants).HasDefaultValue(30);
+
+            entity.HasIndex(e => new { e.WeekStartDate, e.LeagueTier, e.RoomCode }).IsUnique();
+        });
+
+        // WeeklyLeagueMember
+        modelBuilder.Entity<WeeklyLeagueMember>(entity =>
+        {
+            entity.ToTable("weekly_league_members");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.WeeklyXp).HasDefaultValue(0);
+            entity.Property(e => e.OutcomeStatus).HasMaxLength(20).HasDefaultValue("Pending");
+
+            entity.HasOne(e => e.League)
+                .WithMany(l => l.Members)
+                .HasForeignKey(e => e.LeagueId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.User)
+                .WithMany(u => u.LeagueMemberships)
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasIndex(e => new { e.LeagueId, e.UserId }).IsUnique();
+            entity.HasIndex(e => new { e.LeagueId, e.WeeklyXp });
+        });
+
+        // StudySquad
+        modelBuilder.Entity<StudySquad>(entity =>
+        {
+            entity.ToTable("study_squads");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.SquadCode).HasMaxLength(20).IsRequired();
+            entity.Property(e => e.Name).HasMaxLength(100).IsRequired();
+            entity.Property(e => e.MaxMembers).HasDefaultValue(10);
+            entity.Property(e => e.CurrentMembersCount).HasDefaultValue(1);
+            entity.Property(e => e.TotalAccumulatedXp).HasDefaultValue(0);
+
+            entity.HasOne(e => e.Leader)
+                .WithMany()
+                .HasForeignKey(e => e.LeaderUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasIndex(e => e.SquadCode).IsUnique();
+        });
+
+        // SquadMember
+        modelBuilder.Entity<SquadMember>(entity =>
+        {
+            entity.ToTable("squad_members");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Role).HasMaxLength(20).HasDefaultValue("Member");
+            entity.Property(e => e.WeeklyContributedXp).HasDefaultValue(0);
+            entity.Property(e => e.HasClaimedWeeklyChest).HasDefaultValue(false);
+
+            entity.HasOne(e => e.Squad)
+                .WithMany(s => s.Members)
+                .HasForeignKey(e => e.SquadId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.User)
+                .WithMany(u => u.SquadMemberships)
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasIndex(e => new { e.SquadId, e.UserId }).IsUnique();
+            entity.HasIndex(e => new { e.SquadId, e.WeeklyContributedXp });
+        });
+
+        // AsyncChallenge
+        modelBuilder.Entity<AsyncChallenge>(entity =>
+        {
+            entity.ToTable("async_challenges");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.ChallengeToken).HasMaxLength(32).IsRequired();
+            entity.Property(e => e.GameType).HasMaxLength(50).IsRequired();
+            entity.Property(e => e.AttemptCount).HasDefaultValue(0);
+
+            entity.HasOne(e => e.Creator)
+                .WithMany()
+                .HasForeignKey(e => e.CreatorUserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasIndex(e => e.ChallengeToken).IsUnique();
+        });
+
+        // AsyncChallengeAttempt
+        modelBuilder.Entity<AsyncChallengeAttempt>(entity =>
+        {
+            entity.ToTable("async_challenge_attempts");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.ParticipantName).HasMaxLength(100).IsRequired();
+            entity.Property(e => e.Score).HasDefaultValue(0);
+            entity.Property(e => e.IsWinner).HasDefaultValue(false);
+
+            entity.HasOne(e => e.Challenge)
+                .WithMany(c => c.Attempts)
+                .HasForeignKey(e => e.ChallengeId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.ParticipantUser)
+                .WithMany()
+                .HasForeignKey(e => e.ParticipantUserId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasIndex(e => new { e.ChallengeId, e.Score });
         });
     }
 }

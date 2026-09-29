@@ -51,17 +51,37 @@ class ApiService {
     return data;
   }
 
-  public async getProfile(): Promise<UserProfileDto> {
+  public async authFetch(url: string, init?: RequestInit): Promise<Response> {
     const headers = await this.getAuthHeaders();
-    const res = await fetch(`${API_BASE}/users/me/profile`, { headers });
-    if (!res.ok) {
-      if (res.status === 401) {
-        // Token expired, re-create guest session
-        this.token = null;
-        localStorage.removeItem('token');
-        await this.ensureGuestSession();
-        return this.getProfile();
+    let res = await fetch(url, {
+      ...init,
+      headers: {
+        ...headers,
+        ...(init?.headers || {})
       }
+    });
+
+    if (res.status === 401) {
+      // Token invalid or user deleted, re-create guest session and retry once
+      this.token = null;
+      localStorage.removeItem('token');
+      await this.ensureGuestSession();
+      const newHeaders = await this.getAuthHeaders();
+      res = await fetch(url, {
+        ...init,
+        headers: {
+          ...newHeaders,
+          ...(init?.headers || {})
+        }
+      });
+    }
+
+    return res;
+  }
+
+  public async getProfile(): Promise<UserProfileDto> {
+    const res = await this.authFetch(`${API_BASE}/users/me/profile`);
+    if (!res.ok) {
       throw new Error('Không thể tải thông tin hồ sơ');
     }
     return res.json();
@@ -79,10 +99,8 @@ class ApiService {
   }
 
   public async startWordMatch(topicId: string, difficultyLevel: DifficultyLevel): Promise<WordMatchInitResponse> {
-    const headers = await this.getAuthHeaders();
-    const res = await fetch(`${API_BASE}/games/start`, {
+    const res = await this.authFetch(`${API_BASE}/games/start`, {
       method: 'POST',
-      headers,
       body: JSON.stringify({
         gameType: 'WordMatch',
         topicId,
@@ -94,10 +112,8 @@ class ApiService {
   }
 
   public async startSpeedFalling(topicId: string, difficultyLevel: DifficultyLevel): Promise<SpeedFallingInitResponse> {
-    const headers = await this.getAuthHeaders();
-    const res = await fetch(`${API_BASE}/games/start`, {
+    const res = await this.authFetch(`${API_BASE}/games/start`, {
       method: 'POST',
-      headers,
       body: JSON.stringify({
         gameType: 'SpeedFalling',
         topicId,
@@ -109,10 +125,8 @@ class ApiService {
   }
 
   public async startSentenceScramble(topicId: string, difficultyLevel: DifficultyLevel): Promise<SentenceScrambleInitResponse> {
-    const headers = await this.getAuthHeaders();
-    const res = await fetch(`${API_BASE}/games/start`, {
+    const res = await this.authFetch(`${API_BASE}/games/start`, {
       method: 'POST',
-      headers,
       body: JSON.stringify({
         gameType: 'SentenceScramble',
         topicId,
@@ -124,10 +138,8 @@ class ApiService {
   }
 
   public async startAudioBlitz(topicId: string, difficultyLevel: DifficultyLevel): Promise<AudioBlitzInitResponse> {
-    const headers = await this.getAuthHeaders();
-    const res = await fetch(`${API_BASE}/games/start`, {
+    const res = await this.authFetch(`${API_BASE}/games/start`, {
       method: 'POST',
-      headers,
       body: JSON.stringify({
         gameType: 'AudioBlitz',
         topicId,
@@ -139,10 +151,8 @@ class ApiService {
   }
 
   public async startClozeMaster(topicId: string, difficultyLevel: DifficultyLevel): Promise<ClozeMasterInitResponse> {
-    const headers = await this.getAuthHeaders();
-    const res = await fetch(`${API_BASE}/games/start`, {
+    const res = await this.authFetch(`${API_BASE}/games/start`, {
       method: 'POST',
-      headers,
       body: JSON.stringify({
         gameType: 'ClozeMaster',
         topicId,
@@ -154,10 +164,8 @@ class ApiService {
   }
 
   public async startGrammarDetective(topicId: string, difficultyLevel: DifficultyLevel): Promise<GrammarDetectiveInitResponse> {
-    const headers = await this.getAuthHeaders();
-    const res = await fetch(`${API_BASE}/games/start`, {
+    const res = await this.authFetch(`${API_BASE}/games/start`, {
       method: 'POST',
-      headers,
       body: JSON.stringify({
         gameType: 'GrammarDetective',
         topicId,
@@ -169,10 +177,8 @@ class ApiService {
   }
 
   public async completeSession(req: CompleteSessionRequest): Promise<CompleteSessionResponse> {
-    const headers = await this.getAuthHeaders();
-    const res = await fetch(`${API_BASE}/games/session/complete`, {
+    const res = await this.authFetch(`${API_BASE}/games/session/complete`, {
       method: 'POST',
-      headers,
       body: JSON.stringify(req)
     });
     if (!res.ok) throw new Error('Không thể nộp kết quả phiên chơi');
@@ -184,8 +190,7 @@ class ApiService {
   }
 
   public async getLeaderboard(): Promise<LeaderboardResponse> {
-    const headers = await this.getAuthHeaders();
-    const res = await fetch(`${API_BASE}/leaderboard/weekly`, { headers });
+    const res = await this.authFetch(`${API_BASE}/leaderboard/weekly`);
     if (!res.ok) throw new Error('Không thể tải bảng xếp hạng');
     return res.json();
   }
@@ -195,25 +200,21 @@ class ApiService {
     page = 1,
     pageSize = 50
   ): Promise<import('../types/game').BattleLeaderboardResponse> {
-    const headers = await this.getAuthHeaders();
-    const res = await fetch(
-      `${API_BASE}/leaderboard/battle?type=${type}&page=${page}&pageSize=${pageSize}`,
-      { headers }
+    const res = await this.authFetch(
+      `${API_BASE}/leaderboard/battle?type=${type}&page=${page}&pageSize=${pageSize}`
     );
     if (!res.ok) throw new Error('Không thể tải bảng xếp hạng đấu thủ');
     return res.json();
   }
 
   public async getMyRank(): Promise<import('../types/game').UserRankProfileDto> {
-    const headers = await this.getAuthHeaders();
-    const res = await fetch(`${API_BASE}/users/me/rank`, { headers });
+    const res = await this.authFetch(`${API_BASE}/users/me/rank`);
     if (!res.ok) throw new Error('Không thể tải thông tin Rank cá nhân');
     return res.json();
   }
 
   public async getUserRank(userId: string): Promise<import('../types/game').UserRankProfileDto> {
-    const headers = await this.getAuthHeaders();
-    const res = await fetch(`${API_BASE}/users/${userId}/rank`, { headers });
+    const res = await this.authFetch(`${API_BASE}/users/${userId}/rank`);
     if (!res.ok) throw new Error('Không thể tải thông tin Rank người dùng');
     return res.json();
   }
@@ -222,10 +223,7 @@ class ApiService {
     page = 1,
     pageSize = 10
   ): Promise<import('../types/game').MatchHistoryResponse> {
-    const headers = await this.getAuthHeaders();
-    const res = await fetch(`${API_BASE}/matches/history?page=${page}&pageSize=${pageSize}`, {
-      headers
-    });
+    const res = await this.authFetch(`${API_BASE}/matches/history?page=${page}&pageSize=${pageSize}`);
     if (!res.ok) throw new Error('Không thể tải lịch sử trận đấu');
     return res.json();
   }

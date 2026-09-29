@@ -3,6 +3,7 @@ using System;
 using LearnEnglish.Api.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,98 +11,14 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LearnEnglish.Api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260929082545_AddFourSkillsLearningHub")]
+    partial class AddFourSkillsLearningHub
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.8");
-
-            modelBuilder.Entity("LearnEnglish.Api.Domain.Entities.AsyncChallenge", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("AttemptCount")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER")
-                        .HasDefaultValue(0);
-
-                    b.Property<string>("ChallengeToken")
-                        .IsRequired()
-                        .HasMaxLength(32)
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("CreatorScore")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<Guid>("CreatorUserId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("ExpiresAt")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("GameType")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("QuestionSnapshotJson")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ChallengeToken")
-                        .IsUnique();
-
-                    b.HasIndex("CreatorUserId");
-
-                    b.ToTable("async_challenges", (string)null);
-                });
-
-            modelBuilder.Entity("LearnEnglish.Api.Domain.Entities.AsyncChallengeAttempt", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid>("ChallengeId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("CompletedAt")
-                        .HasColumnType("TEXT");
-
-                    b.Property<bool>("IsWinner")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER")
-                        .HasDefaultValue(false);
-
-                    b.Property<string>("ParticipantName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid?>("ParticipantUserId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("Score")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER")
-                        .HasDefaultValue(0);
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ParticipantUserId");
-
-                    b.HasIndex("ChallengeId", "Score");
-
-                    b.ToTable("async_challenge_attempts", (string)null);
-                });
 
             modelBuilder.Entity("LearnEnglish.Api.Domain.Entities.AudioBlitzQuestion", b =>
                 {
@@ -748,100 +665,6 @@ namespace LearnEnglish.Api.Migrations
                     b.ToTable("skill_domain_games", (string)null);
                 });
 
-            modelBuilder.Entity("LearnEnglish.Api.Domain.Entities.SquadMember", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<bool>("HasClaimedWeeklyChest")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER")
-                        .HasDefaultValue(false);
-
-                    b.Property<DateTime>("JoinedAt")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Role")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(20)
-                        .HasColumnType("TEXT")
-                        .HasDefaultValue("Member");
-
-                    b.Property<Guid>("SquadId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("WeeklyContributedXp")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER")
-                        .HasDefaultValue(0);
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.HasIndex("SquadId", "UserId")
-                        .IsUnique();
-
-                    b.HasIndex("SquadId", "WeeklyContributedXp");
-
-                    b.ToTable("squad_members", (string)null);
-                });
-
-            modelBuilder.Entity("LearnEnglish.Api.Domain.Entities.StudySquad", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("CurrentMembersCount")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER")
-                        .HasDefaultValue(1);
-
-                    b.Property<string>("Description")
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid>("LeaderUserId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("MaxMembers")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER")
-                        .HasDefaultValue(10);
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("SquadCode")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("TotalAccumulatedXp")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER")
-                        .HasDefaultValue(0);
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("LeaderUserId");
-
-                    b.HasIndex("SquadCode")
-                        .IsUnique();
-
-                    b.ToTable("study_squads", (string)null);
-                });
-
             modelBuilder.Entity("LearnEnglish.Api.Domain.Entities.Topic", b =>
                 {
                     b.Property<Guid>("Id")
@@ -928,157 +751,6 @@ namespace LearnEnglish.Api.Migrations
                         .IsUnique();
 
                     b.ToTable("users", (string)null);
-                });
-
-            modelBuilder.Entity("LearnEnglish.Api.Domain.Entities.UserHabitState", b =>
-                {
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateOnly?>("ActiveClaimedDate")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("CurrentStreak")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER")
-                        .HasDefaultValue(0);
-
-                    b.Property<bool>("EarlyBirdClaimed")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateOnly?>("LastActiveDate")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("MaxStreak")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER")
-                        .HasDefaultValue(0);
-
-                    b.Property<bool>("MiddayClaimed")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<bool>("NightOwlClaimed")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTime?>("StreakBrokenAt")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("StreakFreezeCount")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER")
-                        .HasDefaultValue(0);
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("UserId");
-
-                    b.ToTable("user_habit_states", (string)null);
-                });
-
-            modelBuilder.Entity("LearnEnglish.Api.Domain.Entities.UserMistakeBank", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("AudioUrl")
-                        .HasMaxLength(500)
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("ConsecutiveSuccesses")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER")
-                        .HasDefaultValue(0);
-
-                    b.Property<string>("ContextSentence")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("CorrectAnswer")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("TEXT");
-
-                    b.Property<decimal>("EaseFactor")
-                        .ValueGeneratedOnAdd()
-                        .HasPrecision(4, 2)
-                        .HasColumnType("TEXT")
-                        .HasDefaultValue(2.50m);
-
-                    b.Property<string>("Explanation")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("IntervalDays")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER")
-                        .HasDefaultValue(1);
-
-                    b.Property<int?>("LastEvaluatedQuality")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTime>("LastFailedAt")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("NextReviewDate")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("OriginGameType")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Phonetic")
-                        .HasMaxLength(100)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Prompt")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("QuestionId")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("RepetitionCount")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER")
-                        .HasDefaultValue(0);
-
-                    b.Property<string>("SkillType")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(20)
-                        .HasColumnType("TEXT")
-                        .HasDefaultValue("Learning");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("WrongAttemptsJson")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId", "QuestionId");
-
-                    b.HasIndex("UserId", "SkillType");
-
-                    b.HasIndex("UserId", "Status", "NextReviewDate");
-
-                    b.ToTable("user_mistake_banks", (string)null);
                 });
 
             modelBuilder.Entity("LearnEnglish.Api.Domain.Entities.UserProfile", b =>
@@ -1241,91 +913,6 @@ namespace LearnEnglish.Api.Migrations
                     b.ToTable("user_skill_progress", (string)null);
                 });
 
-            modelBuilder.Entity("LearnEnglish.Api.Domain.Entities.WeeklyLeague", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("LeagueTier")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("MaxParticipants")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER")
-                        .HasDefaultValue(30);
-
-                    b.Property<string>("RoomCode")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(20)
-                        .HasColumnType("TEXT")
-                        .HasDefaultValue("Active");
-
-                    b.Property<DateOnly>("WeekEndDate")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateOnly>("WeekStartDate")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("WeekStartDate", "LeagueTier", "RoomCode")
-                        .IsUnique();
-
-                    b.ToTable("weekly_leagues", (string)null);
-                });
-
-            modelBuilder.Entity("LearnEnglish.Api.Domain.Entities.WeeklyLeagueMember", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<int?>("FinalRank")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTime>("JoinedAt")
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid>("LeagueId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("OutcomeStatus")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(20)
-                        .HasColumnType("TEXT")
-                        .HasDefaultValue("Pending");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("WeeklyXp")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER")
-                        .HasDefaultValue(0);
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.HasIndex("LeagueId", "UserId")
-                        .IsUnique();
-
-                    b.HasIndex("LeagueId", "WeeklyXp");
-
-                    b.ToTable("weekly_league_members", (string)null);
-                });
-
             modelBuilder.Entity("LearnEnglish.Api.Domain.Entities.Word", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1375,35 +962,6 @@ namespace LearnEnglish.Api.Migrations
                     b.HasIndex("TopicId");
 
                     b.ToTable("words", (string)null);
-                });
-
-            modelBuilder.Entity("LearnEnglish.Api.Domain.Entities.AsyncChallenge", b =>
-                {
-                    b.HasOne("LearnEnglish.Api.Domain.Entities.User", "Creator")
-                        .WithMany()
-                        .HasForeignKey("CreatorUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Creator");
-                });
-
-            modelBuilder.Entity("LearnEnglish.Api.Domain.Entities.AsyncChallengeAttempt", b =>
-                {
-                    b.HasOne("LearnEnglish.Api.Domain.Entities.AsyncChallenge", "Challenge")
-                        .WithMany("Attempts")
-                        .HasForeignKey("ChallengeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("LearnEnglish.Api.Domain.Entities.User", "ParticipantUser")
-                        .WithMany()
-                        .HasForeignKey("ParticipantUserId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.Navigation("Challenge");
-
-                    b.Navigation("ParticipantUser");
                 });
 
             modelBuilder.Entity("LearnEnglish.Api.Domain.Entities.AudioBlitzQuestion", b =>
@@ -1551,58 +1109,6 @@ namespace LearnEnglish.Api.Migrations
                     b.Navigation("SkillDomain");
                 });
 
-            modelBuilder.Entity("LearnEnglish.Api.Domain.Entities.SquadMember", b =>
-                {
-                    b.HasOne("LearnEnglish.Api.Domain.Entities.StudySquad", "Squad")
-                        .WithMany("Members")
-                        .HasForeignKey("SquadId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("LearnEnglish.Api.Domain.Entities.User", "User")
-                        .WithMany("SquadMemberships")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Squad");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("LearnEnglish.Api.Domain.Entities.StudySquad", b =>
-                {
-                    b.HasOne("LearnEnglish.Api.Domain.Entities.User", "Leader")
-                        .WithMany()
-                        .HasForeignKey("LeaderUserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Leader");
-                });
-
-            modelBuilder.Entity("LearnEnglish.Api.Domain.Entities.UserHabitState", b =>
-                {
-                    b.HasOne("LearnEnglish.Api.Domain.Entities.User", "User")
-                        .WithOne("HabitState")
-                        .HasForeignKey("LearnEnglish.Api.Domain.Entities.UserHabitState", "UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("LearnEnglish.Api.Domain.Entities.UserMistakeBank", b =>
-                {
-                    b.HasOne("LearnEnglish.Api.Domain.Entities.User", "User")
-                        .WithMany("MistakeBanks")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("LearnEnglish.Api.Domain.Entities.UserProfile", b =>
                 {
                     b.HasOne("LearnEnglish.Api.Domain.Entities.User", "User")
@@ -1644,25 +1150,6 @@ namespace LearnEnglish.Api.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("LearnEnglish.Api.Domain.Entities.WeeklyLeagueMember", b =>
-                {
-                    b.HasOne("LearnEnglish.Api.Domain.Entities.WeeklyLeague", "League")
-                        .WithMany("Members")
-                        .HasForeignKey("LeagueId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("LearnEnglish.Api.Domain.Entities.User", "User")
-                        .WithMany("LeagueMemberships")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("League");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("LearnEnglish.Api.Domain.Entities.Word", b =>
                 {
                     b.HasOne("LearnEnglish.Api.Domain.Entities.Topic", "Topic")
@@ -1672,11 +1159,6 @@ namespace LearnEnglish.Api.Migrations
                         .IsRequired();
 
                     b.Navigation("Topic");
-                });
-
-            modelBuilder.Entity("LearnEnglish.Api.Domain.Entities.AsyncChallenge", b =>
-                {
-                    b.Navigation("Attempts");
                 });
 
             modelBuilder.Entity("LearnEnglish.Api.Domain.Entities.MatchSession", b =>
@@ -1698,11 +1180,6 @@ namespace LearnEnglish.Api.Migrations
                     b.Navigation("UserProgresses");
                 });
 
-            modelBuilder.Entity("LearnEnglish.Api.Domain.Entities.StudySquad", b =>
-                {
-                    b.Navigation("Members");
-                });
-
             modelBuilder.Entity("LearnEnglish.Api.Domain.Entities.Topic", b =>
                 {
                     b.Navigation("GameSessions");
@@ -1718,26 +1195,13 @@ namespace LearnEnglish.Api.Migrations
 
                     b.Navigation("GameSessions");
 
-                    b.Navigation("HabitState");
-
-                    b.Navigation("LeagueMemberships");
-
                     b.Navigation("MatchParticipations");
-
-                    b.Navigation("MistakeBanks");
 
                     b.Navigation("Profile");
 
                     b.Navigation("Rank");
 
                     b.Navigation("SkillProgresses");
-
-                    b.Navigation("SquadMemberships");
-                });
-
-            modelBuilder.Entity("LearnEnglish.Api.Domain.Entities.WeeklyLeague", b =>
-                {
-                    b.Navigation("Members");
                 });
 #pragma warning restore 612, 618
         }
