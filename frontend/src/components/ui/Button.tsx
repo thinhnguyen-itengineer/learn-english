@@ -17,8 +17,14 @@ export type ButtonVariant =
   | 'reading'
   | 'amber'
   | 'writing'
-  | 'rose'
-  | 'speaking';
+  | 'rose' 
+  | 'speaking'
+  | 'ice'
+  | 'frost'
+  | 'squad'
+  | 'clinic'
+  | 'promo'
+  | 'demote';
 
 export type ButtonSize = 'sm' | 'md' | 'lg' | 'xl' | 'icon';
 
@@ -66,6 +72,18 @@ const variantStyles: Record<ButtonVariant, string> = {
     'bg-rose-500 hover:bg-rose-400 text-white font-bold shadow-[0_4px_0_#be123c] active:shadow-none active:translate-y-[4px] border-b-2 border-rose-600',
   speaking: 
     'bg-rose-500 hover:bg-rose-400 text-white font-bold shadow-[0_4px_0_#be123c] active:shadow-none active:translate-y-[4px] border-b-2 border-rose-600',
+  ice:
+    'bg-sky-400 hover:bg-sky-300 text-sky-950 font-black shadow-[0_4px_0_#0284c7] active:shadow-none active:translate-y-[4px] border-b-2 border-sky-500',
+  frost:
+    'bg-cyan-500 hover:bg-cyan-400 text-cyan-950 font-black shadow-[0_4px_0_#0e7490] active:shadow-none active:translate-y-[4px] border-b-2 border-cyan-600',
+  squad:
+    'bg-indigo-600 hover:bg-indigo-500 text-white font-bold shadow-[0_4px_0_#4338ca] active:shadow-none active:translate-y-[4px] border-b-2 border-indigo-700',
+  clinic:
+    'bg-teal-600 hover:bg-teal-500 text-white font-bold shadow-[0_4px_0_#0f766e] active:shadow-none active:translate-y-[4px] border-b-2 border-teal-700',
+  promo:
+    'bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold shadow-[0_4px_0_#047857] active:shadow-none active:translate-y-[4px] border-b-2 border-emerald-700',
+  demote:
+    'bg-rose-600 hover:bg-rose-500 text-white font-extrabold shadow-[0_4px_0_#b91c1c] active:shadow-none active:translate-y-[4px] border-b-2 border-rose-700',
 };
 
 const sizeStyles: Record<ButtonSize, string> = {

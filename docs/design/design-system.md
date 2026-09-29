@@ -732,4 +732,149 @@ import {
 </div>
 ```
 
+---
+
+## 19. Hệ Thống Giữ Chân Người Dùng & Gamification Nâng Cao (Retention Ecosystem - PHU-18)
+
+Dựa trên đặc tả nghiệp vụ [`docs/spec/retention-and-gamification-expansion.md`](../spec/retention-and-gamification-expansion.md) và thiết kế kiến trúc [`docs/architecture/retention-and-gamification-architecture.md`](../architecture/retention-and-gamification-architecture.md), hệ thống giao diện được mở rộng để xây dựng thói quen học tập bền vững (Habit-Forming Learning Loop), tối ưu hóa tỷ lệ giữ chân D1, D7, D30 và gia tăng tính gắn kết cộng đồng.
+
+### 19.1. Bảng Màu & Tokens Hệ Thống Giữ Chân Mới
+
+| Nhóm Token | Màu Sắc Đại Diện | Hex / CSS Class | Ứng Dụng Giao Diện & Tâm Lý Học Hành Vi |
+| :--- | :--- | :--- | :--- |
+| **`clinic`** | Xanh Ngọc Y Tế / Mint | `#0d9488` (Teal 600)<br>`#10b981` (Mint 500) | **Phòng Khám Lỗi Sai (Weakness Clinic):** Mang lại cảm giác chữa lành, trị dứt điểm lỗ hổng kiến thức thay vì cảm giác bị phạt khi làm sai. |
+| **`clinic.again`** | Đỏ Cam Cảnh Báo | `#ef4444` (Rose 500) | Nút lặp lại SM-2 ($q < 3$): Quên hẳn hoặc sai sót lớn, cần ôn lại sau 24h. |
+| **`clinic.good`** | Xanh Biển Trí Tuệ | `#3b82f6` (Blue 500) | Nút nhớ tốt SM-2 ($q = 4$): Nhớ chính xác, tăng khoảng cách ôn tập lên $3 \to 7$ ngày. |
+| **`clinic.easy`** | Xanh Ngọc Thuần Thục | `#10b981` (Emerald 500) | Nút dễ như chớp SM-2 ($q = 5$): Phản xạ tức thì, tăng hệ số $EF$. |
+| **`freeze.ice`** | Lam Băng Tinh Thể | `#38bdf8` (Sky 400)<br>`#0284c7` (Sky 600) | **Băng Bảo Vệ Chuỗi (Streak Freeze):** Tinh thể băng giá bao phủ ngọn lửa, bảo tồn chuỗi streak qua ngày bận rộn. |
+| **`chest.morning`**| Hổ Phách Bình Minh | `#f59e0b` (Amber 500)<br>`#b45309` (Amber 700) | **Hòm Bình Minh (06:00 - 10:00):** Đánh thức ngày mới với +20% XP Booster (30m). |
+| **`chest.noon`** | Lam Ngọc Năng Lượng | `#06b6d4` (Cyan 500)<br>`#0891b2` (Cyan 600) | **Hòm Năng Lượng (11:30 - 13:30):** Tận dụng giờ nghỉ trưa so tài nhận Vé đấu 1v1 miễn phí. |
+| **`chest.night`**| Tử Sắc Kỳ Bí | `#a855f7` (Purple 500)<br>`#7e22ce` (Purple 700) | **Hòm Báu Ngày (Reset 23:59):** Phần thưởng biến đổi Gacha (Coins, XP, Mảnh Freeze hiếm). |
+| **`squad.brand`** | Lam Tím Đồng Đội | `#6366f1` (Indigo 500)<br>`#4338ca` (Indigo 700) | **Study Squads (Nhóm Học Tập 5-10 bạn):** Biểu trưng cho sự đoàn kết, trách nhiệm và tinh thần đồng đội. |
+| **`squad.mvp`** | Vàng Hoàng Kim MVP | `#facc15` (Yellow 400) | Vương miện vinh danh thành viên đóng góp nhiều XP nhất cho nhóm trong tuần. |
+| **`league.promo`**| Xanh Thăng Hạng | `#10b981` (Emerald 500) | **Top 1 - 7 Vùng Thăng Hạng:** Mũi tên xanh vươn lên, hứa hẹn tiến vào giải đấu cao hơn. |
+| **`league.safe`** | Xám Tro Trụ Hạng | `#64748b` (Slate 500) | **Top 8 - 25 Vùng An Toàn:** Vững vàng vị trí hiện tại. |
+| **`league.demote`**| Đỏ Cảnh Báo Rớt | `#ef4444` (Rose 500) | **Top 26 - 30 Vùng Rớt Hạng:** Cảnh báo nguy cơ tụt hạng cuối tuần (trừ Bronze). |
+| **`phoneme.green`**| Xanh Bản Xứ ($\ge 85\%$) | `#10b981` (Emerald 500) | Âm vị chuẩn xác, tròn vành rõ chữ. |
+| **`phoneme.yellow`**| Vàng Cần Lưu Ý ($60-84\%$) | `#f59e0b` (Amber 500) | Phát âm tạm ổn, cần chú ý trọng âm hoặc âm gió. |
+| **`phoneme.red`** | Đỏ Sai Lệch ($< 60\%$) | `#ef4444` (Rose 500) | Nuốt âm, lệch âm vị hoặc thiếu âm đuôi (ending sounds). |
+
+---
+
+### 19.2. Hệ Thống 3D Depth Shadows & Micro-Animations
+
+Các tokens 3D depth và keyframe animations được tối ưu hóa cho trải nghiệm bấm phím cơ học:
+
+```css
+/* 3D Tactile Buttons & Cards */
+boxShadow: {
+  '3d-ice': '0 4px 0 #0284c7',
+  '3d-frost': '0 4px 0 #0369a1',
+  '3d-squad': '0 4px 0 #4338ca',
+  '3d-clinic': '0 4px 0 #0f766e',
+  '3d-chest-morning': '0 4px 0 #b45309',
+  '3d-chest-noon': '0 4px 0 #0891b2',
+  '3d-chest-night': '0 4px 0 #7e22ce',
+  '3d-promo': '0 4px 0 #047857',
+  '3d-demote': '0 4px 0 #b91c1c',
+  'glow-ice': '0 0 25px rgba(56, 189, 248, 0.5)',
+  'glow-squad': '0 0 25px rgba(99, 102, 241, 0.5)',
+  'glow-clinic': '0 0 25px rgba(13, 148, 136, 0.5)',
+  'glow-chest': '0 0 30px rgba(245, 158, 11, 0.55)',
+}
+
+/* Micro-Animations */
+keyframes: {
+  'ice-sparkle': { '0%, 100%': { opacity: '0.6', transform: 'scale(0.95)' }, '50%': { opacity: '1', transform: 'scale(1.05)' } },
+  'chest-bounce': { '0%, 100%': { transform: 'translateY(0) rotate(0deg)' }, '25%': { transform: 'translateY(-6px) rotate(-2deg)' }, '75%': { transform: 'translateY(-4px) rotate(2deg)' } },
+  'pulse-ring': { '0%': { transform: 'scale(0.95)', opacity: '0.8' }, '50%': { transform: 'scale(1.15)', opacity: '0.3' }, '100%': { transform: 'scale(0.95)', opacity: '0.8' } }
+}
+```
+
+---
+
+### 19.3. Danh Sách Components Mới (`frontend/src/components/ui/`)
+
+| Tên Component | File Path | Mục Đích Sử Dụng & Hành Vi Giao Diện |
+| :--- | :--- | :--- |
+| **`WeaknessClinicCard`** | `src/components/ui/WeaknessClinicCard.tsx` | Thẻ lật 3D Phòng Khám Lỗi Sai với thuật toán lặp lại ngắt quãng SuperMemo-2. Mặt trước: câu hỏi, từ bị sai gạch đỏ; Mặt sau: đáp án chuẩn, phiên âm IPA, giải thích ngữ pháp và 4 nút đánh giá $q \in \{1, 2, 4, 5\}$. Khi hoàn thành toàn bộ thẻ, hiển thị màn hình chúc mừng danh hiệu "Bác Sĩ Trị Lỗi". |
+| **`StreakFreezeCard`** | `src/components/ui/StreakFreezeCard.tsx` | Quản lý chuỗi ngày học phong cách Duolingo, hiển thị ngọn lửa rực cháy, 2 ô hòm đồ Băng Bảo Vệ Chuỗi, tính năng mua vật phẩm 100 Coins (chặn mua quá giới hạn 2/2) và banner cứu chuỗi 24h khẩn cấp (200 Coins). |
+| **`DailyTimeChestsCard`** | `src/components/ui/DailyTimeChestsCard.tsx` | 3 Hòm báu khung giờ vàng (Bình Minh 06-10h, Năng Lượng 11:30-13:30h, Đóng Ngày 23:59h). Trạng thái động: Sẵn sàng mở (nhún nhảy phát sáng), Chưa tới giờ (ổ khóa đếm ngược), Đã nhận và Đã qua giờ. |
+| **`WeeklyLeagueCard`** | `src/components/ui/WeeklyLeagueCard.tsx` | Bảng xếp hạng tuần phòng đấu 30 người (Rolling 30-Player Cohort) theo 5 cấp bậc (Bronze -> Diamond). Phân chia 3 vùng trực quan: Thăng Hạng (Top 1-7, xanh lá), An Toàn (Top 8-25, xám), Rớt Hạng (Top 26-30, đỏ). Thanh vị trí người dùng ghim cố định đáy màn hình. |
+| **`StudySquadCard`** | `src/components/ui/StudySquadCard.tsx` | Nhóm học tập hợp tác 5 - 10 thành viên: hiển thị mã mời nhóm 6 ký tự kèm nút sao chép 1 chạm, thanh tiến trình mở khóa 3 bậc rương tuần (1,000 XP, 2,500 XP, 5,000 XP), kiểm tra điều kiện chống ngồi mát ăn bát vàng ($\ge 100\text{ XP}$) và danh hiệu Squad MVP. |
+| **`AsyncChallengeCard`** | `src/components/ui/AsyncChallengeCard.tsx` | Thách đấu bất đồng bộ qua liên kết chia sẻ (Viral Ghost Race): so sánh điểm số song song giữa Người thách đấu vs Đối thủ, hiển thị thời gian giới hạn và phần thưởng Coins (+50 khi phá kỷ lục). |
+| **`PhonemeHeatmapCard`** | `src/components/ui/PhonemeHeatmapCard.tsx` | Bản đồ nhiệt âm vị AI Luyện Nói: câu mẫu tách nhỏ theo từng âm vị IPA với 3 sắc thái màu (Xanh $\ge 85\%$, Vàng $60-84\%$, Đỏ $< 60\%$), bấm vào từng âm để nghe phân tích khẩu hình, kèm bảng điểm 4 chỉ số (Tổng điểm, Trôi chảy, Phát âm, Ngữ pháp) và cấp độ CEFR. |
+
+---
+
+### 19.4. Hướng Dẫn Tích Hợp Kỹ Thuật (Developer Integration Snippet)
+
+Senior Fullstack Engineer có thể import và sử dụng toàn bộ thư viện Retention UI trực tiếp từ `@/components/ui`:
+
+```tsx
+import {
+  WeaknessClinicCard,
+  StreakFreezeCard,
+  DailyTimeChestsCard,
+  WeeklyLeagueCard,
+  StudySquadCard,
+  AsyncChallengeCard,
+  PhonemeHeatmapCard,
+} from '@/components/ui';
+
+// 1. Tích hợp Phòng Khám Lỗi Sai (Weakness Clinic)
+<WeaknessClinicCard
+  mistakes={dueMistakes}
+  onRateMistake={(mistakeId, ratingQ) => {
+    reviewMistakeApi(mistakeId, ratingQ);
+  }}
+  onCompleteSession={() => {
+    refetchUserStats();
+  }}
+/>
+
+// 2. Tích hợp Quản Lý Chuỗi & Cửa Hàng Băng Bảo Vệ
+<StreakFreezeCard
+  currentStreak={userStreak.currentStreak}
+  maxStreak={userStreak.maxStreak}
+  freezeCount={userStreak.freezeCount}
+  userCoins={userProfile.coins}
+  isFrozenYesterday={userStreak.isFrozenYesterday}
+  canRepairStreak={userStreak.canRepairStreak}
+  onBuyFreeze={handleBuyFreeze}
+  onRepairStreak={handleRepairStreak}
+/>
+
+// 3. Tích hợp Hòm Báu 3 Khung Giờ
+<DailyTimeChestsCard
+  chests={dailyChests}
+  onClaimChest={(chestType) => {
+    claimDailyChestApi(chestType);
+  }}
+/>
+
+// 4. Tích hợp Bảng Xếp Hạng Tuần 30 Người
+<WeeklyLeagueCard
+  currentTier={userLeague.tier}
+  roomNumber={userLeague.roomNumber}
+  timeLeftText="2 ngày 14 giờ"
+  standings={leagueStandings}
+  currentUserId={currentUserId}
+/>
+
+// 5. Tích hợp Nhóm Học Tập Hợp Tác
+<StudySquadCard
+  squadId={mySquad.id}
+  squadName={mySquad.name}
+  inviteCode={mySquad.inviteCode}
+  memberCount={mySquad.members.length}
+  currentWeeklyXp={mySquad.currentWeeklyXp}
+  chestTierUnlocked={mySquad.chestTierUnlocked}
+  userContribution={mySquad.userContribution}
+  members={mySquad.members}
+  onClaimSquadChest={(tier) => handleClaimSquadChest(tier)}
+/>
+```
+
+
 

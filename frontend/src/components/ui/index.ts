@@ -43,3 +43,26 @@ export * from './SkimScanCard';
 export * from './CollocationSatelliteCard';
 export * from './MinimalPairsCard';
 export * from './SkillBadgeModal';
+
+// Retention & Gamification Ecosystem (PHU-18)
+// 1. Weakness Clinic & Spaced Repetition (SRS Flashcards)
+export * from './WeaknessClinicCard';
+
+// 2. Daily Streak & Freeze Shop & 24h Repair
+export * from './StreakFreezeCard';
+
+// 3. Daily Golden Window Chests (Morning, Noon, Night)
+export * from './DailyTimeChestsCard';
+
+// 4. Weekly 30-Player Cohort Tiered League
+export * from './WeeklyLeagueCard';
+
+// 5. Collaborative Study Squads & Squad Mega Chest
+export * from './StudySquadCard';
+
+// 6. Asynchronous Viral Challenge & Ghost Race
+export * from './AsyncChallengeCard';
+
+// 7. AI Speaking Partner & Phoneme Heatmap
+export * from './PhonemeHeatmapCard';
+
