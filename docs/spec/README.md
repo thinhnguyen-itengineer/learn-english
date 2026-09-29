@@ -78,11 +78,12 @@ Hệ thống tài liệu spec được chia thành các file chuyên sâu phục
       2. *4 Trụ cột chiến lược đột phá:* Token Economy (Learn-to-Earn & Sinks), Hệ thống 2D Modular Layered Avatar, Cửa hàng vật phẩm & Phòng thử đồ (Live Fitting Room), Hồ sơ cá nhân & Hiển thị diện rộng (Navbar, Leaderboard, 1v1 Battle, Squads).
       3. *Lộ trình phân kỳ & Kế hoạch điều phối:* Phân công chi tiết cho Product BA, Tech Lead, UI/UX Designer và Senior Fullstack Engineer.
 11. [avatar-customization-and-gamified-shop.md](./avatar-customization-and-gamified-shop.md):
-    - **Đặc tả nghiệp vụ chi tiết Hệ thống Avatar & Cửa Hàng Vật Phẩm (Sắp phát hành - Product BA đang thực hiện):**
-      - Quy tắc phân bổ thưởng Token theo 4 kỹ năng & mini-games.
-      - Cấu trúc dữ liệu phân tầng Avatar (Z-Index, Color Palettes, Default Presets).
-      - Danh mục Cửa Hàng, Bảng thông số vật phẩm & Hệ thống độ hiếm (Common, Rare, Epic, Legendary).
-      - Mô hình dữ liệu PostgreSQL DDL, EF Core C# Entities, TypeScript Interfaces, RESTful APIs và kịch bản nghiệm thu Given-When-Then.
+    - **Đặc tả nghiệp vụ & thiết kế chức năng Hệ thống Avatar, Cửa Hàng Vật Phẩm & Token Economy (PHU-20 / PHU-21):**
+      - *Kinh tế Token (Learn-to-Earn):* Bảng phân bổ Token theo 4 kỹ năng (Nghe, Đọc, Viết, Nói), 6 mini-game cốt lõi, thưởng 1v1 Battle, mốc Streak và mở Hòm 3 khung giờ; cơ chế Soft-cap chống lạm phát & Sổ cái giao dịch bất biến (Token Ledger).
+      - *Nhân vật 2D phân tầng (Modular Layered Avatar):* Ma trận Z-Index 11 lớp (Aura/Bục -> Body -> Face/Expressions -> Hair -> Outfits -> Footwear -> Headwear -> Eyewear -> Handheld); Bộ tùy biến miễn phí tân thủ (8 màu da, 10 kiểu tóc, 3 biểu cảm, đồ khởi đầu) & JSON Schema chuẩn.
+      - *Cửa hàng vật phẩm & Phòng thử đồ (Live Fitting Room):* Hệ thống 4 cấp độ hiếm (Common, Rare, Epic, Legendary); Danh mục chi tiết 28+ vật phẩm mẫu kèm metadata SVG; Luồng thử đồ trực quan 2 cột & Mua sắm 1-click / Mua cả giỏ; Tủ đồ cá nhân (Inventory) & Lưu tối đa 3 bộ phối đồ yêu thích (Presets).
+      - *Hồ sơ cá nhân (Profile) & Điểm chạm toàn diện:* Thiết kế layout Profile vinh danh, Radar năng lực 4 kỹ năng, Tủ huy hiệu; Hiển thị đồng bộ Avatar trên Header Navbar, Bục vinh quang Bảng xếp hạng tuần Top 1-2-3, Màn hình ghép trận 1v1 (Versus & Victory) và Nhóm học tập (Study Squads).
+      - *Thiết kế Kỹ thuật & Nghiệm thu:* Schema CSDL PostgreSQL DDL, C# EF Core 8 Entities, TypeScript Interfaces, 10 RESTful API endpoints và 7 kịch bản nghiệm thu kiểm thử Given-When-Then.
 
 ---
 
