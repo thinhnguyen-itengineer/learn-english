@@ -51,22 +51,32 @@ Hệ thống tài liệu spec được chia thành các file chuyên sâu phục
    - Luật chơi, win/lose logic, timers, scoring mechanisms và gamification feedback loops (Streak, Coins, Level progress).
    - Thiết kế lược đồ CSDL PostgreSQL, C# EF Core entities, TypeScript interfaces và sample mock JSON.
    - Tiêu chí nghiệm thu (Given-When-Then) chi tiết cho QA và Tech Lead.
+7. [four-skills-learning-hub.md](./four-skills-learning-hub.md):
+   - **Tái cấu trúc Cổng vào (Learning Hub Gateway):** Người dùng truy cập KHÔNG thấy game dàn trải liền, mà được chào đón bởi **Cổng Trung Tâm 4 Kỹ Năng: 🎧 Nghe (Listening) - 📖 Đọc (Reading) - ✍️ Viết (Writing) - 🗣️ Nói (Speaking)**.
+   - Bản đồ ma trận phân bổ 16 mini-game theo 4 kỹ năng sư phạm (kế thừa nghiên cứu từ *The IELTS Dictionary*).
+   - Đặc tả chi tiết các mini-game mới theo từng kỹ năng: `Dictation Dash` (Nghe), `Skim & Scan Sprint` (Đọc), `Collocation Chain` (Viết), `Minimal Pairs Duel` (Nói).
+   - Cơ chế Gamification toàn diện: Radar Chart 4 kỹ năng (Skill Mastery Matrix), Nhiệm vụ Cân bằng Hàng ngày (Balanced Learner Daily Bonus +50 Coins & +100 XP), Hệ thống huy hiệu theo từng kỹ năng.
+   - Thiết kế CSDL PostgreSQL, C# EF Core entities, TypeScript interfaces, RESTful APIs và kịch bản nghiệm thu Given-When-Then.
 
 ---
 
-## 3. Bản Đồ Trạng Thái Phiên Chơi (Game Session State Flow)
+## 3. Bản Đồ Hành Trình Học Tập & Vòng Đời Phiên Chơi (User Journey & Session State Flow)
 
 ```mermaid
 stateDiagram-v2
-    [*] --> Lobby: Chọn chủ đề & Game
-    Lobby --> Initializing: Bấm "Bắt đầu chơi"
-    Initializing --> Playing: Tải bộ câu hỏi / từ vựng thành công (HTTP 200)
-    Playing --> Paused: Người chơi bấm Tạm dừng
-    Paused --> Playing: Bấm Tiếp tục
-    Playing --> RoundFinished: Hoàn thành màn / Hết giờ / Hết mạng (Lives = 0)
-    RoundFinished --> Submitting: Gửi kết quả về Backend (/api/v1/games/session/complete)
-    Submitting --> SummaryModal: Hiển thị XP, Score, Combo, Level Up (nếu có)
-    SummaryModal --> Lobby: Quay về sảnh
+    [*] --> FourSkillsHub: Vào ứng dụng (Cổng 4 Kỹ Năng)
+    FourSkillsHub --> SkillAcademy: Chọn 1 trong 4 kỹ năng (Nghe / Đọc / Viết / Nói)
+    FourSkillsHub --> SmartAdaptive: Bấm 'Luyện tập thông minh' (Kỹ năng yếu nhất)
+    SkillAcademy --> GameLobby: Chọn Mini-game & Chế độ (Luyện tập / Đua rank)
+    SmartAdaptive --> GameLobby: Tự động điều hướng vào game tối ưu
+    GameLobby --> Initializing: Bấm "Bắt đầu chơi"
+    Initializing --> Playing: Tải bộ câu hỏi / audio thành công
+    Playing --> Paused: Tạm dừng
+    Paused --> Playing: Tiếp tục
+    Playing --> RoundFinished: Hoàn thành / Hết giờ / Hết mạng
+    RoundFinished --> Submitting: Gửi kết quả về Backend
+    Submitting --> SummaryModal: Hiển thị XP kỹ năng, Mastery Score, Radar Update
+    SummaryModal --> FourSkillsHub: Quay về Cổng 4 Kỹ Năng (Kiểm tra Balanced Bonus)
     SummaryModal --> Initializing: Chơi lại (Play Again)
 ```
 
