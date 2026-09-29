@@ -31,7 +31,10 @@ public class AppDbContext : DbContext
         {
             entity.ToTable("users");
             entity.HasKey(e => e.Id);
-            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+            if (Database.ProviderName?.Contains("Npgsql", StringComparison.OrdinalIgnoreCase) == true)
+            {
+                entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+            }
             entity.Property(e => e.Username).HasMaxLength(100).IsRequired();
             entity.HasIndex(e => e.Username).IsUnique();
             entity.Property(e => e.Email).HasMaxLength(255);
