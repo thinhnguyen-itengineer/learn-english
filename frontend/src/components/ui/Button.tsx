@@ -10,7 +10,15 @@ export type ButtonVariant =
   | 'azure' 
   | 'purple' 
   | 'outline' 
-  | 'ghost';
+  | 'ghost'
+  | 'sky'
+  | 'listening'
+  | 'emerald'
+  | 'reading'
+  | 'amber'
+  | 'writing'
+  | 'rose'
+  | 'speaking';
 
 export type ButtonSize = 'sm' | 'md' | 'lg' | 'xl' | 'icon';
 
@@ -42,6 +50,22 @@ const variantStyles: Record<ButtonVariant, string> = {
     'bg-transparent hover:bg-slate-800/60 text-slate-200 border-2 border-slate-600 shadow-[0_3px_0_#334155] active:shadow-none active:translate-y-[3px]',
   ghost: 
     'bg-transparent hover:bg-slate-800/40 text-slate-300 active:bg-slate-800/80',
+  sky: 
+    'bg-sky-500 hover:bg-sky-400 text-white font-bold shadow-[0_4px_0_#0369a1] active:shadow-none active:translate-y-[4px] border-b-2 border-sky-600',
+  listening: 
+    'bg-sky-500 hover:bg-sky-400 text-white font-bold shadow-[0_4px_0_#0369a1] active:shadow-none active:translate-y-[4px] border-b-2 border-sky-600',
+  emerald: 
+    'bg-emerald-500 hover:bg-emerald-400 text-white font-bold shadow-[0_4px_0_#047857] active:shadow-none active:translate-y-[4px] border-b-2 border-emerald-600',
+  reading: 
+    'bg-emerald-500 hover:bg-emerald-400 text-white font-bold shadow-[0_4px_0_#047857] active:shadow-none active:translate-y-[4px] border-b-2 border-emerald-600',
+  amber: 
+    'bg-amber-500 hover:bg-amber-400 text-yellow-950 font-black shadow-[0_4px_0_#b45309] active:shadow-none active:translate-y-[4px] border-b-2 border-amber-600',
+  writing: 
+    'bg-amber-500 hover:bg-amber-400 text-yellow-950 font-black shadow-[0_4px_0_#b45309] active:shadow-none active:translate-y-[4px] border-b-2 border-amber-600',
+  rose: 
+    'bg-rose-500 hover:bg-rose-400 text-white font-bold shadow-[0_4px_0_#be123c] active:shadow-none active:translate-y-[4px] border-b-2 border-rose-600',
+  speaking: 
+    'bg-rose-500 hover:bg-rose-400 text-white font-bold shadow-[0_4px_0_#be123c] active:shadow-none active:translate-y-[4px] border-b-2 border-rose-600',
 };
 
 const sizeStyles: Record<ButtonSize, string> = {

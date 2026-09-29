@@ -540,3 +540,196 @@ import {
 )}
 ```
 
+---
+
+## 14. Thiết Kế Cổng Học Tập 4 Kỹ Năng (4-Skills Gamified Learning Hub - PHU-13)
+
+Căn cứ tài liệu đặc tả nghiệp vụ [`docs/spec/four-skills-learning-hub.md`](../spec/four-skills-learning-hub.md), ứng dụng thực hiện cuộc tái cấu trúc toàn diện về mặt kiến trúc thông tin (Information Architecture) và trải nghiệm thị giác (Visual UX):
+
+> **Quy Tắc Cốt Lõi (Gateway Rule):**  
+> Khi người học truy cập ứng dụng (Home / Landing Dashboard), **tuyệt đối KHÔNG hiển thị danh sách game dàn trải**.  
+> Thay vào đó, người học được chào đón bởi **Cổng Trung Tâm 4 Kỹ Năng Chuẩn Quốc Tế**:  
+> 1. 🎧 **Nghe (Listening Academy)**  
+> 2. 📖 **Đọc (Reading Academy)**  
+> 3. ✍️ **Viết (Writing Academy)**  
+> 4. 🗣️ **Nói (Speaking Academy)**
+
+---
+
+## 15. Hệ Thống Tokens Màu Sắc & Nhận Diện Cho 4 Trụ Cột Kỹ Năng
+
+Mỗi kỹ năng sở hữu một dải màu gradient, viền 3D và bóng đổ xúc giác (Tactile 3D Shadows) đặc trưng, đảm bảo tính phân cấp thị giác rõ rệt:
+
+| Kỹ Năng (Skill Domain) | Biểu Tượng | Mã Màu Chủ Đạo (Primary Hex) | Gradient Card Background | 3D Shadow Token | Glow Filter Effect |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **🎧 Nghe (Listening)** | `Headphones` | `#0ea5e9` (`sky-500`) | `from-sky-950 via-slate-900 to-sky-900/40` | `3d-listening` (`0 4px 0 #0369a1`) | `glow-listening` (`0 0 25px rgba(14,165,233,0.5)`) |
+| **📖 Đọc (Reading)** | `BookOpen` | `#10b981` (`emerald-500`)| `from-emerald-950 via-slate-900 to-emerald-900/40` | `3d-reading` (`0 4px 0 #047857`) | `glow-reading` (`0 0 25px rgba(16,185,129,0.5)`) |
+| **✍️ Viết (Writing)** | `PenTool` | `#f59e0b` (`amber-500`) | `from-amber-950 via-slate-900 to-amber-900/40` | `3d-writing` (`0 4px 0 #b45309`) | `glow-writing` (`0 0 25px rgba(245,158,11,0.5)`) |
+| **🗣️ Nói (Speaking)** | `Mic` | `#f43f5e` (`rose-500`) | `from-rose-950 via-slate-900 to-rose-900/40` | `3d-speaking` (`0 4px 0 #be123c`) | `glow-speaking` (`0 0 25px rgba(244,63,94,0.5)`) |
+
+### 15.1. Bảng Cấp Bậc Huy Hiệu Kỹ Năng (Skill Badges Tier Tokens)
+Mỗi kỹ năng có 4 cấp độ huy hiệu với phong cách kim loại 3D:
+1. **Huy hiệu Đồng (Bronze Tier - 25% Mastery):** `from-amber-800 to-amber-950`, viền `border-amber-600`, text `text-amber-400`.
+2. **Huy hiệu Bạc (Silver Tier - 50% Mastery):** `from-slate-400 to-slate-700`, viền `border-slate-300`, text `text-slate-200`.
+3. **Huy hiệu Vàng (Gold Tier - 75% Mastery):** `from-amber-400 to-amber-600`, viền `border-yellow-300`, text `text-yellow-300`.
+4. **Huy hiệu Kim Cương (Diamond Tier - 100% Mastery):** `from-cyan-400 to-indigo-600`, viền `border-cyan-300`, text `text-cyan-300` với hiệu ứng `animate-combo-bounce`.
+
+---
+
+## 16. Bố Cục Giao Diện Cổng 4 Kỹ Năng & Wireframes (Layout & Wireframes)
+
+### 16.1. Cổng Trung Tâm (Home Dashboard - 4-Skills Gateway)
+```
++---------------------------------------------------------------------------------------------------+
+|  [Logo] LEARN ENGLISH       [🔥 Streak: 7 Ngày]   [💰 350 Coins]   [⭐ Cấp 12 - Intermediate]   [User] |
++---------------------------------------------------------------------------------------------------+
+|                                                                                                   |
+|   👋 Chào Minh! Hôm nay bạn muốn nâng cấp kỹ năng nào?                                            |
+|   "Thành công là tổng hòa của những nỗ lực nhỏ được lặp lại mỗi ngày."                             |
+|                                                                                                   |
+|   +---------------------------------------+   +-----------------------------------------------+   |
+|   | 📊 MA TRẬN 4 KỸ NĂNG (RADAR CHART)    |   | 🎯 NHIỆM VỤ CÂN BẰNG HÔM NAY (BALANCED QUEST) |   |
+|   |                                       |   |                                               |   |
+|   |         🎧 Nghe: 85%                  |   |   [x] 🎧 Nghe: Đã hoàn thành 1 bài (+20 XP)   |   |
+|   |              / \                      |   |   [x] 📖 Đọc: Đã hoàn thành 1 bài (+20 XP)    |   |
+|   |   🗣️ 45%   /   \   📖 80%             |   |   [ ] ✍️ Viết: Chưa hoàn thành (0/1)           |   |
+|   |     [Nói] -+-----+-- [Đọc]            |   |   [ ] 🗣️ Nói: Chưa hoàn thành (0/1)           |   |
+|   |             \   /                     |   |                                               |   |
+|   |              \ /                      |   |   🎁 Phần thưởng hoàn thành cả 4 kỹ năng:     |   |
+|   |         ✍️ Viết: 70%                  |   |   [ +50 Coins  |  +100 XP  |  Chuỗi x1.2 ]    |   |
+|   |                                       |   |                                               |   |
+|   |   💡 Smart Pick: Kỹ năng [Nói]        |   |   [⚡ LUYỆN TẬP BÙ KỸ NĂNG YẾU (SMART PICK)]  |   |
+|   |   đang cần được rèn luyện thêm!       |   |                                               |   |
+|   +---------------------------------------+   +-----------------------------------------------+   |
+|                                                                                                   |
+|   ============================ CHỌN CHỦ ĐỀ KỸ NĂNG ĐỂ BẮT ĐẦU ============================        |
+|                                                                                                   |
+|   +--------------------------+  +--------------------------+  +-------------------------------+   |
+|   | 🎧 KỸ NĂNG NGHE          |  | 📖 KỸ NĂNG ĐỌC           |  | ✍️ KỸ NĂNG VIẾT               |   |
+|   | (Listening Academy)      |  | (Reading Academy)        |  | (Writing Academy)             |   |
+|   |                          |  |                          |  |                               |   |
+|   | • 4 Mini-games           |  | • 4 Mini-games           |  | • 4 Mini-games                |   |
+|   | • Tiến độ: 85% Mastery   |  | • Tiến độ: 80% Mastery   |  | • Tiến độ: 70% Mastery        |   |
+|   | • Cấp độ: Master Ear     |  | • Cấp độ: Sharp Reader   |  | • Cấp độ: Word Crafter        |   |
+|   |                          |  |                          |  |                               |   |
+|   | [ 🚀 KHÁM PHÁ HUB NGHE ] |  | [ 🚀 KHÁM PHÁ HUB ĐỌC ]  |  | [ 🚀 KHÁM PHÁ HUB VIẾT ]      |   |
+|   +--------------------------+  +--------------------------+  +-------------------------------+   |
+|                                                                                                   |
+|   +--------------------------+  +-------------------------------------------------------------+   |
+|   | 🗣️ KỸ NĂNG NÓI           |  | 🏆 BẢNG XẾP HẠNG TOÀN DIỆN (OVERALL 4-SKILLS LEADERBOARD)    |   |
+|   | (Speaking Academy)       |  |                                                             |   |
+|   |                          |  |  1. 🥇 Alex Nguyen   - 4,200 XP (Đồng đều 4 kỹ năng 95%+)   |   |
+|   | • 4 Mini-games           |  |  2. 🥈 Tran Linh     - 3,850 XP                             |   |
+|   | • Tiến độ: 45% Mastery   |  |  3. 🥉 Pham Hoang    - 3,420 XP                             |   |
+|   | • Cấp độ: Apprentice     |  |  ...                                                        |   |
+|   |                          |  |  42. Bạn (Minh)      - 1,650 XP [Top 15%]                   |   |
+|   | [ 🚀 KHÁM PHÁ HUB NÓI ]  |  |                                                             |   |
+|   +--------------------------+  +-------------------------------------------------------------+   |
++---------------------------------------------------------------------------------------------------+
+```
+
+### 16.2. Trang Chi Tiết Kỹ Năng (Skill Domain Hub View)
+- Header rực rỡ mang màu sắc kỹ năng với nút "Quay lại Cổng 4 Kỹ Năng".
+- Bộ lọc cấp độ Tabs: `Tất cả` | `Cơ bản (A1 - A2)` | `Trung cấp (B1 - B2)` | `Học thuật (IELTS 6.5+)`.
+- Danh sách thẻ game (Game Card Items) với điểm nhấn:
+  - 2 Chế độ chơi rõ ràng: **Luyện Tập (Practice)** và **Đua Rank (Ranked - 3 Tim)**.
+  - Nhãn phân loại: `TID Inspired 🎓`, `HOT 🔥`, `NEW ✨`.
+
+---
+
+## 17. Danh Mục Thư Viện UI Component Cho Cổng 4 Kỹ Năng (`frontend/src/components/ui/`)
+
+Tất cả các component được thiết kế dưới dạng **Pure Presentational Components**, tương thích 100% với React 19 và Tailwind CSS:
+
+| Tên Component | File Path | Vai Trò & Tính Năng Nổi Bật |
+| :--- | :--- | :--- |
+| **`SkillDomainCard`** | `src/components/ui/SkillDomainCard.tsx` | Thẻ đại diện cho 1 trong 4 kỹ năng tại Cổng Trang Chủ, hiển thị icon 3D, thanh tiến độ Mastery %, cấp bậc huy hiệu, số lượng games và nút Khám Phá Hub 3D. Hỗ trợ cờ `isSmartPick` phát sáng vàng khi kỹ năng đó cần bù đắp. |
+| **`SkillRadarChart`** | `src/components/ui/SkillRadarChart.tsx` | Biểu đồ mạng nhện SVG 4 trục (Nghe - Đọc - Viết - Nói), hiển thị đa giác năng lực bán trong suốt, điểm số trung bình toàn diện, và banner gợi ý thông minh (Smart Pick) tự động chọn kỹ năng yếu nhất. |
+| **`DailyBalancedQuestCard`** | `src/components/ui/DailyBalancedQuestCard.tsx` | Thẻ nhiệm vụ cân bằng hàng ngày với 4 ô kiểm tra kỹ năng (🎧📖✍️🗣️), thanh tiến độ $x/4$, phần thưởng $+50\text{ Coins}$, $+100\text{ XP}$ và nút Claim thưởng kích hoạt pháo hoa Confetti. |
+| **`SkillDomainHubHeader`** | `src/components/ui/SkillDomainHubHeader.tsx` | Thanh điều hướng đỉnh của từng Hub kỹ năng, nút quay lại 3D, thanh lọc cấp độ (A1-A2, B1-B2, IELTS), và thanh tiến độ Mastery. |
+| **`GameCardItem`** | `src/components/ui/GameCardItem.tsx` | Thẻ trò chơi trong catalog kỹ năng, hiển thị số sao độ khó ⭐, trọng tâm sư phạm, nhãn TID Inspired, và 2 nút phân nhánh chế độ chơi (Luyện Tập vs Đua Rank). |
+| **`DictationDashCard`** | `src/components/ui/DictationDashCard.tsx` | Mini-game Nghe chép chính tả biểu mẫu (IELTS Listening Section 1): trình phát audio giới hạn số lần nghe, form đăng ký thực tế với các input phản hồi màu sắc đúng/sai, đồng hồ đếm ngược 45s. |
+| **`SkimScanCard`** | `src/components/ui/SkimScanCard.tsx` | Mini-game Đọc lướt bắt chi tiết (IELTS Reading): hiển thị Micro-Passage 50-70 từ, nhận định Statement, 3 nút bấm 3D `[TRUE]`, `[FALSE]`, `[NOT GIVEN]`, và ngăn kéo highlight câu bằng chứng trong đoạn văn. |
+| **`CollocationSatelliteCard`** | `src/components/ui/CollocationSatelliteCard.tsx` | Mini-game Viết nối cụm từ học thuật C1/C2: thẻ từ trung tâm phát sáng, 4 thẻ vệ tinh bao quanh xoay động, hiệu ứng combo x1.5 x2.0, câu ví dụ thực tế và giải thích nghĩa tiếng Việt. |
+| **`MinimalPairsCard`** | `src/components/ui/MinimalPairsCard.tsx` | Mini-game Nói phân biệt cặp âm tương đồng (/iː/ vs /ɪ/): nút loa phát âm thanh bí mật, 2 thẻ đối đầu lựa chọn A vs B cỡ lớn, bộ đếm phản xạ nhanh 8s và chuỗi danh hiệu "Tai Vàng Phản Xạ". |
+| **`SkillBadgeModal`** | `src/components/ui/SkillBadgeModal.tsx` | Modal chúc mừng thăng hạng cấp bậc kỹ năng (Đồng, Bạc, Vàng, Kim Cương) với hiệu ứng pháo hoa, huy hiệu kim loại xoay 3D và quà tặng XP/Coins. |
+
+---
+
+## 18. Hướng Dẫn Tích Hợp Kỹ Thuật (Integration Contract)
+
+Senior Fullstack Engineer có thể import đồng thời toàn bộ UI components trực tiếp từ `@/components/ui`:
+
+```tsx
+import {
+  // 4-Skills Gateway & Management
+  SkillDomainCard,
+  SkillRadarChart,
+  DailyBalancedQuestCard,
+  SkillDomainHubHeader,
+  GameCardItem,
+  SkillBadgeModal,
+
+  // TID-Inspired Categorized Mini-Games
+  DictationDashCard,
+  SkimScanCard,
+  CollocationSatelliteCard,
+  MinimalPairsCard,
+
+  // Common UI
+  Button,
+  RankBadge,
+  ProgressBar
+} from '@/components/ui';
+```
+
+### 18.1. Mẫu Triển Khai Cổng Trang Chủ (4-Skills Gateway Hub)
+```tsx
+// 1. Ma trận Radar Chart & Daily Balanced Quest
+<div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+  <SkillRadarChart
+    scores={{
+      listening: userProgress.listeningMastery,
+      reading: userProgress.readingMastery,
+      writing: userProgress.writingMastery,
+      speaking: userProgress.speakingMastery,
+    }}
+    onSelectSkill={(code) => navigateToSkillHub(code)}
+    onSmartPickClick={(code) => handleSmartPickPractice(code)}
+  />
+
+  <DailyBalancedQuestCard
+    completedSkills={dailyStatus.completedSkillCodes}
+    rewardClaimed={dailyStatus.isRewardClaimed}
+    bonusCoins={50}
+    bonusXp={100}
+    onClaimBonus={handleClaimDailyReward}
+    onSelectSkill={(code) => navigateToSkillHub(code)}
+    onSmartPick={handleSmartPickPractice}
+  />
+</div>
+
+// 2. Lưới 4 Thẻ Học Viện Kỹ Năng
+<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+  {skillDomains.map((domain) => (
+    <SkillDomainCard
+      key={domain.code}
+      code={domain.code}
+      titleVi={domain.nameVi}
+      titleEn={domain.nameEn}
+      description={domain.description}
+      masteryPercentage={domain.userMastery}
+      tierTitle={domain.tierTitle}
+      badgeTier={domain.badgeTier}
+      gameCount={domain.games.length}
+      featuredGames={domain.games.slice(0, 3)}
+      isCompletedToday={dailyStatus.completedSkillCodes.includes(domain.code)}
+      isSmartPick={domain.code === smartPickSkillCode}
+      onExplore={(code) => navigateToSkillHub(code)}
+      onQuickPlay={(gameCode) => launchGame(gameCode)}
+    />
+  ))}
+</div>
+```
+
+
