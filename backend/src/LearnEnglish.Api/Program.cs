@@ -53,6 +53,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 // 2. Configure Dependency Injection
 builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<ITokenLedgerService, TokenLedgerService>();
 builder.Services.AddScoped<IGameService, GameService>();
 builder.Services.AddScoped<ISkillService, SkillService>();
 builder.Services.AddSingleton<IEloRatingCalculator, EloRatingCalculator>();
@@ -191,10 +192,9 @@ using (var scope = app.Services.CreateScope())
         // We ensure all missing tables and columns (like Coins in user_profiles) are created safely without wiping user data.
         if (db.Database.ProviderName?.Contains("Sqlite", StringComparison.OrdinalIgnoreCase) == true)
         {
-            // 1. Ensure Coins column in user_profiles
             try
             {
-                var hasCoins = false;
+                var columns = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
                 var conn = db.Database.GetDbConnection();
                 if (conn.State != System.Data.ConnectionState.Open)
                 {
@@ -205,26 +205,38 @@ using (var scope = app.Services.CreateScope())
                 using var reader = await cmd.ExecuteReaderAsync();
                 while (await reader.ReadAsync())
                 {
-                    var colName = reader.GetString(1);
-                    if (string.Equals(colName, "Coins", StringComparison.OrdinalIgnoreCase))
-                    {
-                        hasCoins = true;
-                        break;
-                    }
+                    columns.Add(reader.GetString(1));
                 }
                 await reader.CloseAsync();
 
-                if (!hasCoins)
+                var missingCols = new Dictionary<string, string>
                 {
-                    using var alterCmd = conn.CreateCommand();
-                    alterCmd.CommandText = "ALTER TABLE user_profiles ADD COLUMN Coins INTEGER NOT NULL DEFAULT 0;";
-                    await alterCmd.ExecuteNonQueryAsync();
-                    logger.LogInformation("Added missing 'Coins' column to 'user_profiles' table.");
+                    { "Coins", "INTEGER NOT NULL DEFAULT 350" },
+                    { "TokenBalance", "INTEGER NOT NULL DEFAULT 350" },
+                    { "TotalTokensEarned", "INTEGER NOT NULL DEFAULT 350" },
+                    { "DailyTokensEarned", "INTEGER NOT NULL DEFAULT 0" },
+                    { "LastTokenResetAt", "TEXT NOT NULL DEFAULT '2026-01-01T00:00:00Z'" },
+                    { "Bio", "TEXT NULL" },
+                    { "CustomTitle", "TEXT NOT NULL DEFAULT 'Người Học Mới (Novice Learner)'" },
+                    { "UnlockedPresetSlots", "INTEGER NOT NULL DEFAULT 1" },
+                    { "ActivePresetSlot", "INTEGER NOT NULL DEFAULT 1" },
+                    { "CreatedAt", "TEXT NOT NULL DEFAULT '2026-01-01T00:00:00Z'" }
+                };
+
+                foreach (var (col, def) in missingCols)
+                {
+                    if (!columns.Contains(col))
+                    {
+                        using var alterCmd = conn.CreateCommand();
+                        alterCmd.CommandText = $"ALTER TABLE user_profiles ADD COLUMN {col} {def};";
+                        await alterCmd.ExecuteNonQueryAsync();
+                        logger.LogInformation("Added missing '{Column}' column to 'user_profiles' table.", col);
+                    }
                 }
             }
             catch (Exception ex)
             {
-                logger.LogWarning(ex, "Could not check or add Coins column to user_profiles table.");
+                logger.LogWarning(ex, "Could not check or add missing columns to user_profiles table.");
             }
 
             // 2. Ensure missing tables and indexes

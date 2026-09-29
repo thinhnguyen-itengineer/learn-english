@@ -36,6 +36,11 @@ public class AppDbContext : DbContext
     public DbSet<SquadMember> SquadMembers => Set<SquadMember>();
     public DbSet<AsyncChallenge> AsyncChallenges => Set<AsyncChallenge>();
     public DbSet<AsyncChallengeAttempt> AsyncChallengeAttempts => Set<AsyncChallengeAttempt>();
+    public DbSet<AvatarConfig> AvatarConfigs => Set<AvatarConfig>();
+    public DbSet<ShopItem> ShopItems => Set<ShopItem>();
+    public DbSet<UserInventory> UserInventories => Set<UserInventory>();
+    public DbSet<TokenTransaction> TokenTransactions => Set<TokenTransaction>();
+    public DbSet<AvatarPreset> AvatarPresets => Set<AvatarPreset>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -68,8 +73,36 @@ public class AppDbContext : DbContext
             entity.HasKey(e => e.UserId);
             entity.Property(e => e.DisplayName).HasMaxLength(100).IsRequired();
             entity.Property(e => e.AvatarUrl).HasMaxLength(500);
+            entity.Property(e => e.Bio).HasMaxLength(250);
+            entity.Property(e => e.CustomTitle).HasMaxLength(100).HasDefaultValue("Người Học Mới (Novice Learner)");
+            entity.Property(e => e.TokenBalance).HasDefaultValue(350);
+            entity.Property(e => e.TotalTokensEarned).HasDefaultValue(350);
+            entity.Property(e => e.DailyTokensEarned).HasDefaultValue(0);
+            entity.Property(e => e.UnlockedPresetSlots).HasDefaultValue(1);
+            entity.Property(e => e.ActivePresetSlot).HasDefaultValue(1);
             entity.HasIndex(e => e.TotalXp);
             entity.HasIndex(e => e.CurrentStreak);
+            entity.HasIndex(e => e.TokenBalance);
+
+            entity.HasOne(e => e.AvatarConfig)
+                .WithOne(a => a.Profile)
+                .HasForeignKey<AvatarConfig>(a => a.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasMany(e => e.InventoryItems)
+                .WithOne(i => i.Profile)
+                .HasForeignKey(i => i.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasMany(e => e.TokenTransactions)
+                .WithOne(t => t.Profile)
+                .HasForeignKey(t => t.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasMany(e => e.Presets)
+                .WithOne(p => p.Profile)
+                .HasForeignKey(p => p.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         // Topic
@@ -582,6 +615,89 @@ public class AppDbContext : DbContext
                 .OnDelete(DeleteBehavior.SetNull);
 
             entity.HasIndex(e => new { e.ChallengeId, e.Score });
+        });
+
+        // AvatarConfig
+        modelBuilder.Entity<AvatarConfig>(entity =>
+        {
+            entity.ToTable("avatar_configs");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.BodyType).HasMaxLength(20).HasDefaultValue("neutral");
+            entity.Property(e => e.SkinColor).HasMaxLength(10).HasDefaultValue("#E8B898");
+            entity.Property(e => e.HairStyleId).HasMaxLength(50).HasDefaultValue("short_crop");
+            entity.Property(e => e.HairColor).HasMaxLength(10).HasDefaultValue("#1C1917");
+            entity.Property(e => e.EyeExpression).HasMaxLength(50).HasDefaultValue("friendly_smile");
+            entity.Property(e => e.MouthExpression).HasMaxLength(50).HasDefaultValue("smile_open");
+            entity.Property(e => e.TopsId).HasMaxLength(50).HasDefaultValue("starter_tee_white");
+            entity.Property(e => e.BottomsId).HasMaxLength(50).HasDefaultValue("starter_jeans_blue");
+            entity.Property(e => e.FootwearId).HasMaxLength(50).HasDefaultValue("starter_sneakers_white");
+            entity.Property(e => e.HeadwearId).HasMaxLength(50);
+            entity.Property(e => e.EyewearId).HasMaxLength(50);
+            entity.Property(e => e.NeckwearId).HasMaxLength(50);
+            entity.Property(e => e.HandheldId).HasMaxLength(50);
+            entity.Property(e => e.AuraBackgroundId).HasMaxLength(50).HasDefaultValue("pedestal_wood_circle");
+
+            entity.HasIndex(e => e.UserId).IsUnique();
+        });
+
+        // ShopItem
+        modelBuilder.Entity<ShopItem>(entity =>
+        {
+            entity.ToTable("shop_items");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.ItemCode).HasMaxLength(80).IsRequired();
+            entity.HasIndex(e => e.ItemCode).IsUnique();
+            entity.Property(e => e.NameEn).HasMaxLength(150).IsRequired();
+            entity.Property(e => e.NameVi).HasMaxLength(150).IsRequired();
+            entity.Property(e => e.Category).HasMaxLength(40).IsRequired();
+            entity.Property(e => e.LayerSlot).HasMaxLength(40).IsRequired();
+            entity.Property(e => e.RarityTier).HasMaxLength(20).HasDefaultValue("common");
+            entity.Property(e => e.AssetSvgKey).HasMaxLength(255).IsRequired();
+
+            entity.HasIndex(e => e.Category);
+            entity.HasIndex(e => e.RarityTier);
+            entity.HasIndex(e => e.TokenPrice);
+        });
+
+        // UserInventory
+        modelBuilder.Entity<UserInventory>(entity =>
+        {
+            entity.ToTable("user_inventory");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.AcquiredFrom).HasMaxLength(50).HasDefaultValue("shop_purchase");
+
+            entity.HasOne(e => e.Item)
+                .WithMany(i => i.UserInventories)
+                .HasForeignKey(e => e.ItemId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasIndex(e => new { e.UserId, e.ItemId }).IsUnique();
+            entity.HasIndex(e => e.UserId);
+        });
+
+        // TokenTransaction
+        modelBuilder.Entity<TokenTransaction>(entity =>
+        {
+            entity.ToTable("token_transactions");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.TransactionType).HasMaxLength(40).IsRequired();
+            entity.Property(e => e.SourceCategory).HasMaxLength(50);
+            entity.Property(e => e.ReferenceId).HasMaxLength(100);
+            entity.Property(e => e.Description).HasMaxLength(255).IsRequired();
+
+            entity.HasIndex(e => e.UserId);
+            entity.HasIndex(e => e.CreatedAt);
+        });
+
+        // AvatarPreset
+        modelBuilder.Entity<AvatarPreset>(entity =>
+        {
+            entity.ToTable("avatar_presets");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.PresetName).HasMaxLength(100).IsRequired();
+
+            entity.HasIndex(e => new { e.UserId, e.PresetIndex }).IsUnique();
+            entity.HasIndex(e => e.UserId);
         });
     }
 }

@@ -14,6 +14,11 @@ import { Battle1v1Game } from './components/Battle1v1Game';
 import { MatchmakingRadar, MatchmakingPlayer } from './components/ui/MatchmakingRadar';
 import { MatchResultModal, MatchResultData } from './components/ui/MatchResultModal';
 import { TidMiniGameModal } from './components/TidMiniGameModal';
+import { ProfileModal } from './components/avatar/ProfileModal';
+import { FittingRoomModal } from './components/avatar/FittingRoomModal';
+import { WardrobeModal } from './components/avatar/WardrobeModal';
+import { useAvatarStore } from './services/useAvatarStore';
+import { useProfileAndInventoryStore } from './services/useProfileAndInventoryStore';
 import { 
   CompleteSessionRequest, 
   CompleteSessionResponse, 
@@ -71,11 +76,18 @@ export function App() {
   // 4-Skills TID Mini-Games state
   const [activeTidGame, setActiveTidGame] = useState<string | null>(null);
 
+  // Avatar & Shop Modals
+  const [showProfileModal, setShowProfileModal] = useState<boolean>(false);
+  const [showFittingRoomModal, setShowFittingRoomModal] = useState<boolean>(false);
+  const [showWardrobeModal, setShowWardrobeModal] = useState<boolean>(false);
+
   const refreshProfileAndRank = async () => {
     try {
       const [prof, rank] = await Promise.all([
         api.getProfile().catch(() => null),
-        api.getMyRank().catch(() => null)
+        api.getMyRank().catch(() => null),
+        useAvatarStore.getState().fetchConfig().catch(() => null),
+        useProfileAndInventoryStore.getState().fetchProfile().catch(() => null)
       ]);
       if (prof) setProfile(prof);
       if (rank) setMyRank(rank);
@@ -92,11 +104,13 @@ export function App() {
         // Ensure guest session
         const auth = await api.ensureGuestSession();
 
-        // Load profile, rank, & topics
+        // Load profile, rank, topics, & avatar config
         const [prof, rank, topList] = await Promise.all([
           api.getProfile().catch(() => null),
           api.getMyRank().catch(() => null),
-          api.getTopics().catch(() => [])
+          api.getTopics().catch(() => []),
+          useAvatarStore.getState().fetchConfig().catch(() => null),
+          useProfileAndInventoryStore.getState().fetchProfile().catch(() => null)
         ]);
 
         if (prof) setProfile(prof);
@@ -406,7 +420,10 @@ export function App() {
         onOpenLeaderboard={handleOpenWeeklyLeaderboard}
         onOpenBattleLeaderboard={() => setShowBattleLeaderboard(true)}
         onStart1v1Battle={() => handleStart1v1Battle()}
-        onReturnToLobby={handleBackToLobby} 
+        onReturnToLobby={handleBackToLobby}
+        onOpenProfile={() => setShowProfileModal(true)}
+        onOpenFittingRoom={() => setShowFittingRoomModal(true)}
+        onOpenWardrobe={() => setShowWardrobeModal(true)}
       />
 
       {/* Main View Router */}
@@ -545,6 +562,49 @@ export function App() {
           }}
         />
       )}
+
+      {/* Profile & Avatar Showcase Modal */}
+      <ProfileModal
+        isOpen={showProfileModal}
+        onClose={() => {
+          setShowProfileModal(false);
+          refreshProfileAndRank();
+        }}
+        onOpenFittingRoom={() => {
+          setShowProfileModal(false);
+          setShowFittingRoomModal(true);
+        }}
+        onOpenWardrobe={() => {
+          setShowProfileModal(false);
+          setShowWardrobeModal(true);
+        }}
+      />
+
+      {/* Live Fitting Room & Shop Catalog Modal */}
+      <FittingRoomModal
+        isOpen={showFittingRoomModal}
+        onClose={() => {
+          setShowFittingRoomModal(false);
+          refreshProfileAndRank();
+        }}
+        onOpenWardrobe={() => {
+          setShowFittingRoomModal(false);
+          setShowWardrobeModal(true);
+        }}
+      />
+
+      {/* Wardrobe & Presets Management Modal */}
+      <WardrobeModal
+        isOpen={showWardrobeModal}
+        onClose={() => {
+          setShowWardrobeModal(false);
+          refreshProfileAndRank();
+        }}
+        onOpenShop={() => {
+          setShowWardrobeModal(false);
+          setShowFittingRoomModal(true);
+        }}
+      />
     </div>
   );
 }

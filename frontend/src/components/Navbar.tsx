@@ -1,7 +1,10 @@
 import React from 'react';
-import { Flame, Trophy, Snowflake, Sparkles, Swords } from 'lucide-react';
+import { Flame, Trophy, Snowflake, Sparkles, Swords, Coins, ShoppingBag, Shirt } from 'lucide-react';
 import { UserProfileDto, UserRankProfileDto, RankTier, RankDivision } from '../types/game';
 import { RankBadge, TrophyBadge } from './ui/RankBadge';
+import { ModularAvatar } from './avatar/ModularAvatar';
+import { useAvatarStore } from '../services/useAvatarStore';
+import { useProfileAndInventoryStore } from '../services/useProfileAndInventoryStore';
 
 interface NavbarProps {
   profile: UserProfileDto | null;
@@ -10,6 +13,9 @@ interface NavbarProps {
   onOpenBattleLeaderboard: () => void;
   onStart1v1Battle: () => void;
   onReturnToLobby: () => void;
+  onOpenProfile?: () => void;
+  onOpenFittingRoom?: () => void;
+  onOpenWardrobe?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({ 
@@ -18,8 +24,16 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenLeaderboard, 
   onOpenBattleLeaderboard,
   onStart1v1Battle,
-  onReturnToLobby 
+  onReturnToLobby,
+  onOpenProfile,
+  onOpenFittingRoom,
+  onOpenWardrobe
 }) => {
+  const { activeConfig } = useAvatarStore();
+  const { profile: fullProfile } = useProfileAndInventoryStore();
+
+  const tokenBalance = fullProfile?.tokenBalance ?? (profile as any)?.tokenBalance ?? 0;
+
   return (
     <header className="sticky top-0 z-40 w-full border-b border-slate-800 bg-slate-900/80 backdrop-blur-md">
       <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
@@ -40,7 +54,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
 
         {/* User Stats / Controls */}
-        <div className="flex items-center gap-2 sm:gap-4">
+        <div className="flex items-center gap-2 sm:gap-3">
           {myRank && (
             <div className="flex items-center gap-2">
               <RankBadge
@@ -53,22 +67,33 @@ export const Navbar: React.FC<NavbarProps> = ({
             </div>
           )}
 
+          {/* Tokens Pill */}
+          <div 
+            onClick={onOpenFittingRoom}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 hover:bg-amber-500/20 transition-all cursor-pointer shadow-sm group"
+            title="Số dư Token - Bấm để mở Cửa Hàng"
+          >
+            <Coins className="w-4 h-4 text-amber-400 group-hover:rotate-12 transition-transform" />
+            <span className="font-extrabold text-sm tracking-tight">{tokenBalance.toLocaleString()}</span>
+            <span className="text-xs text-amber-300/80 hidden sm:inline">🪙</span>
+          </div>
+
           {profile && (
             <>
               {/* Daily Streak */}
               <div 
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/30 text-orange-400"
                 title={`Chuỗi học: ${profile.currentStreak} ngày liên tục`}
               >
-                <Flame className="w-4 h-4 fill-amber-400 text-amber-400 animate-pulse" />
+                <Flame className="w-4 h-4 fill-orange-400 text-orange-400 animate-pulse" />
                 <span className="font-bold text-sm">{profile.currentStreak}</span>
-                <span className="text-xs text-amber-300/80 hidden sm:inline">ngày</span>
+                <span className="text-xs text-orange-300/80 hidden lg:inline">ngày</span>
               </div>
 
               {/* Streak Freeze */}
               {profile.streakFreezeCount > 0 && (
                 <div 
-                  className="hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400"
+                  className="hidden xl:flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400"
                   title="Thẻ bảo lưu Streak khi nghỉ 1 ngày"
                 >
                   <Snowflake className="w-4 h-4 text-cyan-400" />
@@ -77,12 +102,12 @@ export const Navbar: React.FC<NavbarProps> = ({
               )}
 
               {/* Level & XP */}
-              <div className="hidden sm:flex flex-col items-end">
+              <div className="hidden lg:flex flex-col items-end">
                 <div className="flex items-center gap-2">
                   <span className="text-xs text-slate-400">Lv.{profile.currentLevel}</span>
                   <span className="text-sm font-bold text-emerald-400">{profile.totalXp} XP</span>
                 </div>
-                <div className="w-20 sm:w-24 h-1.5 bg-slate-800 rounded-full overflow-hidden mt-1 border border-slate-700/50">
+                <div className="w-20 h-1.5 bg-slate-800 rounded-full overflow-hidden mt-1 border border-slate-700/50">
                   <div 
                     className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full transition-all duration-500"
                     style={{ 
@@ -92,6 +117,28 @@ export const Navbar: React.FC<NavbarProps> = ({
                 </div>
               </div>
             </>
+          )}
+
+          {/* Quick Shop Button */}
+          {onOpenFittingRoom && (
+            <button
+              onClick={onOpenFittingRoom}
+              className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-amber-400 hover:text-amber-300 transition-all cursor-pointer hidden sm:flex"
+              title="Cửa hàng thời trang & phụ kiện"
+            >
+              <ShoppingBag className="w-4 h-4" />
+            </button>
+          )}
+
+          {/* Quick Wardrobe Button */}
+          {onOpenWardrobe && (
+            <button
+              onClick={onOpenWardrobe}
+              className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-indigo-400 hover:text-indigo-300 transition-all cursor-pointer hidden sm:flex"
+              title="Tủ đồ & Quản lý Outfit"
+            >
+              <Shirt className="w-4 h-4" />
+            </button>
           )}
 
           {/* 1v1 Battle Quick Button */}
@@ -110,11 +157,27 @@ export const Navbar: React.FC<NavbarProps> = ({
             title="Bảng xếp hạng đấu thủ"
           >
             <Trophy className="w-4 h-4 text-amber-400" />
-            <span className="hidden sm:inline">BXH</span>
+            <span className="hidden md:inline">BXH</span>
           </button>
+
+          {/* Avatar Profile Circular Pill */}
+          {onOpenProfile && (
+            <button
+              onClick={onOpenProfile}
+              className="flex items-center gap-2 p-1 rounded-full bg-slate-800/90 hover:bg-slate-700 border border-slate-700 hover:border-indigo-500/60 transition-all cursor-pointer group shadow-sm"
+              title="Hồ sơ & Avatar cá nhân"
+            >
+              <div className="w-8 h-8 rounded-full overflow-hidden border-2 border-indigo-400/80 bg-slate-950 flex items-center justify-center">
+                <ModularAvatar
+                  config={activeConfig}
+                  mode="head"
+                  size={36}
+                />
+              </div>
+            </button>
+          )}
         </div>
       </div>
     </header>
   );
 };
-

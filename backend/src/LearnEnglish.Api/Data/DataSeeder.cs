@@ -13,6 +13,7 @@ public static class DataSeeder
             await SeedNewMiniGamesAsync(context);
             await SeedSkillDomainsAsync(context);
             await SeedRetentionDataAsync(context);
+            await SeedAvatarAndShopDataAsync(context);
             return;
         }
 
@@ -1101,6 +1102,167 @@ public static class DataSeeder
                 new WeeklyLeagueMember { LeagueId = sapphireRoom.Id, UserId = user2Id, WeeklyXp = 1620, OutcomeStatus = "Pending" },
                 new WeeklyLeagueMember { LeagueId = sapphireRoom.Id, UserId = user3Id, WeeklyXp = 1590, OutcomeStatus = "Pending" }
             );
+        }
+
+        await context.SaveChangesAsync();
+    }
+
+    public static async Task SeedAvatarAndShopDataAsync(AppDbContext context)
+    {
+        // 1. Seed Shop Items (28 catalog items + starter basic items)
+        if (!await context.ShopItems.AnyAsync())
+        {
+            var items = new List<ShopItem>
+            {
+                // Starter Items (Free default gear)
+                new() { ItemCode = "starter_tee_white", NameEn = "Classic White T-Shirt", NameVi = "Áo Thun Trắng Năng Động", Description = "Trang phục thường ngày cơ bản khởi đầu.", Category = "tops", LayerSlot = "tops", RarityTier = "common", TokenPrice = 0, RequiredLevel = 1, AssetSvgKey = "assets/avatar/tops/starter_tee_white.svg", ZIndex = 60 },
+                new() { ItemCode = "starter_jeans_blue", NameEn = "Classic Denim Jeans", NameVi = "Quần Jeans Xanh Cổ Điển", Description = "Quần jeans xanh thoải mái tiện dụng.", Category = "bottoms", LayerSlot = "bottoms", RarityTier = "common", TokenPrice = 0, RequiredLevel = 1, AssetSvgKey = "assets/avatar/bottoms/starter_jeans_blue.svg", ZIndex = 50 },
+                new() { ItemCode = "starter_sneakers_white", NameEn = "White Canvas Sneakers", NameVi = "Giày Thể Thao Trắng Trẻ Trung", Description = "Giày thể thao trắng năng động mọi lúc mọi nơi.", Category = "footwear", LayerSlot = "footwear", RarityTier = "common", TokenPrice = 0, RequiredLevel = 1, AssetSvgKey = "assets/avatar/footwear/starter_sneakers_white.svg", ZIndex = 40 },
+                new() { ItemCode = "pedestal_wood_circle", NameEn = "Minimalist Wooden Pedestal", NameVi = "Bục Gỗ Tròn Tối Giản", Description = "Bục gỗ đứng tiêu chuẩn tôn dáng nhân vật.", Category = "aura_background", LayerSlot = "pedestal_aura", RarityTier = "common", TokenPrice = 0, RequiredLevel = 1, AssetSvgKey = "assets/avatar/aura/pedestal_wood_circle.svg", ZIndex = 0 },
+
+                // 28 Catalog Items according to SPEC-AVATAR-SHOP-V1
+                new() { ItemCode = "top_oxford_blazer", NameEn = "Oxford Scholar Blazer", NameVi = "Áo Vest Học Giả Oxford", Description = "Huy hiệu ngực vàng thêu tinh xảo", Category = "tops", LayerSlot = "tops", RarityTier = "rare", TokenPrice = 450, RequiredLevel = 5, AssetSvgKey = "assets/avatar/tops/oxford_blazer.svg", ZIndex = 60 },
+                new() { ItemCode = "top_cyber_hoodie", NameEn = "Cyber Neon Hoodie", NameVi = "Áo Hoodie Neon Tương Lai", Description = "Dải đèn LED dạ quang chạy dọc tay áo", Category = "tops", LayerSlot = "tops", RarityTier = "epic", TokenPrice = 950, RequiredLevel = 10, AssetSvgKey = "assets/avatar/tops/cyber_hoodie.svg", ZIndex = 60 },
+                new() { ItemCode = "top_wizard_robe", NameEn = "Archmage Lexicon Robe", NameVi = "Áo Choàng Đại Pháp Sư Từ Vựng", Description = "Cổ áo thêu chòm sao phát sáng huyền ảo", Category = "tops", LayerSlot = "tops", RarityTier = "legendary", TokenPrice = 3200, RequiredLevel = 25, AssetSvgKey = "assets/avatar/tops/wizard_robe.svg", ZIndex = 60 },
+                new() { ItemCode = "top_detective_trench", NameEn = "Baker Street Trench Coat", NameVi = "Áo Măng Tô Thám Tử Baker", Description = "Khăn choàng kẻ caro phong cách London", Category = "tops", LayerSlot = "tops", RarityTier = "epic", TokenPrice = 1100, RequiredLevel = 12, AssetSvgKey = "assets/avatar/tops/detective_trench.svg", ZIndex = 60 },
+                new() { ItemCode = "top_vintage_denim", NameEn = "Vintage Denim Jacket", NameVi = "Áo Khoác Bò Cổ Điển", Description = "Áo khoác phong cách cổ điển thanh lịch", Category = "tops", LayerSlot = "tops", RarityTier = "common", TokenPrice = 200, RequiredLevel = 2, AssetSvgKey = "assets/avatar/tops/vintage_denim.svg", ZIndex = 60 },
+                new() { ItemCode = "top_astronaut_suit", NameEn = "Apollo Flight Suit", NameVi = "Bộ Đồ Phi Hành Gia Apollo", Description = "Cờ phù hiệu vũ trụ phản quang", Category = "tops", LayerSlot = "tops", RarityTier = "legendary", TokenPrice = 3800, RequiredLevel = 30, AssetSvgKey = "assets/avatar/tops/astronaut_suit.svg", ZIndex = 60 },
+
+                new() { ItemCode = "bot_pleated_skirt", NameEn = "Academic Pleated Skirt", NameVi = "Váy Xếp Ly Đồng Phục", Description = "Chân váy xếp ly trang nhã học đường", Category = "bottoms", LayerSlot = "bottoms", RarityTier = "common", TokenPrice = 180, RequiredLevel = 1, AssetSvgKey = "assets/avatar/bottoms/pleated_skirt.svg", ZIndex = 50 },
+                new() { ItemCode = "bot_cargo_joggers", NameEn = "Urban Cargo Joggers", NameVi = "Quần Túi Hộp Chiến Thuật", Description = "Túi hộp đai khóa phong cách Streetwear", Category = "bottoms", LayerSlot = "bottoms", RarityTier = "rare", TokenPrice = 350, RequiredLevel = 4, AssetSvgKey = "assets/avatar/bottoms/cargo_joggers.svg", ZIndex = 50 },
+                new() { ItemCode = "bot_wizard_skirt", NameEn = "Runic Mage Trousers", NameVi = "Quần Pháp Sư Thêu Chỉ Vàng", Description = "Họa tiết chữ Runes phát sáng viền gấu", Category = "bottoms", LayerSlot = "bottoms", RarityTier = "epic", TokenPrice = 850, RequiredLevel = 15, AssetSvgKey = "assets/avatar/bottoms/wizard_skirt.svg", ZIndex = 50 },
+                new() { ItemCode = "bot_suit_pants", NameEn = "Tailored Suit Trousers", NameVi = "Quần Tây Doanh Nhân Lịch Lãm", Description = "Nếp gấp thẳng tắp cao cấp", Category = "bottoms", LayerSlot = "bottoms", RarityTier = "rare", TokenPrice = 380, RequiredLevel = 5, AssetSvgKey = "assets/avatar/bottoms/suit_pants.svg", ZIndex = 50 },
+
+                new() { ItemCode = "foot_leather_oxford", NameEn = "Polished Oxford Shoes", NameVi = "Giày Da Oxford Bóng Bẩy", Description = "Ánh sáng bóng loáng phản chiếu", Category = "footwear", LayerSlot = "footwear", RarityTier = "rare", TokenPrice = 320, RequiredLevel = 3, AssetSvgKey = "assets/avatar/footwear/leather_oxford.svg", ZIndex = 40 },
+                new() { ItemCode = "foot_cyber_kicks", NameEn = "Neon Air Striders", NameVi = "Giày Thể Thao Đệm Khí Neon", Description = "Đế giày nhấp nháy ánh sáng tím Neon", Category = "footwear", LayerSlot = "footwear", RarityTier = "epic", TokenPrice = 900, RequiredLevel = 12, AssetSvgKey = "assets/avatar/footwear/cyber_kicks.svg", ZIndex = 40 },
+                new() { ItemCode = "foot_hermes_boots", NameEn = "Hermes Winged Boots", NameVi = "Bốt Thần Gió Có Cánh", Description = "Đôi cánh vàng nhỏ vẫy nhẹ ở gót chân", Category = "footwear", LayerSlot = "footwear", RarityTier = "legendary", TokenPrice = 2500, RequiredLevel = 20, AssetSvgKey = "assets/avatar/footwear/hermes_boots.svg", ZIndex = 40 },
+                new() { ItemCode = "foot_canvas_high", NameEn = "Classic High-Top Canvas", NameVi = "Giày Cổ Cao Vải Canvas", Description = "Giày vải cổ cao năng động", Category = "footwear", LayerSlot = "footwear", RarityTier = "common", TokenPrice = 150, RequiredLevel = 1, AssetSvgKey = "assets/avatar/footwear/canvas_high.svg", ZIndex = 40 },
+
+                new() { ItemCode = "head_graduation_cap", NameEn = "Valedictorian Mortarboard", NameVi = "Mũ Cử Nhân Tri Thức", Description = "Dải tua rua vàng lay nhẹ trong gió", Category = "headwear", LayerSlot = "headwear", RarityTier = "rare", TokenPrice = 500, RequiredLevel = 8, AssetSvgKey = "assets/avatar/headwear/graduation_cap.svg", ZIndex = 90 },
+                new() { ItemCode = "head_detective_hat", NameEn = "Deerstalker Investigator Hat", NameVi = "Mũ Thám Tử Săn Hươu", Description = "Nơ thắt đỉnh mũ phong cách cổ điển", Category = "headwear", LayerSlot = "headwear", RarityTier = "rare", TokenPrice = 420, RequiredLevel = 6, AssetSvgKey = "assets/avatar/headwear/detective_hat.svg", ZIndex = 90 },
+                new() { ItemCode = "head_cyber_headphones", NameEn = "Cyber Cat Headphones", NameVi = "Tai Nghe Chụp Tai Gaming LED", Description = "Vành tai mèo phát sáng đổi 7 màu", Category = "headwear", LayerSlot = "headwear", RarityTier = "epic", TokenPrice = 1200, RequiredLevel = 14, AssetSvgKey = "assets/avatar/headwear/cyber_headphones.svg", ZIndex = 90 },
+                new() { ItemCode = "head_olympus_crown", NameEn = "Golden Laurels of Olympus", NameVi = "Vòng Nguyệt Quế Vàng Olympus", Description = "Lá vàng óng ánh tỏa bụi sáng lấp lánh", Category = "headwear", LayerSlot = "headwear", RarityTier = "legendary", TokenPrice = 4000, RequiredLevel = 30, AssetSvgKey = "assets/avatar/headwear/olympus_crown.svg", ZIndex = 90 },
+                new() { ItemCode = "head_wizard_hat", NameEn = "Centennial Sorcerer Hat", NameVi = "Mũ Phù Thủy Ngàn Năm", Description = "Mặt trăng lưỡi liềm vàng đu đưa ở chóp", Category = "headwear", LayerSlot = "headwear", RarityTier = "epic", TokenPrice = 1400, RequiredLevel = 18, AssetSvgKey = "assets/avatar/headwear/wizard_hat.svg", ZIndex = 90 },
+
+                new() { ItemCode = "eye_smart_glasses", NameEn = "Scholastic Wireframe Glasses", NameVi = "Kính Cận Trí Thức Mạ Vàng", Description = "Tròng kính phản chiếu ánh sáng thông tuệ", Category = "eyewear", LayerSlot = "eyewear", RarityTier = "common", TokenPrice = 220, RequiredLevel = 2, AssetSvgKey = "assets/avatar/eyewear/smart_glasses.svg", ZIndex = 95 },
+                new() { ItemCode = "eye_vr_visor", NameEn = "Cyber Tactical Visor", NameVi = "Kính Thực Tế Ảo Cyber", Description = "Màn hình hiển thị dữ liệu số HUD quét liên tục", Category = "eyewear", LayerSlot = "eyewear", RarityTier = "epic", TokenPrice = 1050, RequiredLevel = 16, AssetSvgKey = "assets/avatar/eyewear/vr_visor.svg", ZIndex = 95 },
+                new() { ItemCode = "eye_steampunk_goggles", NameEn = "Steampunk Aviator Goggles", NameVi = "Kính Phi Công Cổ Điển Bằng Đồng", Description = "Bánh răng đồng hồ xoay nhẹ trên gọng", Category = "eyewear", LayerSlot = "eyewear", RarityTier = "rare", TokenPrice = 550, RequiredLevel = 7, AssetSvgKey = "assets/avatar/eyewear/steampunk_goggles.svg", ZIndex = 95 },
+
+                new() { ItemCode = "hand_magic_tome", NameEn = "Grimoire of Ancient Grammar", NameVi = "Sách Cổ Ngữ Pháp Cấm Thuật", Description = "Sách bay lơ lửng bên tay tự động lật trang", Category = "handheld", LayerSlot = "handheld", RarityTier = "legendary", TokenPrice = 3500, RequiredLevel = 25, AssetSvgKey = "assets/avatar/handheld/magic_tome.svg", ZIndex = 100 },
+                new() { ItemCode = "hand_golden_mic", NameEn = "Golden Voice Champion Mic", NameVi = "Micro Mạ Vàng Thần Thoại", Description = "Sóng âm nhạc nốt vàng tỏa ra xung quanh", Category = "handheld", LayerSlot = "handheld", RarityTier = "epic", TokenPrice = 1500, RequiredLevel = 15, AssetSvgKey = "assets/avatar/handheld/golden_mic.svg", ZIndex = 100 },
+
+                new() { ItemCode = "aura_floating_books", NameEn = "Orbiting Lexicon Runes", NameVi = "Vòng Xoáy Sách Tri Thức", Description = "4 quyển từ điển thu nhỏ bay xoay quanh người", Category = "aura_background", LayerSlot = "pedestal_aura", RarityTier = "epic", TokenPrice = 1600, RequiredLevel = 18, AssetSvgKey = "assets/avatar/aura/floating_books.svg", ZIndex = 0 },
+                new() { ItemCode = "aura_golden_triumph", NameEn = "Aura of Victorious Flames", NameVi = "Hào Quang Lửa Vàng Vinh Quang", Description = "Lửa thần vàng rực bốc lên từ bục chân 60fps", Category = "aura_background", LayerSlot = "pedestal_aura", RarityTier = "legendary", TokenPrice = 4500, RequiredLevel = 35, AssetSvgKey = "assets/avatar/aura/golden_triumph.svg", ZIndex = 0 },
+                new() { ItemCode = "aura_royal_library", NameEn = "Grand Royal Archives", NameVi = "Nền Thư Viện Hoàng Gia Cổ Kính", Description = "Giá sách gỗ sồi cổ kính và ánh nến ấm áp", Category = "aura_background", LayerSlot = "pedestal_aura", RarityTier = "rare", TokenPrice = 600, RequiredLevel = 10, AssetSvgKey = "assets/avatar/aura/royal_library.svg", ZIndex = 0 },
+
+                new() { ItemCode = "boost_streak_freeze", NameEn = "Streak Freeze Shield", NameVi = "Băng Bảo Vệ Chuỗi Ngày Học", Description = "Tự động bảo lưu Streak nếu quên học 1 ngày", Category = "consumable", LayerSlot = "consumable", RarityTier = "rare", TokenPrice = 200, RequiredLevel = 1, AssetSvgKey = "assets/icons/streak_freeze.svg", ZIndex = 0 }
+            };
+
+            context.ShopItems.AddRange(items);
+            await context.SaveChangesAsync();
+        }
+
+        // 2. Ensure each UserProfile has an AvatarConfig, Starter Inventory, Preset 1, and Initial Tokens
+        var profiles = await context.UserProfiles.ToListAsync();
+        var starterItems = await context.ShopItems
+            .Where(x => x.ItemCode == "starter_tee_white" || x.ItemCode == "starter_jeans_blue" || x.ItemCode == "starter_sneakers_white" || x.ItemCode == "pedestal_wood_circle")
+            .ToListAsync();
+
+        foreach (var profile in profiles)
+        {
+            if (profile.TokenBalance <= 0)
+            {
+                profile.TokenBalance = 350;
+                profile.TotalTokensEarned = 350;
+                profile.Coins = 350;
+            }
+
+            var hasAvatarConfig = await context.AvatarConfigs.AnyAsync(a => a.UserId == profile.UserId);
+            if (!hasAvatarConfig)
+            {
+                var avatarConfig = new AvatarConfig
+                {
+                    Id = Guid.NewGuid(),
+                    UserId = profile.UserId,
+                    BodyType = "neutral",
+                    SkinColor = "#E8B898",
+                    HairStyleId = "short_crop",
+                    HairColor = "#1C1917",
+                    EyeExpression = "friendly_smile",
+                    MouthExpression = "smile_open",
+                    TopsId = "starter_tee_white",
+                    BottomsId = "starter_jeans_blue",
+                    FootwearId = "starter_sneakers_white",
+                    AuraBackgroundId = "pedestal_wood_circle",
+                    IsActive = true,
+                    UpdatedAt = DateTime.UtcNow
+                };
+                context.AvatarConfigs.Add(avatarConfig);
+            }
+
+            // Ensure starter items in user_inventory
+            foreach (var starter in starterItems)
+            {
+                var owned = await context.UserInventories.AnyAsync(i => i.UserId == profile.UserId && i.ItemId == starter.Id);
+                if (!owned)
+                {
+                    context.UserInventories.Add(new UserInventory
+                    {
+                        Id = Guid.NewGuid(),
+                        UserId = profile.UserId,
+                        ItemId = starter.Id,
+                        TokenSpent = 0,
+                        IsEquipped = true,
+                        AcquiredFrom = "system_gift",
+                        AcquiredAt = DateTime.UtcNow
+                    });
+                }
+            }
+
+            // Ensure preset 1 exists
+            var hasPreset = await context.AvatarPresets.AnyAsync(p => p.UserId == profile.UserId && p.PresetIndex == 1);
+            if (!hasPreset)
+            {
+                var starterJson = System.Text.Json.JsonSerializer.Serialize(new
+                {
+                    bodyType = "neutral",
+                    skinColor = "#E8B898",
+                    hairStyleId = "short_crop",
+                    hairColor = "#1C1917",
+                    eyeExpression = "friendly_smile",
+                    mouthExpression = "smile_open",
+                    topsId = "starter_tee_white",
+                    bottomsId = "starter_jeans_blue",
+                    footwearId = "starter_sneakers_white",
+                    auraBackgroundId = "pedestal_wood_circle"
+                });
+
+                context.AvatarPresets.Add(new AvatarPreset
+                {
+                    Id = Guid.NewGuid(),
+                    UserId = profile.UserId,
+                    PresetIndex = 1,
+                    PresetName = "Phong Cách Đi Học (Campus Casual)",
+                    ConfigData = starterJson,
+                    UpdatedAt = DateTime.UtcNow
+                });
+            }
+
+            // Ensure initial welcome token transaction
+            var hasTx = await context.TokenTransactions.AnyAsync(t => t.UserId == profile.UserId);
+            if (!hasTx)
+            {
+                context.TokenTransactions.Add(new TokenTransaction
+                {
+                    Id = Guid.NewGuid(),
+                    UserId = profile.UserId,
+                    Amount = profile.TokenBalance,
+                    BalanceAfter = profile.TokenBalance,
+                    TransactionType = "admin_adjustment",
+                    Description = "Quà tặng chào mừng tân thủ",
+                    CreatedAt = DateTime.UtcNow
+                });
+            }
         }
 
         await context.SaveChangesAsync();
