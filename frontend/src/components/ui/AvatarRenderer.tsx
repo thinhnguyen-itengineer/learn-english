@@ -12,6 +12,7 @@ export interface AvatarPresetConfig {
   headwearId?: string | null;
   eyewearId?: string | null;
   neckwearId?: string | null;
+  wingsId?: string | null;
   companionId?: string | null;
   auraId?: string | null;
 }
@@ -47,6 +48,7 @@ export const AvatarRenderer: React.FC<AvatarRendererProps> = ({
     headwearId = null,
     eyewearId = null,
     neckwearId = null,
+    wingsId = null,
     companionId = null,
     auraId = 'pedestal_wood_circle',
   } = preset;
@@ -189,6 +191,35 @@ export const AvatarRenderer: React.FC<AvatarRendererProps> = ({
             <path d="M 165 160 Q 140 260 175 300 Q 200 310 200 280 Q 185 220 190 190 Z M 335 160 Q 360 260 325 300 Q 300 310 300 280 Q 315 220 310 190 Z" />
           )}
         </g>
+
+        {/* ------------------------------------------------------------- */}
+        {/* LAYER 1B (Z: 5): WINGS                                        */}
+        {/* ------------------------------------------------------------- */}
+        {mode !== 'headshot' && wingsId && (
+          <g id="layer-1b-wings">
+            {wingsId === 'wings_angel_celestial' && (
+              <g id="wings-angel" fill="#FEF3C7" stroke="#D97706" strokeWidth="2">
+                <path d="M 210 240 C 180 180, 110 120, 80 130 C 65 170, 70 230, 110 290 C 130 320, 170 340, 205 270 Z" />
+                <path d="M 290 240 C 320 180, 390 120, 420 130 C 435 170, 430 230, 390 290 C 370 320, 330 340, 295 270 Z" />
+                <ellipse cx="250" cy="245" rx="36" ry="12" fill="#FEF3C7" stroke="#F59E0B" strokeWidth="2" opacity="0.8" />
+              </g>
+            )}
+            {wingsId === 'wings_cyber_neon' && (
+              <g id="wings-cyber">
+                <polygon points="210,230 110,130 90,145 180,240" fill="#0F172A" stroke="#06B6D4" strokeWidth="2.5" />
+                <polygon points="290,230 390,130 410,145 320,240" fill="#0F172A" stroke="#06B6D4" strokeWidth="2.5" />
+                <ellipse cx="250" cy="245" rx="22" ry="14" fill="#020617" stroke="#06B6D4" strokeWidth="2.5" />
+              </g>
+            )}
+            {wingsId === 'wings_phoenix_flame' && (
+              <g id="wings-phoenix" fill="#F97316" stroke="#7F1D1D" strokeWidth="1.5">
+                <path d="M 210 230 Q 150 140 85 125 Q 120 170 115 205 Q 170 215 205 245 Z" />
+                <path d="M 290 230 Q 350 140 415 125 Q 380 170 385 205 Q 330 215 295 245 Z" />
+                <polygon points="250,232 260,246 250,260 240,246" fill="#FEF08A" stroke="#DC2626" strokeWidth="2" />
+              </g>
+            )}
+          </g>
+        )}
 
         {/* ------------------------------------------------------------- */}
         {/* LAYER 2 (Z: 2): BASE BODY & SKIN                             */}

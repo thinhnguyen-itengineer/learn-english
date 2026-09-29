@@ -8,7 +8,7 @@ export interface ShopItem {
   itemCode: string;
   name: string;
   description?: string;
-  category: 'tops' | 'bottoms' | 'footwear' | 'hair' | 'headwear' | 'eyewear' | 'neckwear' | 'companion' | 'aura' | 'preset_slot';
+  category: 'tops' | 'bottoms' | 'footwear' | 'hair' | 'headwear' | 'eyewear' | 'neckwear' | 'wings' | 'companion' | 'aura' | 'preset_slot';
   rarity: RarityTier;
   tokenPrice: number;
   previewSvg?: React.ReactNode;
@@ -49,6 +49,7 @@ export const ShopItemCard: React.FC<ShopItemCardProps> = ({
     headwear: 'Mũ Nón',
     eyewear: 'Kính Mắt',
     neckwear: 'Phụ Kiện Cổ',
+    wings: 'Đôi Cánh',
     companion: 'Thú Cưng / Bạn',
     aura: 'Hào Quang & Bục',
     preset_slot: 'Slot Trang Phục',

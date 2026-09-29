@@ -177,6 +177,33 @@ const DEFAULT_ITEMS: ShopItem[] = [
     rarity: 'rare',
     tokenPrice: 1000,
   },
+  {
+    id: '17',
+    itemCode: 'wings_angel_celestial',
+    name: 'Đôi Cánh Thiên Thần Tri Thức',
+    description: 'Đôi cánh thiên thần dát vàng thần thánh, tỏa ánh sáng tri thức bao la.',
+    category: 'wings',
+    rarity: 'legendary',
+    tokenPrice: 2800,
+  },
+  {
+    id: '18',
+    itemCode: 'wings_cyber_neon',
+    name: 'Đôi Cánh Cơ Khí Cyber Neon',
+    description: 'Bộ cánh cơ khí công nghệ cao với các lưỡi dao laser phát sáng cyan và magenta.',
+    category: 'wings',
+    rarity: 'epic',
+    tokenPrice: 1600,
+  },
+  {
+    id: '19',
+    itemCode: 'wings_phoenix_flame',
+    name: 'Đôi Cánh Phượng Hoàng Lửa',
+    description: 'Đôi cánh lửa phượng hoàng bất tử bùng cháy dữ dội cho những chuỗi học bất tận.',
+    category: 'wings',
+    rarity: 'legendary',
+    tokenPrice: 3500,
+  },
 ];
 
 export const ShopModal: React.FC<ShopModalProps> = ({
@@ -216,6 +243,7 @@ export const ShopModal: React.FC<ShopModalProps> = ({
     { id: 'headwear', label: 'Mũ Nón' },
     { id: 'eyewear', label: 'Kính Mắt' },
     { id: 'neckwear', label: 'Phụ Kiện' },
+    { id: 'wings', label: 'Cánh' },
     { id: 'companion', label: 'Thú Cưng' },
     { id: 'aura', label: 'Hào Quang' },
     { id: 'preset_slot', label: 'Slot Preset' },

@@ -233,6 +233,32 @@ using (var scope = app.Services.CreateScope())
                         logger.LogInformation("Added missing '{Column}' column to 'user_profiles' table.", col);
                     }
                 }
+
+                // Check avatar_configs table for WingsId
+                try
+                {
+                    var avatarCols = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                    using var avatarCmd = conn.CreateCommand();
+                    avatarCmd.CommandText = "PRAGMA table_info(avatar_configs);";
+                    using var avatarReader = await avatarCmd.ExecuteReaderAsync();
+                    while (await avatarReader.ReadAsync())
+                    {
+                        avatarCols.Add(avatarReader.GetString(1));
+                    }
+                    await avatarReader.CloseAsync();
+
+                    if (!avatarCols.Contains("WingsId"))
+                    {
+                        using var alterCmd = conn.CreateCommand();
+                        alterCmd.CommandText = "ALTER TABLE avatar_configs ADD COLUMN WingsId TEXT NULL;";
+                        await alterCmd.ExecuteNonQueryAsync();
+                        logger.LogInformation("Added missing 'WingsId' column to 'avatar_configs' table.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    logger.LogWarning(ex, "Could not check or add missing WingsId column to avatar_configs table.");
+                }
             }
             catch (Exception ex)
             {

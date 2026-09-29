@@ -426,6 +426,7 @@ public class TokenLedgerService : ITokenLedgerService
         else if (slot == "neckwear" || cat == "neckwear") config.NeckwearId = item.ItemCode;
         else if (slot == "handheld" || cat == "handheld") config.HandheldId = item.ItemCode;
         else if (slot == "pedestal_aura" || cat == "aura_background") config.AuraBackgroundId = item.ItemCode;
+        else if (slot == "wings" || cat == "wings") config.WingsId = item.ItemCode;
 
         config.UpdatedAt = DateTime.UtcNow;
     }

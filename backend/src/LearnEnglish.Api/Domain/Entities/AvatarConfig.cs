@@ -19,6 +19,7 @@ public class AvatarConfig
     public string? NeckwearId { get; set; }
     public string? HandheldId { get; set; }
     public string? AuraBackgroundId { get; set; } = "pedestal_wood_circle";
+    public string? WingsId { get; set; }
     public bool IsActive { get; set; } = true;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 

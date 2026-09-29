@@ -19,6 +19,7 @@ const CATEGORIES: { key: string; label: string; icon: string }[] = [
   { key: 'headwear', label: 'Mũ nón', icon: '🎩' },
   { key: 'eyewear', label: 'Kính mắt', icon: '👓' },
   { key: 'handheld', label: 'Cầm tay', icon: '📖' },
+  { key: 'wings', label: 'Cánh', icon: '🪽' },
   { key: 'aura_background', label: 'Hào quang', icon: '🔥' },
   { key: 'consumable', label: 'Vật phẩm', icon: '🧪' }
 ];
@@ -81,6 +82,7 @@ export const FittingRoomModal: React.FC<FittingRoomModalProps> = ({
       else if (slot === 'eyewear' || cat === 'eyewear') next.eyewearId = item.itemCode;
       else if (slot === 'neckwear' || cat === 'neckwear') next.neckwearId = item.itemCode;
       else if (slot === 'handheld' || cat === 'handheld') next.handheldId = item.itemCode;
+      else if (slot === 'wings' || cat === 'wings') next.wingsId = item.itemCode;
       else if (slot === 'pedestal_aura' || cat === 'aura_background') next.auraBackgroundId = item.itemCode;
     });
     return next;

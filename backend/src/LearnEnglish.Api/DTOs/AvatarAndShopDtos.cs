@@ -16,6 +16,7 @@ public class AvatarConfigDto
     public string? NeckwearId { get; set; }
     public string? HandheldId { get; set; }
     public string? AuraBackgroundId { get; set; } = "pedestal_wood_circle";
+    public string? WingsId { get; set; }
 }
 
 public class OutfitPresetDto

@@ -636,6 +636,7 @@ public class AppDbContext : DbContext
             entity.Property(e => e.NeckwearId).HasMaxLength(50);
             entity.Property(e => e.HandheldId).HasMaxLength(50);
             entity.Property(e => e.AuraBackgroundId).HasMaxLength(50).HasDefaultValue("pedestal_wood_circle");
+            entity.Property(e => e.WingsId).HasMaxLength(50);
 
             entity.HasIndex(e => e.UserId).IsUnique();
         });

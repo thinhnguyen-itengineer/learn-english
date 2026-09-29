@@ -8,6 +8,7 @@ export type ItemCategory =
   | 'eyewear' 
   | 'neckwear' 
   | 'handheld' 
+  | 'wings'
   | 'aura_background' 
   | 'consumable';
 
@@ -27,6 +28,7 @@ export interface AvatarConfigDto {
   eyewearId?: string | null;
   neckwearId?: string | null;
   handheldId?: string | null;
+  wingsId?: string | null;
   auraBackgroundId?: string | null;
 }
 

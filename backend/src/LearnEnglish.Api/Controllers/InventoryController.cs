@@ -81,6 +81,7 @@ public class InventoryController : ControllerBase
         else if (slot == "neckwear" || cat == "neckwear") config.NeckwearId = item.ItemCode;
         else if (slot == "handheld" || cat == "handheld") config.HandheldId = item.ItemCode;
         else if (slot == "pedestal_aura" || cat == "aura_background") config.AuraBackgroundId = item.ItemCode;
+        else if (slot == "wings" || cat == "wings") config.WingsId = item.ItemCode;
         else
         {
             return BadRequest(new { message = "Vật phẩm này không thể trang bị lên Avatar." });
@@ -120,7 +121,8 @@ public class InventoryController : ControllerBase
                 EyewearId = config.EyewearId,
                 NeckwearId = config.NeckwearId,
                 HandheldId = config.HandheldId,
-                AuraBackgroundId = config.AuraBackgroundId
+                AuraBackgroundId = config.AuraBackgroundId,
+                WingsId = config.WingsId
             },
             Message = $"Đã trang bị '{item.NameVi}' thành công."
         });
@@ -165,6 +167,10 @@ public class InventoryController : ControllerBase
         {
             config.HandheldId = null;
         }
+        else if (slot == "wings" || cat == "wings")
+        {
+            config.WingsId = null;
+        }
         else if (slot == "pedestal_aura" || cat == "aura_background")
         {
             config.AuraBackgroundId = "pedestal_wood_circle";
@@ -197,7 +203,8 @@ public class InventoryController : ControllerBase
                 EyewearId = config.EyewearId,
                 NeckwearId = config.NeckwearId,
                 HandheldId = config.HandheldId,
-                AuraBackgroundId = config.AuraBackgroundId
+                AuraBackgroundId = config.AuraBackgroundId,
+                WingsId = config.WingsId
             },
             Message = $"Đã tháo bỏ '{item.NameVi}'."
         });

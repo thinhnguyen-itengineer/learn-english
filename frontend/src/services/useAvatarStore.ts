@@ -31,6 +31,7 @@ const DEFAULT_CONFIG: AvatarConfigDto = {
   eyewearId: null,
   neckwearId: null,
   handheldId: null,
+  wingsId: null,
   auraBackgroundId: 'pedestal_wood_circle'
 };
 

@@ -232,7 +232,7 @@ export const WardrobeModal: React.FC<WardrobeModalProps> = ({
               <div className="space-y-4">
                 {/* Category filters */}
                 <div className="flex gap-1.5 overflow-x-auto pb-1 text-xs">
-                  {['all', 'tops', 'bottoms', 'footwear', 'headwear', 'eyewear', 'handheld', 'aura_background'].map(cat => (
+                  {['all', 'tops', 'bottoms', 'footwear', 'headwear', 'eyewear', 'handheld', 'wings', 'aura_background'].map(cat => (
                     <button
                       key={cat}
                       onClick={() => setInvCategory(cat)}
@@ -249,6 +249,7 @@ export const WardrobeModal: React.FC<WardrobeModalProps> = ({
                       {cat === 'headwear' && 'Nón'}
                       {cat === 'eyewear' && 'Kính'}
                       {cat === 'handheld' && 'Cầm tay'}
+                      {cat === 'wings' && 'Cánh'}
                       {cat === 'aura_background' && 'Hào quang'}
                     </button>
                   ))}

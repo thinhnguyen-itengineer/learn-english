@@ -69,6 +69,23 @@ export const ModularAvatar: React.FC<ModularAvatarProps> = ({
             <stop offset="50%" stopColor="#FDE68A" />
             <stop offset="100%" stopColor="#D97706" />
           </linearGradient>
+          <linearGradient id="angel-wings-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#FFFFFF" />
+            <stop offset="30%" stopColor="#FEF3C7" />
+            <stop offset="70%" stopColor="#FDE68A" />
+            <stop offset="100%" stopColor="#F59E0B" />
+          </linearGradient>
+          <linearGradient id="cyber-wings-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#22D3EE" />
+            <stop offset="40%" stopColor="#3B82F6" />
+            <stop offset="100%" stopColor="#D946EF" />
+          </linearGradient>
+          <linearGradient id="phoenix-wings-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#FEF08A" />
+            <stop offset="35%" stopColor="#FB923C" />
+            <stop offset="75%" stopColor="#EA580C" />
+            <stop offset="100%" stopColor="#B91C1C" />
+          </linearGradient>
           <filter id="shadow-drop" x="-10%" y="-10%" width="120%" height="120%">
             <feDropShadow dx="0" dy="4" stdDeviation="4" floodOpacity="0.15" />
           </filter>
@@ -153,6 +170,93 @@ export const ModularAvatar: React.FC<ModularAvatarProps> = ({
             />
           )}
         </g>
+
+        {/* ========================================================
+            LAYER 1B: WINGS / BACK APPAREL (Z: 5)
+        ======================================================== */}
+        {mode !== 'head' && config.wingsId && (
+          <g id="layer-1b-wings">
+            {config.wingsId === 'wings_angel_celestial' && (
+              <g id="wings-angel" fill="url(#angel-wings-grad)" stroke="#D97706" strokeWidth="2" filter="url(#shadow-drop)">
+                {/* Left Wing */}
+                <g>
+                  <path d="M 210 240 C 180 180, 110 120, 80 130 C 65 170, 70 230, 110 290 C 130 320, 170 340, 205 270 Z" />
+                  <path d="M 205 245 C 160 200, 110 170, 95 210 C 90 240, 115 280, 145 310 C 175 320, 195 290, 205 260 Z" fill="#FFFBEB" stroke="#F59E0B" strokeWidth="1.5" />
+                  <path d="M 205 240 C 175 220, 135 215, 125 245 C 120 270, 145 290, 175 295 Z" fill="#FFFFFF" stroke="#FBBF24" strokeWidth="1" />
+                  <circle cx="82" cy="132" r="5" fill="#FDE68A" className="animate-ping" />
+                  <circle cx="72" cy="190" r="4" fill="#FDE68A" />
+                </g>
+                {/* Right Wing */}
+                <g>
+                  <path d="M 290 240 C 320 180, 390 120, 420 130 C 435 170, 430 230, 390 290 C 370 320, 330 340, 295 270 Z" />
+                  <path d="M 295 245 C 340 200, 390 170, 405 210 C 410 240, 385 280, 355 310 C 325 320, 305 290, 295 260 Z" fill="#FFFBEB" stroke="#F59E0B" strokeWidth="1.5" />
+                  <path d="M 295 240 C 325 220, 365 215, 375 245 C 380 270, 355 290, 325 295 Z" fill="#FFFFFF" stroke="#FBBF24" strokeWidth="1" />
+                  <circle cx="418" cy="132" r="5" fill="#FDE68A" className="animate-ping" />
+                  <circle cx="428" cy="190" r="4" fill="#FDE68A" />
+                </g>
+                <ellipse cx="250" cy="245" rx="36" ry="12" fill="#FEF3C7" stroke="#F59E0B" strokeWidth="2" opacity="0.8" />
+              </g>
+            )}
+
+            {config.wingsId === 'wings_cyber_neon' && (
+              <g id="wings-cyber">
+                {/* Left Cyber Blades */}
+                <g>
+                  <polygon points="210,230 110,130 90,145 180,240" fill="#0F172A" stroke="#06B6D4" strokeWidth="2.5" />
+                  <line x1="110" y1="130" x2="200" y2="230" stroke="#22D3EE" strokeWidth="2" className="animate-pulse" />
+                  <polygon points="205,245 75,210 65,228 175,260" fill="#1E1B4B" stroke="#3B82F6" strokeWidth="2.5" />
+                  <line x1="75" y1="210" x2="185" y2="252" stroke="#60A5FA" strokeWidth="2" />
+                  <polygon points="200,260 100,295 95,315 180,280" fill="#0F172A" stroke="#D946EF" strokeWidth="2.5" />
+                  <line x1="100" y1="295" x2="190" y2="270" stroke="#F472B6" strokeWidth="2" className="animate-pulse" />
+                  <circle cx="95" cy="138" r="4" fill="#22D3EE" />
+                  <circle cx="68" cy="220" r="4" fill="#3B82F6" />
+                  <circle cx="98" cy="305" r="4" fill="#E879F9" />
+                </g>
+                {/* Right Cyber Blades */}
+                <g>
+                  <polygon points="290,230 390,130 410,145 320,240" fill="#0F172A" stroke="#06B6D4" strokeWidth="2.5" />
+                  <line x1="390" y1="130" x2="300" y2="230" stroke="#22D3EE" strokeWidth="2" className="animate-pulse" />
+                  <polygon points="295,245 425,210 435,228 325,260" fill="#1E1B4B" stroke="#3B82F6" strokeWidth="2.5" />
+                  <line x1="425" y1="210" x2="315" y2="252" stroke="#60A5FA" strokeWidth="2" />
+                  <polygon points="300,260 400,295 405,315 320,280" fill="#0F172A" stroke="#D946EF" strokeWidth="2.5" />
+                  <line x1="400" y1="295" x2="310" y2="270" stroke="#F472B6" strokeWidth="2" className="animate-pulse" />
+                  <circle cx="405" cy="138" r="4" fill="#22D3EE" />
+                  <circle cx="432" cy="220" r="4" fill="#3B82F6" />
+                  <circle cx="402" cy="305" r="4" fill="#E879F9" />
+                </g>
+                {/* Central Power Core */}
+                <ellipse cx="250" cy="245" rx="22" ry="14" fill="#020617" stroke="#06B6D4" strokeWidth="2.5" />
+                <circle cx="250" cy="245" r="6" fill="#22D3EE" className="animate-ping" />
+              </g>
+            )}
+
+            {config.wingsId === 'wings_phoenix_flame' && (
+              <g id="wings-phoenix" fill="url(#phoenix-wings-grad)" stroke="#7F1D1D" strokeWidth="1.5" filter="url(#shadow-drop)">
+                {/* Left Flame Wing */}
+                <g>
+                  <path d="M 210 230 Q 150 140 85 125 Q 120 170 115 205 Q 170 215 205 245 Z" />
+                  <path d="M 205 240 Q 130 200 65 210 Q 100 240 100 270 Q 160 265 200 260 Z" fill="#F97316" />
+                  <path d="M 200 255 Q 140 260 90 295 Q 130 310 145 330 Q 180 295 205 270 Z" fill="#FB923C" />
+                  <path d="M 205 240 Q 165 210 135 220 Q 160 250 200 255 Z" fill="#FEF08A" stroke="none" />
+                  <circle cx="75" cy="115" r="4" fill="#FDE68A" className="animate-ping" />
+                  <circle cx="55" cy="195" r="3.5" fill="#FDE68A" />
+                  <circle cx="82" cy="285" r="3" fill="#F97316" className="animate-bounce" />
+                </g>
+                {/* Right Flame Wing */}
+                <g>
+                  <path d="M 290 230 Q 350 140 415 125 Q 380 170 385 205 Q 330 215 295 245 Z" />
+                  <path d="M 295 240 Q 370 200 435 210 Q 400 240 400 270 Q 340 265 300 260 Z" fill="#F97316" />
+                  <path d="M 300 255 Q 360 260 410 295 Q 370 310 355 330 Q 320 295 295 270 Z" fill="#FB923C" />
+                  <path d="M 295 240 Q 335 210 365 220 Q 340 250 300 255 Z" fill="#FEF08A" stroke="none" />
+                  <circle cx="425" cy="115" r="4" fill="#FDE68A" className="animate-ping" />
+                  <circle cx="445" cy="195" r="3.5" fill="#FDE68A" />
+                  <circle cx="418" cy="285" r="3" fill="#F97316" className="animate-bounce" />
+                </g>
+                <polygon points="250,232 260,246 250,260 240,246" fill="#FEF08A" stroke="#DC2626" strokeWidth="2" />
+              </g>
+            )}
+          </g>
+        )}
 
         {/* ========================================================
             LAYER 2: BASE BODY & SKIN (Z: 2)
@@ -274,6 +378,8 @@ export const ModularAvatar: React.FC<ModularAvatarProps> = ({
               </g>
             ) : config.bottomsId === 'bot_suit_pants' ? (
               <path d="M 208 340 L 292 340 L 285 505 L 253 505 L 250 380 L 247 505 L 215 505 Z" fill="#374151" stroke="#1F2937" strokeWidth="2" />
+            ) : config.bottomsId === 'bot_classic_chinos' ? (
+              <path d="M 208 340 L 292 340 L 283 500 L 254 500 L 250 375 L 246 500 L 217 500 Z" fill="#D4B996" stroke="#A88B68" strokeWidth="2" />
             ) : (
               /* Default: starter_jeans_blue */
               <path d="M 208 340 L 292 340 L 283 500 L 254 500 L 250 375 L 246 500 L 217 500 Z" fill="#2563EB" stroke="#1D4ED8" strokeWidth="2" />
@@ -340,6 +446,21 @@ export const ModularAvatar: React.FC<ModularAvatarProps> = ({
               <path d="M 188 225 L 165 345" stroke="#06B6D4" strokeWidth="4" strokeLinecap="round" />
               <path d="M 312 225 L 335 345" stroke="#A855F7" strokeWidth="4" strokeLinecap="round" />
               <circle cx="250" cy="290" r="14" fill="none" stroke="#22D3EE" strokeWidth="2.5" />
+            </g>
+          ) : config.topsId === 'top_scholastic_hoodie' ? (
+            <g>
+              <path d="M 190 218 L 310 218 L 325 355 L 175 355 Z" fill="#047857" stroke="#065F46" strokeWidth="2" />
+              <rect x="220" y="295" width="60" height="40" rx="6" fill="#065F46" />
+              <line x1="235" y1="230" x2="235" y2="265" stroke="#D1FAE5" strokeWidth="2.5" strokeLinecap="round" />
+              <line x1="265" y1="230" x2="265" y2="265" stroke="#D1FAE5" strokeWidth="2.5" strokeLinecap="round" />
+            </g>
+          ) : config.topsId === 'top_cyber_jacket' ? (
+            <g>
+              <path d="M 186 218 L 314 218 L 328 358 L 172 358 Z" fill="#312E81" stroke="#4338CA" strokeWidth="2" />
+              <polygon points="232,218 268,218 250,270" fill="#06B6D4" opacity="0.3" />
+              <line x1="250" y1="270" x2="250" y2="358" stroke="#D946EF" strokeWidth="3" />
+              <path d="M 188 230 L 165 345" stroke="#38BDF8" strokeWidth="3" />
+              <path d="M 312 230 L 335 345" stroke="#E879F9" strokeWidth="3" />
             </g>
           ) : config.topsId === 'top_wizard_robe' ? (
             <g>
@@ -500,6 +621,13 @@ export const ModularAvatar: React.FC<ModularAvatarProps> = ({
               <path d="M 255 90 A 8 8 0 1 0 255 104 A 6 6 0 1 1 255 90 Z" fill="#FDE68A" />
             </g>
           )}
+
+          {config.headwearId === 'head_beret_paris' && (
+            <g id="beret-paris">
+              <ellipse cx="260" cy="98" rx="65" ry="24" transform="rotate(-12 260 98)" fill="#DC2626" stroke="#991B1B" strokeWidth="2" />
+              <line x1="262" y1="74" x2="264" y2="66" stroke="#991B1B" strokeWidth="3" strokeLinecap="round" />
+            </g>
+          )}
         </g>
 
         {/* ========================================================
@@ -539,6 +667,16 @@ export const ModularAvatar: React.FC<ModularAvatarProps> = ({
               <rect x="264" y="134" width="30" height="20" rx="3" fill="#F59E0B" fillOpacity="0.5" stroke="none" />
             </g>
           )}
+
+          {config.eyewearId === 'eye_aviator_shades' && (
+            <g stroke="#F59E0B" strokeWidth="2" fill="#18181B" opacity="0.9">
+              <path d="M 206 132 C 215 130, 235 130, 238 135 C 240 145, 235 158, 222 158 C 210 158, 204 146, 206 132 Z" />
+              <path d="M 262 135 C 265 130, 285 130, 294 132 C 296 146, 290 158, 278 158 C 265 158, 260 145, 262 135 Z" />
+              <line x1="238" y1="135" x2="262" y2="135" stroke="#F59E0B" strokeWidth="2.5" />
+              <line x1="210" y1="138" x2="225" y2="138" stroke="#FFFFFF" strokeWidth="1.5" opacity="0.4" />
+              <line x1="275" y1="138" x2="290" y2="138" stroke="#FFFFFF" strokeWidth="1.5" opacity="0.4" />
+            </g>
+          )}
         </g>
 
         {/* ========================================================
@@ -568,6 +706,15 @@ export const ModularAvatar: React.FC<ModularAvatarProps> = ({
                 {/* Musical notes floating */}
                 <text x="25" y="5" fontSize="16" fill="#F59E0B" className="animate-bounce">♪</text>
                 <text x="32" y="22" fontSize="12" fill="#FBBF24">♫</text>
+              </g>
+            )}
+
+            {config.handheldId === 'hand_quill_pen' && (
+              <g transform="translate(345, 330) rotate(-35)">
+                <path d="M 10 50 Q 5 25 20 0 Q 30 20 15 50 Z" fill="#FDE68A" stroke="#D97706" strokeWidth="1.5" />
+                <line x1="12" y1="45" x2="18" y2="5" stroke="#B45309" strokeWidth="1.5" />
+                <polygon points="9,48 13,48 11,58" fill="#1E293B" />
+                <circle cx="11" cy="62" r="2" fill="#3B82F6" className="animate-pulse" />
               </g>
             )}
           </g>

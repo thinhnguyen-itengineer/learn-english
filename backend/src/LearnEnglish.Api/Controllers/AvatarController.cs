@@ -110,6 +110,7 @@ public class AvatarController : ControllerBase
         config.EyewearId = CheckItemAllowed(dto.EyewearId);
         config.NeckwearId = CheckItemAllowed(dto.NeckwearId);
         config.HandheldId = CheckItemAllowed(dto.HandheldId);
+        config.WingsId = CheckItemAllowed(dto.WingsId);
         config.AuraBackgroundId = string.IsNullOrWhiteSpace(dto.AuraBackgroundId) ? "pedestal_wood_circle" : dto.AuraBackgroundId;
         config.UpdatedAt = DateTime.UtcNow;
 
@@ -285,7 +286,8 @@ public class AvatarController : ControllerBase
             EyewearId = config.EyewearId,
             NeckwearId = config.NeckwearId,
             HandheldId = config.HandheldId,
-            AuraBackgroundId = config.AuraBackgroundId
+            AuraBackgroundId = config.AuraBackgroundId,
+            WingsId = config.WingsId
         };
     }
 
