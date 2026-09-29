@@ -72,6 +72,17 @@ Hệ thống tài liệu spec được chia thành các file chuyên sâu phục
      3. *Giải Đấu Phân Hạng Tuần (Weekly Leagues):* 5 bậc rank, thuật toán phân bảng 30 người (Lazy Partitioning) và chốt thăng/xuống hạng 23:59:59 Chủ Nhật.
      4. *Social Study Squads & Async Challenges:* Nhóm học tập 5-10 người, thanh tiến độ chung 5,000 XP/tuần, mở Squad Mega Chest và Link thách đấu bất đồng bộ (Seed snapshot + Open Graph preview).
    - Mô hình dữ liệu PostgreSQL DDL, C# EF Core entities, TypeScript interfaces, RESTful API contracts và bộ tiêu chí nghiệm thu Given-When-Then cho QA & Tech Lead.
+10. [product-research-gamified-shop-and-avatar.md](./product-research-gamified-shop-and-avatar.md):
+    - **Nghiên cứu Thị trường & Chiến lược Hệ Thống Avatar & Cửa Hàng Game Hóa (PHU-20):**
+      1. *Mục tiêu & Đối sánh thị trường:* Khảo sát Duolingo Avatars, Habitica RPG Gear & Pets, Roblox Live Fitting Room, Pokemon GO Trainer Showcase.
+      2. *4 Trụ cột chiến lược đột phá:* Token Economy (Learn-to-Earn & Sinks), Hệ thống 2D Modular Layered Avatar, Cửa hàng vật phẩm & Phòng thử đồ (Live Fitting Room), Hồ sơ cá nhân & Hiển thị diện rộng (Navbar, Leaderboard, 1v1 Battle, Squads).
+      3. *Lộ trình phân kỳ & Kế hoạch điều phối:* Phân công chi tiết cho Product BA, Tech Lead, UI/UX Designer và Senior Fullstack Engineer.
+11. [avatar-customization-and-gamified-shop.md](./avatar-customization-and-gamified-shop.md):
+    - **Đặc tả nghiệp vụ chi tiết Hệ thống Avatar & Cửa Hàng Vật Phẩm (Sắp phát hành - Product BA đang thực hiện):**
+      - Quy tắc phân bổ thưởng Token theo 4 kỹ năng & mini-games.
+      - Cấu trúc dữ liệu phân tầng Avatar (Z-Index, Color Palettes, Default Presets).
+      - Danh mục Cửa Hàng, Bảng thông số vật phẩm & Hệ thống độ hiếm (Common, Rare, Epic, Legendary).
+      - Mô hình dữ liệu PostgreSQL DDL, EF Core C# Entities, TypeScript Interfaces, RESTful APIs và kịch bản nghiệm thu Given-When-Then.
 
 ---
 
