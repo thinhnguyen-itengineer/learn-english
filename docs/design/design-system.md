@@ -878,3 +878,238 @@ import {
 
 
 
+
+
+---
+
+## 9. Hệ Thống Modular 2D Avatar, Cửa Hàng Vật Phẩm & Hồ Sơ Cá Nhân (Gamified Avatar & Shop Subsystem)
+
+**Mã phân hệ:** `DESIGN-AVATAR-SHOP-V1`  
+**Tác giả:** UI/UX Designer & Design Technologist (`c74ffe18-11a2-47b9-a7f4-a3600b2f07c0`)  
+**Bàn giao cho:** Senior Fullstack Engineer (`e78be358-35da-419c-bf21-24a27e284561`), Tech Lead, Product Team  
+**Cơ sở đặc tả:** [`docs/spec/avatar-customization-and-gamified-shop.md`](../spec/avatar-customization-and-gamified-shop.md) & [`docs/architecture/avatar-and-shop-architecture.md`](../architecture/avatar-and-shop-architecture.md)  
+**Mục tiêu:** Tạo dựng hệ sinh thái hình ảnh đại diện cá nhân hóa, vui tươi, gamified (phong cách Duolingo & modern web), kích thích động lực học tập thông qua cơ chế kiếm Token và mua sắm trang phục.
+
+---
+
+### 9.1. Triết Lý Thiết Kế & Visual Identity
+
+1. **Ấm Áp, Tươi Sáng & Đậm Chất Game (Gamified Joy):**  
+   - Nhân vật được xây dựng theo tỷ lệ Chibi bán thân - toàn thân thân thiện (đầu to vừa phải, mắt to tròn biểu cảm sinh động).
+   - Gam màu tươi sáng (Pastel Vibrant), tạo cảm giác phấn khởi mỗi khi người học hoàn thành bài tập và ghé thăm diện mạo mới.
+2. **Đồ Họa Vector Thuần SVG & Hiệu Năng Vượt Trội (<50ms):**  
+   - Sử dụng 100% SVG inline components chia tách theo layer, không phụ thuộc vào tải ảnh raster PNG/WebP nặng nề.
+   - Sắc nét tuyệt đối trên mọi độ phân giải (Retina, Mobile, Tablet, 4K Monitor).
+3. **Cơ Chế Dynamic Tinting Qua Biến CSS (Zero Re-render Lag):**  
+   - Màu da và màu tóc được nội suy trực tiếp qua biến CSS:
+     - `--avatar-skin-color`
+     - `--avatar-hair-color`
+   - Cho phép người dùng trượt chọn bảng màu và xem trước tức thì mà không cần re-render lại toàn bộ cây DOM vector.
+
+---
+
+### 9.2. Ma Trận Xếp Lớp Z-Index 12 Layer (SVG Layer Hierarchy)
+
+Mọi bộ phận của nhân vật được căn chuẩn trên cùng một hệ tọa độ chuẩn **Canvas 500 × 600 px** với thứ tự Z-Index nghiêm ngặt:
+
+| Thứ tự Layer | Mã Layer Z-Index | Thành Phần | Thuộc Tính Tô Màu | Trạng Thái Mặc Định |
+| :---: | :--- | :--- | :--- | :--- |
+| **0** | `layer-0-aura-pedestal` (Z: 0) | Hào quang & Bục đứng vinh danh | Vector Gradient | Bục gỗ sồi tròn (`pedestal_wood_circle`) |
+| **1** | `layer-1-rear-hair` (Z: 1) | Tóc phía sau lưng | `var(--avatar-hair-color)` | Tự động sinh theo kiểu tóc |
+| **2** | `layer-2-base-body` (Z: 2) | Khung thân người (Cổ, ngực, tay, chân) | `var(--avatar-skin-color)` | Neutral / Male / Female |
+| **3** | `layer-3-face` (Z: 3) | Biểu cảm mắt, mày, mũi, miệng & má hồng | Mắt đen + má hồng + điểm sáng | Friendly Smile (`friendly_smile`) |
+| **4** | `layer-4-bottoms` (Z: 4) | Quần dài, quần short, chân váy | Asset Color Palette | Quần Jeans xanh (`starter_jeans_blue`) |
+| **5** | `layer-5-footwear` (Z: 5) | Giày thể thao, Boots da, Giày Cyber | Asset Color Palette | Sneaker trắng (`starter_sneakers_white`) |
+| **6** | `layer-6-tops` (Z: 6) | Áo thun, Hoodie, Áo vest, Áo khoác | Asset Color Palette | Áo thun trắng (`starter_tee_white`) |
+| **7** | `layer-7-neckwear` (Z: 7) | Khăn choàng len, Tai nghe gaming, Cà vạt | Asset Color Palette | Tùy chọn (Mặc định: Trống) |
+| **8** | `layer-8-front-hair` (Z: 8) | Tóc mái & tóc trước trán | `var(--avatar-hair-color)` | Short Crop (`hair_front_short_crop`) |
+| **9** | `layer-9-headwear` (Z: 9) | Mũ lưỡi trai, Mũ len beanie, Vương miện | Asset Color Palette | Tùy chọn (Mặc định: Trống) |
+| **10**| `layer-10-eyewear` (Z: 10) | Kính cận tròn, Kính râm, Visor Cyber | Trong suốt + Gọng | Tùy chọn (Mặc định: Trống) |
+| **11**| `layer-11-companion` (Z: 11) | Cú mèo, Mèo may mắn, Từ điển, Đũa phép | Độc lập, kèm animation bay | Tùy chọn (Mặc định: Trống) |
+
+---
+
+### 9.3. Bảng Token Màu Sắc Mới (Design Tokens)
+
+#### 1. Hệ Thống 4 Cấp Độ Hiếm (Rarity Tiers):
+- **Common (Phổ thông):**  
+  - Border: `border-slate-700/80` | Background: `bg-slate-800/80` | Shadow: `shadow-[0_4px_0_#1e293b]`  
+  - Huy hiệu: Viền xám ánh bạc, biểu tượng Ngôi sao (Star).
+- **Rare (Hiếm):**  
+  - Border: `border-emerald-500/80` | Background: `bg-emerald-950/80` | Shadow: `shadow-[0_4px_0_#047857]`  
+  - Huy hiệu: Viền ngọc lục bảo phát sáng nhẹ, biểu tượng Lấp lánh (Sparkles).
+- **Epic (Sử thi):**  
+  - Border: `border-purple-500/80` | Background: `bg-purple-950/80` | Shadow: `shadow-[0_4px_0_#6d28d9]`  
+  - Huy hiệu: Viền tím neon, hiệu ứng nhịp thở pulse glow, biểu tượng Khiên năng lượng (Shield).
+- **Legendary (Huyền thoại):**  
+  - Border: `border-amber-500` | Background: `bg-gradient-to-r from-amber-950/90 to-orange-950/90` | Shadow: `shadow-[0_4px_0_#c2410c]`  
+  - Huy hiệu: Viền vàng lửa rực rỡ, hiệu ứng nhấp nháy chuyển sắc, biểu tượng Ngọn lửa (Flame).
+
+#### 2. Bảng 8 Tông Màu Da Chuẩn (Universal Skin Tones):
+- `#FDDFDF` (Porcelain - Rất sáng)
+- `#F8D5C2` (Fair - Trắng hồng tự nhiên)
+- `#E8B898` (Warm Ivory - Sáng tự nhiên)
+- `#D09B74` (Tan - Bánh mật nhẹ)
+- `#BA7B54` (Olive - Răm nắng Châu Á)
+- `#9B5B32` (Honey Bronze - Nâu đồng)
+- `#6C3E1F` (Chestnut - Nâu hạt dẻ)
+- `#3D2314` (Espresso - Nâu đậm Châu Phi)
+
+#### 3. Bảng 10 Màu Tóc Tự Nhiên & Fantasy:
+- `#1C1917` (Jet Black), `#3B2219` (Espresso), `#5C3317` (Chestnut Brown), `#854D0E` (Caramel Honey), `#CA8A04` (Golden Blonde), `#78350F` (Auburn Copper), `#DC2626` (Crimson Flame), `#64748B` (Platinum Silver), `#06b6d4` (Cyber Neon), `#9333ea` (Cosmic Violet).
+
+#### 4. Token Tiền Tệ Token Economy:
+- Biểu tượng đồng xu vàng viền 3D: `text-yellow-400 drop-shadow-[0_1px_4px_rgba(234,179,8,0.8)] animate-coin-shine`.
+- Thẻ số dư Token: `bg-gradient-to-b from-amber-500/20 via-yellow-950/40 to-amber-950/80 border-amber-500/80 text-amber-300 shadow-[0_3px_0_#78350f]`.
+- Thanh trần mềm ngày (Soft-Cap Meter): `600 Tokens/ngày`, tự động chuyển màu cảnh báo vàng khi chạm trần.
+
+---
+
+### 9.4. Đặc Tả Bố Cục Giao Diện & Màn Hình
+
+#### 1. Phòng Thay Đồ & Studio Tùy Biến (`AvatarCustomizerModal.tsx`):
+- **Bố cục Split-View:**
+  - **Cột Trái (40%):** 
+    - Hiển thị nhân vật toàn thân (`AvatarRenderer` mode `full`).
+    - Bộ chuyển đổi 3 Preset Slots (Slot 1, 2, 3) với nhãn khóa/mở và huy hiệu đang kích hoạt.
+    - Bộ 3 nút điều khiển nhanh: "Ngẫu nhiên" (Dices), "Mặc định" (RotateCcw), "Mở Cửa Hàng" (ShoppingBag).
+  - **Cột Phải (60%):**
+    - Thanh Tabs danh mục cuộn ngang: Dáng & Da, Tóc & Màu, Biểu cảm, Áo, Quần & Váy, Giày dép, Mũ nón, Kính mắt, Phụ kiện cổ, Thú cưng, Hào quang & Bục.
+    - Lưới chọn vật phẩm trực quan với viền phản hồi `ring-2 ring-emerald-400`.
+    - Thanh điều khiển footer: Nút "Hủy bỏ" bên trái và nút 3D "Lưu Vào Slot" bên phải.
+
+#### 2. Cửa Hàng Vật Phẩm Game Hóa (`ShopModal.tsx`):
+- **Tính năng Live Fitting Room (Thử Đồ Trực Quan):**
+  - Chế độ split-view tích hợp Avatar trực tiếp trong Shop.
+  - Mỗi khi bấm nút "Thử" trên thẻ `ShopItemCard`, nhân vật bên trái mặc ngay lập tức để người học chiêm ngưỡng trước khi quyết định mua.
+  - Nút "Bỏ thử (N)" cho phép hoàn tác nhanh.
+- **Quy trình Mua Sắm An Toàn (Purchase Confirmation Modal):**
+  - Hộp thoại tính toán số dư rõ ràng: `Số dư hiện tại - Giá Token = Số dư sau giao dịch`.
+  - Nút Mua hiển thị trạng thái `isLoading` chống spam click đúp.
+  - Hộp thoại chúc mừng mở khóa thành công kèm hiệu ứng hoạt họa vinh danh.
+
+#### 3. Trang Hồ Sơ Cá Nhân (`UserProfileShowcaseCard.tsx`):
+- **Banner Bục Vinh Quang & Avatar Toàn Thân:**
+  - Nhân vật đứng trên bục vàng với hiệu ứng nhịp thở (`animate-avatar-breathe`).
+- **Radar 4 Kỹ Năng Sư Phạm:**
+  - Biểu đồ mạng nhện SVG 4 đỉnh: Nghe (Listening), Nói (Speaking), Đọc (Reading), Viết (Writing) thể hiện % năng lực thực tế.
+- **Tủ Trưng Bày Huy Hiệu (Badges Wall):**
+  - Ghim tối đa 3 huy hiệu vinh danh lên đầu hồ sơ cá nhân.
+  - Lưới toàn bộ 24 huy hiệu thành tích phân hạng Đồng, Bạc, Vàng, Kim Cương.
+- **Dòng Nhật Ký Giao Dịch & Hoạt Động (Recent Activity & Token Ledger):**
+  - Hiển thị biến động Token theo thời gian thực (ví dụ: `+25 Tokens - Thắng 1v1`, `-850 Tokens - Mua áo hoodie`).
+
+#### 4. Tủ Đồ Cá Nhân (`WardrobeModal.tsx`):
+- Xem lại toàn bộ trang phục đã tích lũy.
+- Lọc theo danh mục và tìm kiếm nhanh theo tên.
+- Trang bị trực tiếp vào nhân vật chỉ với 1 click.
+
+---
+
+### 9.5. Danh Mục Micro-Animations & Hiệu Ứng
+
+| Hiệu Ứng | Tên Animation Tailwind | Thời Lượng | Mục Đích |
+| :--- | :--- | :--- | :--- |
+| **Nhịp thở nhân vật** | `animate-avatar-breathe` | 3.0s | Tạo cảm giác nhân vật sống động, không bị tĩnh cứng |
+| **Xoay hào quang** | `animate-aura-rotate` | 12.0s | Vòng sáng ma trận hoặc ngân hà xoay tròn chậm rãi |
+| **Lấp lánh đồng xu** | `animate-coin-shine` | 2.0s | Điểm xuyết phản chiếu ánh kim trên icon Token vàng |
+| **Nhịp viền đang thử**| `animate-tryon-pulse` | 1.8s | Báo hiệu người dùng đang trong trạng thái xem trước thử đồ |
+| **Thú cưng bay lượn** | `animate-float-orbit` | 3.0s | Cú mèo và thú cưng lơ lửng nhẹ nhàng trên vai người học |
+
+---
+
+### 9.6. Hướng Dẫn Tích Hợp React Cho Kỹ Sư Fullstack
+
+```tsx
+import React, { useState } from 'react';
+import {
+  AvatarRenderer,
+  AvatarCustomizerModal,
+  ShopModal,
+  UserProfileShowcaseCard,
+  TokenBalanceBadge,
+  RarityBadge,
+  AvatarPresetConfig,
+} from '@/components/ui';
+
+export const UserHubPage = () => {
+  const [tokenBalance, setTokenBalance] = useState(3450);
+  const [dailyTokens, setDailyTokens] = useState(420);
+  const [isCustomizerOpen, setIsCustomizerOpen] = useState(false);
+  const [isShopOpen, setIsShopOpen] = useState(false);
+
+  const [activePreset, setActivePreset] = useState<AvatarPresetConfig>({
+    bodyType: 'neutral',
+    skinToneHex: '#F8D5C2',
+    hairStyleId: 'hair_front_short_crop',
+    hairColorHex: '#3B2219',
+    faceExpressionId: 'friendly_smile',
+    topsId: 'hoodie_cyber_neon',
+    bottomsId: 'starter_jeans_blue',
+    footwearId: 'footwear_cyber',
+    headwearId: 'head_beanie_cozy',
+    companionId: 'pet_owl_scholar',
+    auraId: 'pedestal_gold_champion',
+  });
+
+  return (
+    <div className="p-6 space-y-6">
+      {/* 1. Header Mini Avatar & Token Badge */}
+      <div className="flex items-center justify-between p-4 bg-slate-900 rounded-2xl">
+        <div className="flex items-center gap-3">
+          <AvatarRenderer preset={activePreset} mode="headshot" size={48} />
+          <span className="font-black text-white">Trần Văn An</span>
+        </div>
+        <TokenBalanceBadge
+          balance={tokenBalance}
+          showSoftCap={true}
+          dailyTokensEarned={dailyTokens}
+          onClick={() => setIsShopOpen(true)}
+        />
+      </div>
+
+      {/* 2. User Profile Showcase */}
+      <UserProfileShowcaseCard
+        displayName="Trần Văn An"
+        level={28}
+        customTitle="Bậc Thầy Ngữ Pháp"
+        tokenBalance={tokenBalance}
+        streakDays={45}
+        totalXp={18250}
+        avatarPreset={activePreset}
+        onOpenCustomizer={() => setIsCustomizerOpen(true)}
+        onOpenShop={() => setIsShopOpen(true)}
+      />
+
+      {/* 3. Avatar Customizer Modal */}
+      <AvatarCustomizerModal
+        isOpen={isCustomizerOpen}
+        onClose={() => setIsCustomizerOpen(false)}
+        initialPreset={activePreset}
+        onSavePreset={(newConfig, slot) => {
+          setActivePreset(newConfig);
+          // Gửi API cập nhật PUT /api/v1/avatar/presets/{slot}
+        }}
+        onOpenShop={() => {
+          setIsCustomizerOpen(false);
+          setIsShopOpen(true);
+        }}
+      />
+
+      {/* 4. Gamified Item Shop Modal */}
+      <ShopModal
+        isOpen={isShopOpen}
+        onClose={() => setIsShopOpen(false)}
+        userTokenBalance={tokenBalance}
+        dailyTokensEarned={dailyTokens}
+        currentPreset={activePreset}
+        onPurchaseItem={async (item) => {
+          // Gửi API mua vật phẩm POST /api/v1/shop/buy
+          setTokenBalance((prev) => prev - item.tokenPrice);
+          return true;
+        }}
+      />
+    </div>
+  );
+};
+```

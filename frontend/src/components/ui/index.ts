@@ -66,3 +66,27 @@ export * from './AsyncChallengeCard';
 // 7. AI Speaking Partner & Phoneme Heatmap
 export * from './PhonemeHeatmapCard';
 
+// Avatar Customization, Gamified Shop & Profile Ecosystem (PHU-23)
+// 1. Modular 12-Layer SVG Avatar Renderer with Dynamic CSS Tinting
+export * from './AvatarRenderer';
+
+// 2. Rarity Tier Badges (Common, Rare, Epic, Legendary)
+export * from './RarityBadge';
+
+// 3. Gold Token Economy Balance Badge with Soft-Cap Indicator
+export * from './TokenBalanceBadge';
+
+// 4. Gamified Item Shop Card with 3D Interaction
+export * from './ShopItemCard';
+
+// 5. Live Fitting Room Studio & Preset Switcher Modal
+export * from './AvatarCustomizerModal';
+
+// 6. Split-View Gamified Shop Modal with Instant Try-On
+export * from './ShopModal';
+
+// 7. User Profile Showcase with Podium Avatar, 4-Skills Radar & Badges Wall
+export * from './UserProfileShowcaseCard';
+
+// 8. Personal Wardrobe & Inventory Management Modal
+export * from './WardrobeModal';

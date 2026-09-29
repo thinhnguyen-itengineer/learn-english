@@ -24,7 +24,11 @@ export type ButtonVariant =
   | 'squad'
   | 'clinic'
   | 'promo'
-  | 'demote';
+  | 'demote'
+  | 'token'
+  | 'rare'
+  | 'epic'
+  | 'legendary';
 
 export type ButtonSize = 'sm' | 'md' | 'lg' | 'xl' | 'icon';
 
@@ -84,6 +88,14 @@ const variantStyles: Record<ButtonVariant, string> = {
     'bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold shadow-[0_4px_0_#047857] active:shadow-none active:translate-y-[4px] border-b-2 border-emerald-700',
   demote:
     'bg-rose-600 hover:bg-rose-500 text-white font-extrabold shadow-[0_4px_0_#b91c1c] active:shadow-none active:translate-y-[4px] border-b-2 border-rose-700',
+  token:
+    'bg-amber-400 hover:bg-amber-300 text-yellow-950 font-black shadow-[0_4px_0_#b45309] active:shadow-none active:translate-y-[4px] border-b-2 border-amber-500',
+  rare:
+    'bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold shadow-[0_4px_0_#047857] active:shadow-none active:translate-y-[4px] border-b-2 border-emerald-700',
+  epic:
+    'bg-purple-600 hover:bg-purple-500 text-white font-extrabold shadow-[0_4px_0_#6d28d9] active:shadow-none active:translate-y-[4px] border-b-2 border-purple-700',
+  legendary:
+    'bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-400 hover:to-orange-400 text-white font-black shadow-[0_4px_0_#c2410c] active:shadow-none active:translate-y-[4px] border-b-2 border-amber-600',
 };
 
 const sizeStyles: Record<ButtonSize, string> = {
