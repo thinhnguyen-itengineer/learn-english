@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { 
-  Volume2, VolumeX, ArrowLeft, Heart, Flame, Sparkles, 
-  RotateCcw, Delete, Shuffle, Play, CheckCircle2, AlertCircle 
+  Volume2, ArrowLeft, Heart, Flame, Sparkles, 
+  RotateCcw, Delete, Shuffle, CheckCircle2, AlertCircle 
 } from 'lucide-react';
 import { AudioBlitzInitResponse, CompleteSessionRequest } from '../types/game';
 import { sound } from '../utils/sound';
@@ -30,14 +30,12 @@ export const AudioBlitzGame: React.FC<AudioBlitzGameProps> = ({
   const [maxCombo, setMaxCombo] = useState(0);
   const [correctAnswers, setCorrectAnswers] = useState(0);
   const [totalAttempts, setTotalAttempts] = useState(0);
-  const [gameStartTime] = useState(Date.now());
+  const [gameStartTime] = useState(() => Date.now());
 
   // Current item state
   const currentItem = data.items[currentIndex];
-  const targetWord = currentItem ? (currentItem.targetWordLength ? data.items[currentIndex].letterBank.slice(0, currentItem.targetWordLength).join('') : '').toUpperCase() : '';
   
   // We deduce target word from letters or bank:
-  // In our backend seed, targetWordLength is provided. For comparison, target word is reconstructed or matches clean letters
   const [inputSlots, setInputSlots] = useState<SlottedLetter[]>([]);
   const [letterBank, setLetterBank] = useState<{ id: string; char: string; used: boolean }[]>([]);
   
@@ -97,22 +95,16 @@ export const AudioBlitzGame: React.FC<AudioBlitzGameProps> = ({
       audio.playbackRate = speed;
       audio.onended = () => setIsPlayingAudio(false);
       audio.onerror = () => {
-        // Fallback to speech synth
-        const wordText = currentItem.contextSentence.includes('______')
-          ? currentItem.partOfSpeech
-          : currentItem.phonetic;
-        sound.speak(currentItem.phonetic || 'word', speed);
+        sound.speak(currentItem.targetWord || currentItem.definitionVi, speed);
         setTimeout(() => setIsPlayingAudio(false), 1000);
       };
       audio.play().catch(() => {
-        sound.speak(currentItem.phonetic || 'word', speed);
+        sound.speak(currentItem.targetWord || currentItem.definitionVi, speed);
         setTimeout(() => setIsPlayingAudio(false), 1000);
       });
     } else {
-      // Use clean phonetic or synthesized speech
-      // To ensure correct word is pronounced: we can derive target word from question
-      const sampleWord = currentItem.contextSentence.replace('________', '').trim();
-      sound.speak(sampleWord || currentItem.definitionVi, speed);
+      // Use clean speech synthesis with target word
+      sound.speak(currentItem.targetWord || currentItem.definitionVi, speed);
       setTimeout(() => setIsPlayingAudio(false), 1200);
     }
   }, [currentItem, audioPlayCount]);
@@ -158,7 +150,7 @@ export const AudioBlitzGame: React.FC<AudioBlitzGameProps> = ({
     setLives(newLives);
 
     // Form correct word to reveal
-    const wordTarget = data.items[currentIndex]?.letterBank.slice(0, data.items[currentIndex].targetWordLength).join('') || 'TARGET';
+    const wordTarget = currentItem?.targetWord || 'TARGET';
     setRevealedWord(wordTarget);
 
     setTimeout(() => {
@@ -203,7 +195,6 @@ export const AudioBlitzGame: React.FC<AudioBlitzGameProps> = ({
   // Backspace
   const handleBackspace = () => {
     if (isAnswered || inputSlots.length === 0) return;
-    const last = inputSlots[inputSlots.length - 1];
     handleRemoveSlot(inputSlots.length - 1);
   };
 
@@ -227,11 +218,9 @@ export const AudioBlitzGame: React.FC<AudioBlitzGameProps> = ({
     const inputWord = slots.map(s => s.char).join('');
     setTotalAttempts(prev => prev + 1);
 
-    // Check correctness:
-    // Any valid combination matching the target length and proper letters
-    // Or check against letter bank sorted target letters
-    const expectedLetters = currentItem.letterBank.slice(0, currentItem.targetWordLength);
-    const isCorrect = inputWord.length === currentItem.targetWordLength;
+    // Check correctness against target word
+    const targetWordExpected = (currentItem.targetWord || '').trim().toUpperCase();
+    const isCorrect = inputWord.trim().toUpperCase() === targetWordExpected;
 
     if (isCorrect) {
       // Calculate score according to spec

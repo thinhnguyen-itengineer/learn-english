@@ -72,6 +72,7 @@ public record SentenceScrambleInitResponse
 public record AudioBlitzItemDto
 {
     public string QuestionId { get; init; } = string.Empty;
+    public string TargetWord { get; init; } = string.Empty;
     public string AudioUrl { get; init; } = string.Empty;
     public string? SlowAudioUrl { get; init; }
     public string Phonetic { get; init; } = string.Empty;
@@ -105,6 +106,7 @@ public record ClozeQuestionDto
     public string ContextSentence { get; init; } = string.Empty;
     public string SentenceTranslationVi { get; init; } = string.Empty;
     public string PartOfSpeechHint { get; init; } = string.Empty;
+    public string CorrectWord { get; init; } = string.Empty;
     public List<ClozeOptionDto> Options { get; init; } = new();
     public string ExplanationText { get; init; } = string.Empty;
 }

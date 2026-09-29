@@ -100,11 +100,15 @@ export const ClozeMasterGame: React.FC<ClozeMasterGameProps> = ({
   };
 
   // Determine correct option
-  // In our backend seed, the correct option word matches the correct word or definition
-  // Or check against question's first option or text match
   const findCorrectOption = useCallback((): ClozeOptionDto | undefined => {
     if (!currentQuestion) return undefined;
-    // Check explanation text or matching option
+    if (currentQuestion.correctWord) {
+      const match = currentQuestion.options.find(
+        opt => opt.word.trim().toLowerCase() === currentQuestion.correctWord.trim().toLowerCase()
+      );
+      if (match) return match;
+    }
+    // Fallback: Check explanation text or matching option
     const found = currentQuestion.options.find(opt => 
       currentQuestion.explanationText.toLowerCase().includes(`'${opt.word.toLowerCase()}'`) ||
       currentQuestion.explanationText.toLowerCase().includes(`"${opt.word.toLowerCase()}"`)

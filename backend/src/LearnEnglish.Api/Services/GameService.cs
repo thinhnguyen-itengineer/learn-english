@@ -229,6 +229,7 @@ public class GameService : IGameService
                         items.Add(new AudioBlitzItemDto
                         {
                             QuestionId = q.Id.ToString(),
+                            TargetWord = targetWord,
                             AudioUrl = q.AudioUrl,
                             SlowAudioUrl = q.SlowAudioUrl,
                             Phonetic = q.Phonetic,
@@ -254,6 +255,7 @@ public class GameService : IGameService
                         items.Add(new AudioBlitzItemDto
                         {
                             QuestionId = w.Id.ToString(),
+                            TargetWord = target,
                             AudioUrl = w.AudioUrl ?? "",
                             SlowAudioUrl = null,
                             Phonetic = w.Phonetic ?? "",
@@ -316,6 +318,7 @@ public class GameService : IGameService
                             ContextSentence = q.ContextSentence,
                             SentenceTranslationVi = q.SentenceTranslationVi,
                             PartOfSpeechHint = q.PartOfSpeechHint,
+                            CorrectWord = q.CorrectWord,
                             Options = optionDtos,
                             ExplanationText = q.ExplanationText
                         });
@@ -344,6 +347,7 @@ public class GameService : IGameService
                             ContextSentence = s.EnglishText.Replace(cleanTarget, "[ ________ ]", StringComparison.OrdinalIgnoreCase),
                             SentenceTranslationVi = s.VietnameseTranslation,
                             PartOfSpeechHint = "Từ vựng ngữ cảnh",
+                            CorrectWord = cleanTarget,
                             Options = opts,
                             ExplanationText = $"Đáp án chuẩn xác là '{cleanTarget}' theo đúng cấu trúc câu."
                         });

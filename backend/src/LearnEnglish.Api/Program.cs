@@ -122,7 +122,7 @@ builder.Services.AddSwaggerGen(c =>
     {
         Title = "Learn English Mini-game API",
         Version = "v1",
-        Description = "API cho nền tảng học tiếng Anh qua 3 mini-game: Word Match, Speed Falling Word, Sentence Scramble"
+        Description = "API cho nền tảng học tiếng Anh qua 6 mini-game: Word Match, Speed Falling Word, Sentence Scramble, Audio Blitz, Cloze Master, Grammar Detective và Đấu trường 1v1 Realtime"
     });
 
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme

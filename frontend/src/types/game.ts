@@ -107,6 +107,7 @@ export interface SentenceScrambleInitResponse {
 // 4. Audio Blitz DTOs
 export interface AudioBlitzItemDto {
   questionId: string;
+  targetWord: string;
   audioUrl: string;
   slowAudioUrl?: string;
   phonetic: string;
@@ -137,6 +138,7 @@ export interface ClozeQuestionDto {
   contextSentence: string;
   sentenceTranslationVi: string;
   partOfSpeechHint: string;
+  correctWord: string;
   options: ClozeOptionDto[];
   explanationText: string;
 }
