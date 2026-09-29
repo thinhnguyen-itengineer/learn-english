@@ -21,6 +21,9 @@ public class AppDbContext : DbContext
     public DbSet<MatchSession> MatchSessions => Set<MatchSession>();
     public DbSet<MatchParticipant> MatchParticipants => Set<MatchParticipant>();
     public DbSet<LeaderboardSnapshot> LeaderboardSnapshots => Set<LeaderboardSnapshot>();
+    public DbSet<AudioBlitzQuestion> AudioBlitzQuestions => Set<AudioBlitzQuestion>();
+    public DbSet<ClozeQuestion> ClozeQuestions => Set<ClozeQuestion>();
+    public DbSet<GrammarDetectiveQuestion> GrammarDetectiveQuestions => Set<GrammarDetectiveQuestion>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -222,6 +225,112 @@ public class AppDbContext : DbContext
                 .OnDelete(DeleteBehavior.Cascade);
 
             entity.HasIndex(e => new { e.SeasonId, e.Type, e.RankPosition });
+        });
+
+        // AudioBlitzQuestion
+        modelBuilder.Entity<AudioBlitzQuestion>(entity =>
+        {
+            entity.ToTable("audio_blitz_questions");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.AudioUrl).HasMaxLength(500).IsRequired();
+            entity.Property(e => e.SlowAudioUrl).HasMaxLength(500);
+            entity.Property(e => e.Phonetic).HasMaxLength(100).IsRequired();
+            entity.Property(e => e.TargetWord).HasMaxLength(100).IsRequired();
+            entity.Property(e => e.PartOfSpeech).HasMaxLength(50).IsRequired();
+            entity.Property(e => e.DefinitionVi).HasMaxLength(255).IsRequired();
+            entity.Property(e => e.ContextSentence).IsRequired();
+            entity.Property(e => e.DistractorLetters).HasMaxLength(20).HasDefaultValue("ETAOIN");
+            entity.Property(e => e.DifficultyLevel).HasMaxLength(20).HasDefaultValue("Easy");
+
+            entity.HasOne(e => e.Topic)
+                .WithMany()
+                .HasForeignKey(e => e.TopicId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.Word)
+                .WithMany()
+                .HasForeignKey(e => e.WordId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasIndex(e => new { e.TopicId, e.DifficultyLevel });
+        });
+
+        // ClozeQuestion
+        modelBuilder.Entity<ClozeQuestion>(entity =>
+        {
+            entity.ToTable("cloze_questions");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.ContextSentence).IsRequired();
+            entity.Property(e => e.SentenceTranslationVi).IsRequired();
+            entity.Property(e => e.PartOfSpeechHint).HasMaxLength(50).IsRequired();
+            entity.Property(e => e.CorrectWord).HasMaxLength(100).IsRequired();
+            entity.Property(e => e.CorrectDefinitionVi).HasMaxLength(255).IsRequired();
+            entity.Property(e => e.ExplanationText).IsRequired();
+            entity.Property(e => e.DifficultyLevel).HasMaxLength(20).HasDefaultValue("Easy");
+
+            var distractorComparer = new Microsoft.EntityFrameworkCore.ChangeTracking.ValueComparer<List<ClozeDistractorItem>>(
+                (c1, c2) => (c1 == null && c2 == null) || (c1 != null && c2 != null && c1.SequenceEqual(c2)),
+                c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
+                c => c.ToList());
+
+            entity.Property(e => e.Distractors)
+                .HasConversion(
+                    v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
+                    v => JsonSerializer.Deserialize<List<ClozeDistractorItem>>(v, (JsonSerializerOptions?)null) ?? new List<ClozeDistractorItem>()
+                )
+                .Metadata.SetValueComparer(distractorComparer);
+
+            entity.HasOne(e => e.Topic)
+                .WithMany()
+                .HasForeignKey(e => e.TopicId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasIndex(e => new { e.TopicId, e.DifficultyLevel });
+        });
+
+        // GrammarDetectiveQuestion
+        modelBuilder.Entity<GrammarDetectiveQuestion>(entity =>
+        {
+            entity.ToTable("grammar_detective_questions");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.CaseTitle).HasMaxLength(200).IsRequired();
+            entity.Property(e => e.RawSentence).IsRequired();
+            entity.Property(e => e.ErrorTokenIndex).IsRequired();
+            entity.Property(e => e.ErrorTokenText).HasMaxLength(100).IsRequired();
+            entity.Property(e => e.CorrectReplacement).HasMaxLength(100).IsRequired();
+            entity.Property(e => e.GrammarRuleExplanation).IsRequired();
+            entity.Property(e => e.DifficultyLevel).HasMaxLength(20).HasDefaultValue("Medium");
+
+            var tokenComparer = new Microsoft.EntityFrameworkCore.ChangeTracking.ValueComparer<List<GrammarTokenItem>>(
+                (c1, c2) => (c1 == null && c2 == null) || (c1 != null && c2 != null && c1.SequenceEqual(c2)),
+                c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
+                c => c.ToList());
+
+            entity.Property(e => e.TokenSequence)
+                .HasConversion(
+                    v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
+                    v => JsonSerializer.Deserialize<List<GrammarTokenItem>>(v, (JsonSerializerOptions?)null) ?? new List<GrammarTokenItem>()
+                )
+                .Metadata.SetValueComparer(tokenComparer);
+
+            var correctionOptionsComparer = new Microsoft.EntityFrameworkCore.ChangeTracking.ValueComparer<List<string>>(
+                (c1, c2) => (c1 == null && c2 == null) || (c1 != null && c2 != null && c1.SequenceEqual(c2)),
+                c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
+                c => c.ToList());
+
+            entity.Property(e => e.CorrectionOptions)
+                .HasConversion(
+                    v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
+                    v => JsonSerializer.Deserialize<List<string>>(v, (JsonSerializerOptions?)null) ?? new List<string>()
+                )
+                .Metadata.SetValueComparer(correctionOptionsComparer);
+
+            entity.HasOne(e => e.Topic)
+                .WithMany()
+                .HasForeignKey(e => e.TopicId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasIndex(e => new { e.TopicId, e.DifficultyLevel });
         });
     }
 }

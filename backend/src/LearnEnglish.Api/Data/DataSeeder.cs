@@ -10,6 +10,7 @@ public static class DataSeeder
         if (await context.Topics.AnyAsync())
         {
             await SeedBattleDataAsync(context);
+            await SeedNewMiniGamesAsync(context);
             return;
         }
 
@@ -242,6 +243,7 @@ public static class DataSeeder
 
         // 4. Seed Season & Battle Leaderboard
         await SeedBattleDataAsync(context);
+        await SeedNewMiniGamesAsync(context);
     }
 
     public static async Task SeedBattleDataAsync(AppDbContext context)
@@ -324,6 +326,607 @@ public static class DataSeeder
                 };
                 context.UserRanks.Add(user.Rank);
             }
+        }
+
+        await context.SaveChangesAsync();
+    }
+
+    public static async Task SeedNewMiniGamesAsync(AppDbContext context)
+    {
+        var topicDailyId = Guid.Parse("e4a2d810-75b2-4d2c-9821-2a62d49c0012");
+        var topicTechId = Guid.Parse("f5b3e921-86c3-5e3d-0932-3b73e50d1123");
+        var topicTravelId = Guid.Parse("a1c4e732-97d4-6f4e-1a43-4c84f61e2234");
+
+        // 1. Audio Blitz Questions
+        if (!await context.AudioBlitzQuestions.AnyAsync())
+        {
+            var words = await context.Words.ToListAsync();
+            Word? FindWord(string term) => words.FirstOrDefault(w => w.Term.Equals(term, StringComparison.OrdinalIgnoreCase)) ?? words.FirstOrDefault();
+
+            var abQuestions = new List<AudioBlitzQuestion>
+            {
+                // Daily Routines
+                new()
+                {
+                    TopicId = topicDailyId,
+                    WordId = FindWord("Breakfast")?.Id ?? Guid.NewGuid(),
+                    TargetWord = "BREAKFAST",
+                    Phonetic = "/ˈbrek.fəst/",
+                    PartOfSpeech = "Noun",
+                    DefinitionVi = "Bữa ăn sáng",
+                    ContextSentence = "Reading and having ________ together brings family joy.",
+                    AudioUrl = "https://assets.learnenglish.local/audio/breakfast.mp3",
+                    SlowAudioUrl = "https://assets.learnenglish.local/audio/breakfast_slow.mp3",
+                    DistractorLetters = "ETAOIN",
+                    DifficultyLevel = "Easy"
+                },
+                new()
+                {
+                    TopicId = topicDailyId,
+                    WordId = FindWord("Exercise")?.Id ?? Guid.NewGuid(),
+                    TargetWord = "EXERCISE",
+                    Phonetic = "/ˈek.sə.saɪz/",
+                    PartOfSpeech = "Verb",
+                    DefinitionVi = "Tập thể dục",
+                    ContextSentence = "Regular ________ improves both physical and mental health.",
+                    AudioUrl = "https://assets.learnenglish.local/audio/exercise.mp3",
+                    SlowAudioUrl = "https://assets.learnenglish.local/audio/exercise_slow.mp3",
+                    DistractorLetters = "PLOMNQ",
+                    DifficultyLevel = "Easy"
+                },
+                new()
+                {
+                    TopicId = topicDailyId,
+                    WordId = FindWord("Commute")?.Id ?? Guid.NewGuid(),
+                    TargetWord = "COMMUTE",
+                    Phonetic = "/kəˈmjuːt/",
+                    PartOfSpeech = "Verb",
+                    DefinitionVi = "Đi lại làm việc",
+                    ContextSentence = "Many professionals ________ by train to avoid traffic.",
+                    AudioUrl = "https://assets.learnenglish.local/audio/commute.mp3",
+                    SlowAudioUrl = "https://assets.learnenglish.local/audio/commute_slow.mp3",
+                    DistractorLetters = "ZWRTKY",
+                    DifficultyLevel = "Medium"
+                },
+                new()
+                {
+                    TopicId = topicDailyId,
+                    WordId = FindWord("Schedule")?.Id ?? Guid.NewGuid(),
+                    TargetWord = "SCHEDULE",
+                    Phonetic = "/ˈskedʒ.uːl/",
+                    PartOfSpeech = "Noun",
+                    DefinitionVi = "Lịch trình / Thời gian biểu",
+                    ContextSentence = "She organized her daily ________ carefully.",
+                    AudioUrl = "https://assets.learnenglish.local/audio/schedule.mp3",
+                    SlowAudioUrl = "https://assets.learnenglish.local/audio/schedule_slow.mp3",
+                    DistractorLetters = "BFGVWX",
+                    DifficultyLevel = "Medium"
+                },
+                new()
+                {
+                    TopicId = topicDailyId,
+                    WordId = FindWord("Meditation")?.Id ?? Guid.NewGuid(),
+                    TargetWord = "MEDITATION",
+                    Phonetic = "/ˌmed.ɪˈteɪ.ʃən/",
+                    PartOfSpeech = "Noun",
+                    DefinitionVi = "Thiền định",
+                    ContextSentence = "Daily ________ calms the mind after stressful hours.",
+                    AudioUrl = "https://assets.learnenglish.local/audio/meditation.mp3",
+                    SlowAudioUrl = "https://assets.learnenglish.local/audio/meditation_slow.mp3",
+                    DistractorLetters = "CPLKRT",
+                    DifficultyLevel = "Medium"
+                },
+                new()
+                {
+                    TopicId = topicDailyId,
+                    WordId = FindWord("Shower")?.Id ?? Guid.NewGuid(),
+                    TargetWord = "SHOWER",
+                    Phonetic = "/ˈʃaʊ.ər/",
+                    PartOfSpeech = "Noun",
+                    DefinitionVi = "Tắm vòi sen",
+                    ContextSentence = "Taking a warm ________ refreshes you after workout.",
+                    AudioUrl = "https://assets.learnenglish.local/audio/shower.mp3",
+                    SlowAudioUrl = "https://assets.learnenglish.local/audio/shower_slow.mp3",
+                    DistractorLetters = "ZMNBVC",
+                    DifficultyLevel = "Easy"
+                },
+
+                // Tech & Coding
+                new()
+                {
+                    TopicId = topicTechId,
+                    WordId = FindWord("Algorithm")?.Id ?? Guid.NewGuid(),
+                    TargetWord = "ALGORITHM",
+                    Phonetic = "/ˈæl.ɡə.rɪ.ðəm/",
+                    PartOfSpeech = "Noun",
+                    DefinitionVi = "Thuật toán",
+                    ContextSentence = "The search ________ sorts millions of records in milliseconds.",
+                    AudioUrl = "https://assets.learnenglish.local/audio/algorithm.mp3",
+                    SlowAudioUrl = "https://assets.learnenglish.local/audio/algorithm_slow.mp3",
+                    DistractorLetters = "POIUYT",
+                    DifficultyLevel = "Medium"
+                },
+                new()
+                {
+                    TopicId = topicTechId,
+                    WordId = FindWord("Database")?.Id ?? Guid.NewGuid(),
+                    TargetWord = "DATABASE",
+                    Phonetic = "/ˈdeɪ.tə.beɪs/",
+                    PartOfSpeech = "Noun",
+                    DefinitionVi = "Cơ sở dữ liệu",
+                    ContextSentence = "PostgreSQL is an open-source relational ________ system.",
+                    AudioUrl = "https://assets.learnenglish.local/audio/database.mp3",
+                    SlowAudioUrl = "https://assets.learnenglish.local/audio/database_slow.mp3",
+                    DistractorLetters = "ZXCVBN",
+                    DifficultyLevel = "Easy"
+                },
+                new()
+                {
+                    TopicId = topicTechId,
+                    WordId = FindWord("Framework")?.Id ?? Guid.NewGuid(),
+                    TargetWord = "FRAMEWORK",
+                    Phonetic = "/ˈfreɪm.wɜːk/",
+                    PartOfSpeech = "Noun",
+                    DefinitionVi = "Khung lập trình",
+                    ContextSentence = ".NET is a modular and high-performance developer ________.",
+                    AudioUrl = "https://assets.learnenglish.local/audio/framework.mp3",
+                    SlowAudioUrl = "https://assets.learnenglish.local/audio/framework_slow.mp3",
+                    DistractorLetters = "QWERTY",
+                    DifficultyLevel = "Medium"
+                },
+                new()
+                {
+                    TopicId = topicTechId,
+                    WordId = FindWord("Debugging")?.Id ?? Guid.NewGuid(),
+                    TargetWord = "DEBUGGING",
+                    Phonetic = "/diːˈbʌɡ.ɪŋ/",
+                    PartOfSpeech = "Noun",
+                    DefinitionVi = "Tìm và sửa lỗi code",
+                    ContextSentence = "Effective ________ requires tracing stack calls meticulously.",
+                    AudioUrl = "https://assets.learnenglish.local/audio/debugging.mp3",
+                    SlowAudioUrl = "https://assets.learnenglish.local/audio/debugging_slow.mp3",
+                    DistractorLetters = "LKJHGF",
+                    DifficultyLevel = "Easy"
+                },
+                new()
+                {
+                    TopicId = topicTechId,
+                    WordId = FindWord("Deployment")?.Id ?? Guid.NewGuid(),
+                    TargetWord = "DEPLOYMENT",
+                    Phonetic = "/dɪˈplɔɪ.mənt/",
+                    PartOfSpeech = "Noun",
+                    DefinitionVi = "Triển khai phần mềm",
+                    ContextSentence = "Automated CI/CD pipeline speeds up software ________.",
+                    AudioUrl = "https://assets.learnenglish.local/audio/deployment.mp3",
+                    SlowAudioUrl = "https://assets.learnenglish.local/audio/deployment_slow.mp3",
+                    DistractorLetters = "ASDFGH",
+                    DifficultyLevel = "Hard"
+                },
+                new()
+                {
+                    TopicId = topicTechId,
+                    WordId = FindWord("Security")?.Id ?? Guid.NewGuid(),
+                    TargetWord = "SECURITY",
+                    Phonetic = "/səˈkjʊə.rə.ti/",
+                    PartOfSpeech = "Noun",
+                    DefinitionVi = "Bảo mật an toàn thông tin",
+                    ContextSentence = "Network ________ prevents unauthorized access and data breaches.",
+                    AudioUrl = "https://assets.learnenglish.local/audio/security.mp3",
+                    SlowAudioUrl = "https://assets.learnenglish.local/audio/security_slow.mp3",
+                    DistractorLetters = "POIUYT",
+                    DifficultyLevel = "Medium"
+                },
+
+                // Travel & Food
+                new()
+                {
+                    TopicId = topicTravelId,
+                    WordId = FindWord("Destination")?.Id ?? Guid.NewGuid(),
+                    TargetWord = "DESTINATION",
+                    Phonetic = "/ˌdes.tɪˈneɪ.ʃən/",
+                    PartOfSpeech = "Noun",
+                    DefinitionVi = "Điểm đến du lịch",
+                    ContextSentence = "Paris remains the most romantic travel ________ in Europe.",
+                    AudioUrl = "https://assets.learnenglish.local/audio/destination.mp3",
+                    SlowAudioUrl = "https://assets.learnenglish.local/audio/destination_slow.mp3",
+                    DistractorLetters = "MNBVCX",
+                    DifficultyLevel = "Easy"
+                },
+                new()
+                {
+                    TopicId = topicTravelId,
+                    WordId = FindWord("Delicious")?.Id ?? Guid.NewGuid(),
+                    TargetWord = "DELICIOUS",
+                    Phonetic = "/dɪˈlɪʃ.əs/",
+                    PartOfSpeech = "Adjective",
+                    DefinitionVi = "Ngon miệng",
+                    ContextSentence = "Street food here is both affordable and ________.",
+                    AudioUrl = "https://assets.learnenglish.local/audio/delicious.mp3",
+                    SlowAudioUrl = "https://assets.learnenglish.local/audio/delicious_slow.mp3",
+                    DistractorLetters = "LKJHGF",
+                    DifficultyLevel = "Easy"
+                },
+                new()
+                {
+                    TopicId = topicTravelId,
+                    WordId = FindWord("Itinerary")?.Id ?? Guid.NewGuid(),
+                    TargetWord = "ITINERARY",
+                    Phonetic = "/aɪˈtɪn.ər.ər.i/",
+                    PartOfSpeech = "Noun",
+                    DefinitionVi = "Lịch trình chuyến đi",
+                    ContextSentence = "Our flight and hotel details are listed on the ________.",
+                    AudioUrl = "https://assets.learnenglish.local/audio/itinerary.mp3",
+                    SlowAudioUrl = "https://assets.learnenglish.local/audio/itinerary_slow.mp3",
+                    DistractorLetters = "POIUYT",
+                    DifficultyLevel = "Hard"
+                },
+                new()
+                {
+                    TopicId = topicTravelId,
+                    WordId = FindWord("Hospitality")?.Id ?? Guid.NewGuid(),
+                    TargetWord = "HOSPITALITY",
+                    Phonetic = "/ˌhɒs.pɪˈtæl.ə.ti/",
+                    PartOfSpeech = "Noun",
+                    DefinitionVi = "Lòng hiếu khách",
+                    ContextSentence = "We were deeply touched by the warm ________ of local villagers.",
+                    AudioUrl = "https://assets.learnenglish.local/audio/hospitality.mp3",
+                    SlowAudioUrl = "https://assets.learnenglish.local/audio/hospitality_slow.mp3",
+                    DistractorLetters = "ZXCVBN",
+                    DifficultyLevel = "Hard"
+                },
+                new()
+                {
+                    TopicId = topicTravelId,
+                    WordId = FindWord("Reservation")?.Id ?? Guid.NewGuid(),
+                    TargetWord = "RESERVATION",
+                    Phonetic = "/ˌrez.əˈveɪ.ʃən/",
+                    PartOfSpeech = "Noun",
+                    DefinitionVi = "Đặt chỗ trước",
+                    ContextSentence = "Please confirm your hotel ________ at the front desk.",
+                    AudioUrl = "https://assets.learnenglish.local/audio/reservation.mp3",
+                    SlowAudioUrl = "https://assets.learnenglish.local/audio/reservation_slow.mp3",
+                    DistractorLetters = "QAZWSX",
+                    DifficultyLevel = "Medium"
+                },
+                new()
+                {
+                    TopicId = topicTravelId,
+                    WordId = FindWord("Souvenir")?.Id ?? Guid.NewGuid(),
+                    TargetWord = "SOUVENIR",
+                    Phonetic = "/ˌsuː.vəˈnɪər/",
+                    PartOfSpeech = "Noun",
+                    DefinitionVi = "Quà lưu niệm",
+                    ContextSentence = "I bought a traditional scarf as a travel ________.",
+                    AudioUrl = "https://assets.learnenglish.local/audio/souvenir.mp3",
+                    SlowAudioUrl = "https://assets.learnenglish.local/audio/souvenir_slow.mp3",
+                    DistractorLetters = "EDCRFV",
+                    DifficultyLevel = "Medium"
+                }
+            };
+
+            context.AudioBlitzQuestions.AddRange(abQuestions);
+        }
+
+        // 2. Cloze Questions
+        if (!await context.ClozeQuestions.AnyAsync())
+        {
+            var clozeList = new List<ClozeQuestion>
+            {
+                // Tech & Coding
+                new()
+                {
+                    TopicId = topicTechId,
+                    ContextSentence = "Despite facing unexpected logistical delays, the team managed to [BLANK] their sales target for Q3.",
+                    SentenceTranslationVi = "Dù gặp sự chậm trễ ngoài dự kiến về hậu cần, đội ngũ vẫn hoàn thành vượt chỉ tiêu doanh số quý 3.",
+                    PartOfSpeechHint = "verb (động từ nguyên mẫu)",
+                    CorrectWord = "exceed",
+                    CorrectDefinitionVi = "vượt quá, hoàn thành vượt mức",
+                    Distractors = new List<ClozeDistractorItem>
+                    {
+                        new() { Word = "expand", DefinitionVi = "mở rộng kích thước, diện tích" },
+                        new() { Word = "extend", DefinitionVi = "kéo dài thời gian, kỳ hạn" },
+                        new() { Word = "excess", DefinitionVi = "sự vượt quá (danh từ)" }
+                    },
+                    ExplanationText = "Collocation chuẩn xác là 'exceed a target' (vượt chỉ tiêu). 'Excess' là danh từ, 'extend' dùng kéo dài hạn, 'expand' dùng mở rộng quy mô.",
+                    DifficultyLevel = "Medium"
+                },
+                new()
+                {
+                    TopicId = topicTechId,
+                    ContextSentence = "All developers are highly encouraged to participate [BLANK] the upcoming architecture workshop.",
+                    SentenceTranslationVi = "Tất cả lập trình viên được khuyến khích tham gia vào buổi hội thảo kiến trúc sắp tới.",
+                    PartOfSpeechHint = "preposition (giới từ)",
+                    CorrectWord = "in",
+                    CorrectDefinitionVi = "trong, tham gia vào",
+                    Distractors = new List<ClozeDistractorItem>
+                    {
+                        new() { Word = "at", DefinitionVi = "tại địa điểm" },
+                        new() { Word = "on", DefinitionVi = "trên bề mặt" },
+                        new() { Word = "with", DefinitionVi = "cùng với" }
+                    },
+                    ExplanationText = "Cụm động từ cố định 'participate in something' có nghĩa là tham gia vào một hoạt động hoặc sự kiện.",
+                    DifficultyLevel = "Easy"
+                },
+                new()
+                {
+                    TopicId = topicTechId,
+                    ContextSentence = "Developers should [BLANK] legacy code regularly to enhance maintainability and readability.",
+                    SentenceTranslationVi = "Lập trình viên nên tối ưu cấu trúc mã nguồn cũ định kỳ để nâng cao khả năng bảo trì và tính dễ đọc.",
+                    PartOfSpeechHint = "verb (động từ nguyên mẫu)",
+                    CorrectWord = "refactor",
+                    CorrectDefinitionVi = "tối ưu hóa cấu trúc mã nguồn",
+                    Distractors = new List<ClozeDistractorItem>
+                    {
+                        new() { Word = "redo", DefinitionVi = "làm lại từ đầu" },
+                        new() { Word = "reject", DefinitionVi = "từ chối, bác bỏ" },
+                        new() { Word = "repeat", DefinitionVi = "lặp lại" }
+                    },
+                    ExplanationText = "'Refactor code' là thuật ngữ kỹ thuật chỉ việc cấu trúc lại mã nguồn mà không làm thay đổi hành vi bên ngoài.",
+                    DifficultyLevel = "Hard"
+                },
+
+                // Daily Routines
+                new()
+                {
+                    TopicId = topicDailyId,
+                    ContextSentence = "She usually [BLANK] at 6 AM every morning before preparing breakfast.",
+                    SentenceTranslationVi = "Cô ấy thường thức giấc lúc 6 giờ sáng mỗi ngày trước khi chuẩn bị bữa sáng.",
+                    PartOfSpeechHint = "phrasal verb (cụm động từ)",
+                    CorrectWord = "wakes up",
+                    CorrectDefinitionVi = "thức giấc, mở mắt thức dậy",
+                    Distractors = new List<ClozeDistractorItem>
+                    {
+                        new() { Word = "stays up", DefinitionVi = "thức khuya" },
+                        new() { Word = "gives up", DefinitionVi = "từ bỏ" },
+                        new() { Word = "looks up", DefinitionVi = "tra cứu thông tin" }
+                    },
+                    ExplanationText = "'Wake up' là hành động thức giấc sau một đêm ngủ. 'Stay up' là thức khuya không đi ngủ.",
+                    DifficultyLevel = "Easy"
+                },
+                new()
+                {
+                    TopicId = topicDailyId,
+                    ContextSentence = "Drinking a glass of warm water after waking up is very [BLANK] for your health.",
+                    SentenceTranslationVi = "Uống một ly nước ấm sau khi thức dậy rất có lợi cho sức khỏe của bạn.",
+                    PartOfSpeechHint = "adjective (tính từ)",
+                    CorrectWord = "beneficial",
+                    CorrectDefinitionVi = "có lợi, mang lại hiệu quả tốt",
+                    Distractors = new List<ClozeDistractorItem>
+                    {
+                        new() { Word = "benefit", DefinitionVi = "lợi ích (danh từ)" },
+                        new() { Word = "benefited", DefinitionVi = "được hưởng lợi (quá khứ)" },
+                        new() { Word = "beneficially", DefinitionVi = "một cách có lợi (trạng từ)" }
+                    },
+                    ExplanationText = "Sau trạng từ 'very' và động từ 'is', ta cần một tính từ 'beneficial' để bổ nghĩa.",
+                    DifficultyLevel = "Medium"
+                },
+                new()
+                {
+                    TopicId = topicDailyId,
+                    ContextSentence = "Taking ten minutes for meditation can significantly [BLANK] daily stress levels.",
+                    SentenceTranslationVi = "Dành mười phút thiền định có thể giảm đáng kể mức độ căng thẳng hàng ngày.",
+                    PartOfSpeechHint = "verb (động từ)",
+                    CorrectWord = "reduce",
+                    CorrectDefinitionVi = "giảm bớt, làm suy giảm",
+                    Distractors = new List<ClozeDistractorItem>
+                    {
+                        new() { Word = "refuse", DefinitionVi = "từ chối" },
+                        new() { Word = "recover", DefinitionVi = "hồi phục" },
+                        new() { Word = "replace", DefinitionVi = "thay thế" }
+                    },
+                    ExplanationText = "'Reduce stress' (giảm căng thẳng) là collocation tự nhiên và phổ biến nhất.",
+                    DifficultyLevel = "Easy"
+                },
+
+                // Travel & Food
+                new()
+                {
+                    TopicId = topicTravelId,
+                    ContextSentence = "Before boarding the international flight, passengers must [BLANK] their passports and visas.",
+                    SentenceTranslationVi = "Trước khi lên máy bay quốc tế, hành khách phải xuất trình hộ chiếu và thị thực.",
+                    PartOfSpeechHint = "verb (động từ)",
+                    CorrectWord = "present",
+                    CorrectDefinitionVi = "xuất trình giấy tờ",
+                    Distractors = new List<ClozeDistractorItem>
+                    {
+                        new() { Word = "propose", DefinitionVi = "đề xuất ý tưởng" },
+                        new() { Word = "pretend", DefinitionVi = "giả vờ, làm bộ" },
+                        new() { Word = "protect", DefinitionVi = "bảo vệ, che chắn" }
+                    },
+                    ExplanationText = "'Present passport' là cụm từ quy chuẩn tại sân bay và cơ quan hải quan có nghĩa là xuất trình hộ chiếu.",
+                    DifficultyLevel = "Medium"
+                },
+                new()
+                {
+                    TopicId = topicTravelId,
+                    ContextSentence = "The hotel staff is renowned for their exceptional [BLANK] towards all guests.",
+                    SentenceTranslationVi = "Đội ngũ nhân viên khách sạn nổi tiếng với lòng hiếu khách đặc biệt đối với mọi du khách.",
+                    PartOfSpeechHint = "noun (danh từ)",
+                    CorrectWord = "hospitality",
+                    CorrectDefinitionVi = "lòng hiếu khách, sự đón tiếp nồng hậu",
+                    Distractors = new List<ClozeDistractorItem>
+                    {
+                        new() { Word = "hostility", DefinitionVi = "sự thù địch" },
+                        new() { Word = "horizon", DefinitionVi = "đường chân trời" },
+                        new() { Word = "humidity", DefinitionVi = "độ ẩm không khí" }
+                    },
+                    ExplanationText = "'Hospitality' là danh từ chỉ sự hiếu khách và chất lượng phục vụ nồng nhiệt trong ngành du lịch khách sạn.",
+                    DifficultyLevel = "Medium"
+                },
+                new()
+                {
+                    TopicId = topicTravelId,
+                    ContextSentence = "Could you please [BLANK] a reservation for a table of four this Saturday evening?",
+                    SentenceTranslationVi = "Bạn có thể làm ơn đặt trước một bàn bốn người vào tối thứ Bảy này không?",
+                    PartOfSpeechHint = "verb (động từ)",
+                    CorrectWord = "make",
+                    CorrectDefinitionVi = "thực hiện đặt chỗ",
+                    Distractors = new List<ClozeDistractorItem>
+                    {
+                        new() { Word = "do", DefinitionVi = "làm hành động" },
+                        new() { Word = "take", DefinitionVi = "cầm lấy" },
+                        new() { Word = "build", DefinitionVi = "xây dựng" }
+                    },
+                    ExplanationText = "Collocation chính xác là 'make a reservation' (đặt chỗ trước). Không nói 'do a reservation'.",
+                    DifficultyLevel = "Easy"
+                }
+            };
+
+            context.ClozeQuestions.AddRange(clozeList);
+        }
+
+        // 3. Grammar Detective Questions
+        if (!await context.GrammarDetectiveQuestions.AnyAsync())
+        {
+            var gdCases = new List<GrammarDetectiveQuestion>
+            {
+                // Daily Routines
+                new()
+                {
+                    TopicId = topicDailyId,
+                    CaseTitle = "Vụ Án #1: Giới Từ Thời Gian & Thì Hiện Tại Hoàn Thành",
+                    RawSentence = "She has worked as a software engineer in this company since five years .",
+                    TokenSequence = new List<GrammarTokenItem>
+                    {
+                        new() { Index = 0, Text = "She" },
+                        new() { Index = 1, Text = "has" },
+                        new() { Index = 2, Text = "worked" },
+                        new() { Index = 3, Text = "as" },
+                        new() { Index = 4, Text = "a" },
+                        new() { Index = 5, Text = "software" },
+                        new() { Index = 6, Text = "engineer" },
+                        new() { Index = 7, Text = "in" },
+                        new() { Index = 8, Text = "this" },
+                        new() { Index = 9, Text = "company" },
+                        new() { Index = 10, Text = "since", IsError = true },
+                        new() { Index = 11, Text = "five" },
+                        new() { Index = 12, Text = "years" },
+                        new() { Index = 13, Text = "." }
+                    },
+                    ErrorTokenIndex = 10,
+                    ErrorTokenText = "since",
+                    CorrectionOptions = new List<string> { "for", "during", "from" },
+                    CorrectReplacement = "for",
+                    GrammarRuleExplanation = "Với khoảng thời gian kéo dài ('five years'), ta phải dùng giới từ 'for'. Giới từ 'since' chỉ dùng với mốc thời gian xác định (ví dụ: 'since 2019').",
+                    DifficultyLevel = "Medium"
+                },
+                new()
+                {
+                    TopicId = topicDailyId,
+                    CaseTitle = "Vụ Án #2: Sự Hòa Hợp Giữa Chủ Ngữ Và Động Từ (Subject-Verb Agreement)",
+                    RawSentence = "The cost of all these new equipment are higher than expected .",
+                    TokenSequence = new List<GrammarTokenItem>
+                    {
+                        new() { Index = 0, Text = "The" },
+                        new() { Index = 1, Text = "cost" },
+                        new() { Index = 2, Text = "of" },
+                        new() { Index = 3, Text = "all" },
+                        new() { Index = 4, Text = "these" },
+                        new() { Index = 5, Text = "new" },
+                        new() { Index = 6, Text = "equipment" },
+                        new() { Index = 7, Text = "are", IsError = true },
+                        new() { Index = 8, Text = "higher" },
+                        new() { Index = 9, Text = "than" },
+                        new() { Index = 10, Text = "expected" },
+                        new() { Index = 11, Text = "." }
+                    },
+                    ErrorTokenIndex = 7,
+                    ErrorTokenText = "are",
+                    CorrectionOptions = new List<string> { "is", "were", "being" },
+                    CorrectReplacement = "is",
+                    GrammarRuleExplanation = "Chủ ngữ chính của câu là danh từ số ít 'The cost' (chứ không phải 'equipment'), do đó động từ to be phải chia số ít là 'is'.",
+                    DifficultyLevel = "Medium"
+                },
+
+                // Tech & Coding
+                new()
+                {
+                    TopicId = topicTechId,
+                    CaseTitle = "Vụ Án #3: Danh Từ Đếm Được & Không Đếm Được (Countable vs Uncountable)",
+                    RawSentence = "The senior architect gave me several useful advices on system design .",
+                    TokenSequence = new List<GrammarTokenItem>
+                    {
+                        new() { Index = 0, Text = "The" },
+                        new() { Index = 1, Text = "senior" },
+                        new() { Index = 2, Text = "architect" },
+                        new() { Index = 3, Text = "gave" },
+                        new() { Index = 4, Text = "me" },
+                        new() { Index = 5, Text = "several" },
+                        new() { Index = 6, Text = "useful" },
+                        new() { Index = 7, Text = "advices", IsError = true },
+                        new() { Index = 8, Text = "on" },
+                        new() { Index = 9, Text = "system" },
+                        new() { Index = 10, Text = "design" },
+                        new() { Index = 11, Text = "." }
+                    },
+                    ErrorTokenIndex = 7,
+                    ErrorTokenText = "advices",
+                    CorrectionOptions = new List<string> { "advice", "pieces of advice", "suggestion" },
+                    CorrectReplacement = "advice",
+                    GrammarRuleExplanation = "Từ 'advice' trong tiếng Anh là danh từ không đếm được (uncountable noun), không bao giờ có dạng số nhiều thêm 's'.",
+                    DifficultyLevel = "Medium"
+                },
+                new()
+                {
+                    TopicId = topicTechId,
+                    CaseTitle = "Vụ Án #4: Cấu Trúc Song Hành Trong Liệt Kê (Parallel Structure)",
+                    RawSentence = "Our engineer enjoys writing clean code , debugging issues , and to optimize queries .",
+                    TokenSequence = new List<GrammarTokenItem>
+                    {
+                        new() { Index = 0, Text = "Our" },
+                        new() { Index = 1, Text = "engineer" },
+                        new() { Index = 2, Text = "enjoys" },
+                        new() { Index = 3, Text = "writing" },
+                        new() { Index = 4, Text = "clean" },
+                        new() { Index = 5, Text = "code" },
+                        new() { Index = 6, Text = "," },
+                        new() { Index = 7, Text = "debugging" },
+                        new() { Index = 8, Text = "issues" },
+                        new() { Index = 9, Text = "," },
+                        new() { Index = 10, Text = "and" },
+                        new() { Index = 11, Text = "to optimize", IsError = true },
+                        new() { Index = 12, Text = "queries" },
+                        new() { Index = 13, Text = "." }
+                    },
+                    ErrorTokenIndex = 11,
+                    ErrorTokenText = "to optimize",
+                    CorrectionOptions = new List<string> { "optimizing", "optimized", "optimize" },
+                    CorrectReplacement = "optimizing",
+                    GrammarRuleExplanation = "Khi các vế liệt kê bằng liên từ 'and', tất cả các động từ phải cùng một dạng: writing..., debugging..., and optimizing... (cấu trúc V-ing song hành).",
+                    DifficultyLevel = "Hard"
+                },
+
+                // Travel & Food
+                new()
+                {
+                    TopicId = topicTravelId,
+                    CaseTitle = "Vụ Án #5: Cấu Trúc So Sánh Hơn (Double Comparative Error)",
+                    RawSentence = "Traveling by high-speed train is more faster than taking the regional bus .",
+                    TokenSequence = new List<GrammarTokenItem>
+                    {
+                        new() { Index = 0, Text = "Traveling" },
+                        new() { Index = 1, Text = "by" },
+                        new() { Index = 2, Text = "high-speed" },
+                        new() { Index = 3, Text = "train" },
+                        new() { Index = 4, Text = "is" },
+                        new() { Index = 5, Text = "more faster", IsError = true },
+                        new() { Index = 6, Text = "than" },
+                        new() { Index = 7, Text = "taking" },
+                        new() { Index = 8, Text = "the" },
+                        new() { Index = 9, Text = "regional" },
+                        new() { Index = 10, Text = "bus" },
+                        new() { Index = 11, Text = "." }
+                    },
+                    ErrorTokenIndex = 5,
+                    ErrorTokenText = "more faster",
+                    CorrectionOptions = new List<string> { "faster", "much faster", "more fast" },
+                    CorrectReplacement = "faster",
+                    GrammarRuleExplanation = "Tính từ ngắn 'fast' khi chuyển sang so sánh hơn chỉ thêm đuôi '-er' thành 'faster'. Không dùng 'more faster' vì đây là lỗi lặp từ so sánh thừa.",
+                    DifficultyLevel = "Easy"
+                }
+            };
+
+            context.GrammarDetectiveQuestions.AddRange(gdCases);
         }
 
         await context.SaveChangesAsync();

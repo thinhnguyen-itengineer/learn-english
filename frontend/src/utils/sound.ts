@@ -92,13 +92,52 @@ class SoundEffects {
     } catch {}
   }
 
-  // Text-to-speech for English words and sentences
-  speak(text: string) {
+  // Clue found chime
+  playClueFound() {
+    try {
+      const ctx = this.getContext();
+      const now = ctx.currentTime;
+      [440, 554.37, 659.25].forEach((freq, idx) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, now + idx * 0.07);
+        gain.gain.setValueAtTime(0.2, now + idx * 0.07);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.07 + 0.25);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now + idx * 0.07);
+        osc.stop(now + idx * 0.07 + 0.25);
+      });
+    } catch {}
+  }
+
+  // Detective wrong selection buzzer
+  playDetectiveBuzzer() {
+    try {
+      const ctx = this.getContext();
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(140, now);
+      osc.frequency.linearRampToValueAtTime(90, now + 0.25);
+      gain.gain.setValueAtTime(0.25, now);
+      gain.gain.linearRampToValueAtTime(0.01, now + 0.25);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.25);
+    } catch {}
+  }
+
+  // Text-to-speech for English words and sentences with configurable rate
+  speak(text: string, rate = 0.9) {
     if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel();
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = 'en-US';
-      utterance.rate = 0.9;
+      utterance.rate = rate;
       window.speechSynthesis.speak(utterance);
     }
   }

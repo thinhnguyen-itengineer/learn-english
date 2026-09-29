@@ -4,6 +4,9 @@ import { Lobby } from './components/Lobby';
 import { WordMatchGame } from './components/WordMatchGame';
 import { SpeedFallingGame } from './components/SpeedFallingGame';
 import { SentenceScrambleGame } from './components/SentenceScrambleGame';
+import { AudioBlitzGame } from './components/AudioBlitzGame';
+import { ClozeMasterGame } from './components/ClozeMasterGame';
+import { GrammarDetectiveGame } from './components/GrammarDetectiveGame';
 import { SummaryModal } from './components/SummaryModal';
 import { LeaderboardModal } from './components/LeaderboardModal';
 import { BattleLeaderboardModal } from './components/BattleLeaderboardModal';
@@ -22,6 +25,9 @@ import {
   UserProfileDto, 
   UserRankProfileDto,
   WordMatchInitResponse,
+  AudioBlitzInitResponse,
+  ClozeMasterInitResponse,
+  GrammarDetectiveInitResponse,
   MatchFoundPayload,
   MatchResultPayload,
   RankTier,
@@ -30,7 +36,7 @@ import {
 import { api } from './services/api';
 import { battleSignalR } from './services/battleSignalR';
 
-type ActiveView = 'lobby' | 'wordMatch' | 'speedFalling' | 'sentenceScramble' | 'battle';
+type ActiveView = 'lobby' | 'wordMatch' | 'speedFalling' | 'sentenceScramble' | 'audioBlitz' | 'clozeMaster' | 'grammarDetective' | 'battle';
 
 export function App() {
   const [profile, setProfile] = useState<UserProfileDto | null>(null);
@@ -43,6 +49,9 @@ export function App() {
   const [wordMatchData, setWordMatchData] = useState<WordMatchInitResponse | null>(null);
   const [speedFallingData, setSpeedFallingData] = useState<SpeedFallingInitResponse | null>(null);
   const [sentenceScrambleData, setSentenceScrambleData] = useState<SentenceScrambleInitResponse | null>(null);
+  const [audioBlitzData, setAudioBlitzData] = useState<AudioBlitzInitResponse | null>(null);
+  const [clozeMasterData, setClozeMasterData] = useState<ClozeMasterInitResponse | null>(null);
+  const [grammarDetectiveData, setGrammarDetectiveData] = useState<GrammarDetectiveInitResponse | null>(null);
   const [lastGameParams, setLastGameParams] = useState<{ type: GameType; topicId: string; diff: DifficultyLevel } | null>(null);
 
   // 1v1 Battle state
@@ -256,6 +265,18 @@ export function App() {
         const data = await api.startSentenceScramble(topicId, difficulty);
         setSentenceScrambleData(data);
         setActiveView('sentenceScramble');
+      } else if (gameType === 'AudioBlitz') {
+        const data = await api.startAudioBlitz(topicId, difficulty);
+        setAudioBlitzData(data);
+        setActiveView('audioBlitz');
+      } else if (gameType === 'ClozeMaster') {
+        const data = await api.startClozeMaster(topicId, difficulty);
+        setClozeMasterData(data);
+        setActiveView('clozeMaster');
+      } else if (gameType === 'GrammarDetective') {
+        const data = await api.startGrammarDetective(topicId, difficulty);
+        setGrammarDetectiveData(data);
+        setActiveView('grammarDetective');
       }
     } catch (err) {
       console.error('Error starting game:', err);
@@ -305,6 +326,9 @@ export function App() {
     setWordMatchData(null);
     setSpeedFallingData(null);
     setSentenceScrambleData(null);
+    setAudioBlitzData(null);
+    setClozeMasterData(null);
+    setGrammarDetectiveData(null);
     setActiveView('lobby');
   };
 
@@ -412,6 +436,30 @@ export function App() {
         {activeView === 'sentenceScramble' && sentenceScrambleData && (
           <SentenceScrambleGame
             data={sentenceScrambleData}
+            onComplete={handleCompleteSession}
+            onExit={handleBackToLobby}
+          />
+        )}
+
+        {activeView === 'audioBlitz' && audioBlitzData && (
+          <AudioBlitzGame
+            data={audioBlitzData}
+            onComplete={handleCompleteSession}
+            onExit={handleBackToLobby}
+          />
+        )}
+
+        {activeView === 'clozeMaster' && clozeMasterData && (
+          <ClozeMasterGame
+            data={clozeMasterData}
+            onComplete={handleCompleteSession}
+            onExit={handleBackToLobby}
+          />
+        )}
+
+        {activeView === 'grammarDetective' && grammarDetectiveData && (
+          <GrammarDetectiveGame
+            data={grammarDetectiveData}
             onComplete={handleCompleteSession}
             onExit={handleBackToLobby}
           />

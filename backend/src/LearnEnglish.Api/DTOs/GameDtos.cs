@@ -68,6 +68,86 @@ public record SentenceScrambleInitResponse
     public List<SentenceScrambleItemDto> Sentences { get; init; } = new();
 }
 
+// 4. Audio Blitz DTOs
+public record AudioBlitzItemDto
+{
+    public string QuestionId { get; init; } = string.Empty;
+    public string AudioUrl { get; init; } = string.Empty;
+    public string? SlowAudioUrl { get; init; }
+    public string Phonetic { get; init; } = string.Empty;
+    public string PartOfSpeech { get; init; } = string.Empty;
+    public string DefinitionVi { get; init; } = string.Empty;
+    public string ContextSentence { get; init; } = string.Empty;
+    public int TargetWordLength { get; init; }
+    public List<string> LetterBank { get; init; } = new();
+    public int TimeLimitSeconds { get; init; } = 15;
+}
+
+public record AudioBlitzInitResponse
+{
+    public Guid SessionId { get; init; }
+    public string GameType => "AudioBlitz";
+    public int InitialLives { get; init; } = 3;
+    public List<AudioBlitzItemDto> Items { get; init; } = new();
+}
+
+// 5. Cloze Master DTOs
+public record ClozeOptionDto
+{
+    public string Id { get; init; } = string.Empty;
+    public string Word { get; init; } = string.Empty;
+    public string DefinitionVi { get; init; } = string.Empty;
+}
+
+public record ClozeQuestionDto
+{
+    public string QuestionId { get; init; } = string.Empty;
+    public string ContextSentence { get; init; } = string.Empty;
+    public string SentenceTranslationVi { get; init; } = string.Empty;
+    public string PartOfSpeechHint { get; init; } = string.Empty;
+    public List<ClozeOptionDto> Options { get; init; } = new();
+    public string ExplanationText { get; init; } = string.Empty;
+}
+
+public record ClozeMasterInitResponse
+{
+    public Guid SessionId { get; init; }
+    public string GameType => "ClozeMaster";
+    public int TimePerQuestionSeconds { get; init; } = 20;
+    public int TotalQuestions { get; init; } = 10;
+    public List<ClozeQuestionDto> Questions { get; init; } = new();
+}
+
+// 6. Grammar Detective DTOs
+public record GrammarTokenDto
+{
+    public int Index { get; init; }
+    public string Text { get; init; } = string.Empty;
+}
+
+public record GrammarDetectiveCaseDto
+{
+    public string CaseId { get; init; } = string.Empty;
+    public string CaseTitle { get; init; } = string.Empty;
+    public string RawSentence { get; init; } = string.Empty;
+    public List<GrammarTokenDto> Tokens { get; init; } = new();
+    public int ErrorTokenIndex { get; init; }
+    public string ErrorTokenText { get; init; } = string.Empty;
+    public List<string> CorrectionOptions { get; init; } = new();
+    public string CorrectReplacement { get; init; } = string.Empty;
+    public string GrammarRuleExplanation { get; init; } = string.Empty;
+}
+
+public record GrammarDetectiveInitResponse
+{
+    public Guid SessionId { get; init; }
+    public string GameType => "GrammarDetective";
+    public int InitialMagnifiers { get; init; } = 3;
+    public int TimePerCaseSeconds { get; init; } = 60;
+    public int TotalCases { get; init; } = 5;
+    public List<GrammarDetectiveCaseDto> Cases { get; init; } = new();
+}
+
 public record CompleteSessionRequest
 {
     public Guid SessionId { get; init; }

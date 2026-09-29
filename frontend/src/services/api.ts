@@ -9,7 +9,10 @@ import {
   SpeedFallingInitResponse,
   TopicDto,
   UserProfileDto,
-  WordMatchInitResponse
+  WordMatchInitResponse,
+  AudioBlitzInitResponse,
+  ClozeMasterInitResponse,
+  GrammarDetectiveInitResponse
 } from '../types/game';
 
 const API_BASE = '/api/v1';
@@ -117,6 +120,51 @@ class ApiService {
       })
     });
     if (!res.ok) throw new Error('Không thể khởi tạo ván Sentence Scramble');
+    return res.json();
+  }
+
+  public async startAudioBlitz(topicId: string, difficultyLevel: DifficultyLevel): Promise<AudioBlitzInitResponse> {
+    const headers = await this.getAuthHeaders();
+    const res = await fetch(`${API_BASE}/games/start`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        gameType: 'AudioBlitz',
+        topicId,
+        difficultyLevel
+      })
+    });
+    if (!res.ok) throw new Error('Không thể khởi tạo ván Audio Blitz');
+    return res.json();
+  }
+
+  public async startClozeMaster(topicId: string, difficultyLevel: DifficultyLevel): Promise<ClozeMasterInitResponse> {
+    const headers = await this.getAuthHeaders();
+    const res = await fetch(`${API_BASE}/games/start`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        gameType: 'ClozeMaster',
+        topicId,
+        difficultyLevel
+      })
+    });
+    if (!res.ok) throw new Error('Không thể khởi tạo ván Cloze Master');
+    return res.json();
+  }
+
+  public async startGrammarDetective(topicId: string, difficultyLevel: DifficultyLevel): Promise<GrammarDetectiveInitResponse> {
+    const headers = await this.getAuthHeaders();
+    const res = await fetch(`${API_BASE}/games/start`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        gameType: 'GrammarDetective',
+        topicId,
+        difficultyLevel
+      })
+    });
+    if (!res.ok) throw new Error('Không thể khởi tạo ván Grammar Detective');
     return res.json();
   }
 

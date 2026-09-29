@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { 
   Sun, Cpu, Compass, BookOpen, Layers, Zap, AlignLeft, 
-  Play, CheckCircle2, Sparkles, Swords, Trophy, Flame, Shield, ArrowRight
+  Play, CheckCircle2, Sparkles, Swords, Trophy, Flame, Shield, ArrowRight,
+  Volume2, Search
 } from 'lucide-react';
 import { DifficultyLevel, GameType, TopicDto, UserRankProfileDto, RankTier, RankDivision } from '../types/game';
 import { RankBadge, TrophyBadge, StreakBadge, ShieldBadge } from './ui/RankBadge';
@@ -278,6 +279,87 @@ export const Lobby: React.FC<LobbyProps> = ({
             >
               <Play className="w-4 h-4 fill-white" />
               Chơi Sentence Scramble
+            </button>
+          </div>
+
+          {/* Game 4: Audio Blitz */}
+          <div className="group rounded-2xl bg-gradient-to-b from-slate-800/70 to-slate-900 border border-slate-700 hover:border-cyan-500/50 p-6 flex flex-col justify-between transition-all duration-200 hover:shadow-xl hover:shadow-cyan-500/10 hover:-translate-y-1">
+            <div>
+              <div className="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 group-hover:scale-110 transition-transform">
+                <Volume2 className="w-6 h-6" />
+              </div>
+              <h4 className="mt-4 text-lg font-bold text-white">4. Audio Blitz</h4>
+              <p className="text-xs text-cyan-300 font-medium">Âm Thanh Đoán Chữ & Chính Tả</p>
+              <p className="mt-2.5 text-xs text-slate-400 leading-relaxed">
+                Lắng nghe phát âm bản xứ chuẩn, quan sát phiên âm IPA và gõ đúng chính tả từng ký tự trước khi hết giờ. Chế độ nghe chậm 0.75x hỗ trợ.
+              </p>
+              <div className="mt-4 flex flex-wrap gap-2 text-[11px] text-slate-400">
+                <span className="px-2 py-0.5 rounded bg-slate-800 border border-slate-700">15s/từ (8 từ)</span>
+                <span className="px-2 py-0.5 rounded bg-slate-800 border border-slate-700">Nghe & Điền chữ</span>
+              </div>
+            </div>
+
+            <button
+              disabled={isLoading || !activeTopic}
+              onClick={() => activeTopic && onStartGame('AudioBlitz', activeTopic.id, selectedDifficulty)}
+              className="mt-6 w-full py-3 px-4 rounded-xl bg-gradient-to-r from-cyan-600 to-cyan-500 hover:from-cyan-500 hover:to-cyan-400 text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-lg shadow-cyan-600/30 transition-all disabled:opacity-50"
+            >
+              <Play className="w-4 h-4 fill-white" />
+              Chơi Audio Blitz
+            </button>
+          </div>
+
+          {/* Game 5: Cloze Master */}
+          <div className="group rounded-2xl bg-gradient-to-b from-slate-800/70 to-slate-900 border border-slate-700 hover:border-purple-500/50 p-6 flex flex-col justify-between transition-all duration-200 hover:shadow-xl hover:shadow-purple-500/10 hover:-translate-y-1">
+            <div>
+              <div className="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400 group-hover:scale-110 transition-transform">
+                <BookOpen className="w-6 h-6" />
+              </div>
+              <h4 className="mt-4 text-lg font-bold text-white">5. Cloze Master</h4>
+              <p className="text-xs text-purple-300 font-medium">Điền Từ Ngữ Cảnh & Collocations</p>
+              <p className="mt-2.5 text-xs text-slate-400 leading-relaxed">
+                Đọc đoạn câu ngữ cảnh thực tế và chọn 1 trong 4 đáp án thông minh. Trợ giúp 50:50 và gợi ý ký tự đầu kèm Mini Grammar Bite giải thích sâu.
+              </p>
+              <div className="mt-4 flex flex-wrap gap-2 text-[11px] text-slate-400">
+                <span className="px-2 py-0.5 rounded bg-slate-800 border border-slate-700">20s/câu (10 câu)</span>
+                <span className="px-2 py-0.5 rounded bg-slate-800 border border-slate-700">Ngữ cảnh & Cụm từ</span>
+              </div>
+            </div>
+
+            <button
+              disabled={isLoading || !activeTopic}
+              onClick={() => activeTopic && onStartGame('ClozeMaster', activeTopic.id, selectedDifficulty)}
+              className="mt-6 w-full py-3 px-4 rounded-xl bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-lg shadow-purple-600/30 transition-all disabled:opacity-50"
+            >
+              <Play className="w-4 h-4 fill-white" />
+              Chơi Cloze Master
+            </button>
+          </div>
+
+          {/* Game 6: Grammar Detective */}
+          <div className="group rounded-2xl bg-gradient-to-b from-slate-800/70 to-slate-900 border border-slate-700 hover:border-amber-500/50 p-6 flex flex-col justify-between transition-all duration-200 hover:shadow-xl hover:shadow-amber-500/10 hover:-translate-y-1">
+            <div>
+              <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 group-hover:scale-110 transition-transform">
+                <Search className="w-6 h-6" />
+              </div>
+              <h4 className="mt-4 text-lg font-bold text-white">6. Grammar Detective</h4>
+              <p className="text-xs text-amber-300 font-medium">Thám Tử Bắt Lỗi Ngữ Pháp</p>
+              <p className="mt-2.5 text-xs text-slate-400 leading-relaxed">
+                Nhập vai thám tử soi hồ sơ vụ án: Chạm đúng từ bị sai ngữ pháp trong câu và chọn phương án sửa chính xác để phá án trọn vẹn!
+              </p>
+              <div className="mt-4 flex flex-wrap gap-2 text-[11px] text-slate-400">
+                <span className="px-2 py-0.5 rounded bg-slate-800 border border-slate-700">3 Kính lúp (Mạng)</span>
+                <span className="px-2 py-0.5 rounded bg-slate-800 border border-slate-700">Phá 5 vụ án</span>
+              </div>
+            </div>
+
+            <button
+              disabled={isLoading || !activeTopic}
+              onClick={() => activeTopic && onStartGame('GrammarDetective', activeTopic.id, selectedDifficulty)}
+              className="mt-6 w-full py-3 px-4 rounded-xl bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-lg shadow-amber-600/30 transition-all disabled:opacity-50"
+            >
+              <Play className="w-4 h-4 fill-white" />
+              Chơi Grammar Detective
             </button>
           </div>
         </div>

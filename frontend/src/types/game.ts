@@ -1,4 +1,10 @@
-export type GameType = 'WordMatch' | 'SpeedFalling' | 'SentenceScramble';
+export type GameType = 
+  | 'WordMatch' 
+  | 'SpeedFalling' 
+  | 'SentenceScramble' 
+  | 'AudioBlitz' 
+  | 'ClozeMaster' 
+  | 'GrammarDetective';
 export type DifficultyLevel = 'Easy' | 'Medium' | 'Hard';
 
 export interface UserSummaryDto {
@@ -96,6 +102,78 @@ export interface SentenceScrambleInitResponse {
   gameType: 'SentenceScramble';
   totalTimeLimitSeconds: number;
   sentences: SentenceScrambleItem[];
+}
+
+// 4. Audio Blitz DTOs
+export interface AudioBlitzItemDto {
+  questionId: string;
+  audioUrl: string;
+  slowAudioUrl?: string;
+  phonetic: string;
+  partOfSpeech: string;
+  definitionVi: string;
+  contextSentence: string;
+  targetWordLength: number;
+  letterBank: string[];
+  timeLimitSeconds: number;
+}
+
+export interface AudioBlitzInitResponse {
+  sessionId: string;
+  gameType: 'AudioBlitz';
+  initialLives: number;
+  items: AudioBlitzItemDto[];
+}
+
+// 5. Cloze Master DTOs
+export interface ClozeOptionDto {
+  id: string; // 'A', 'B', 'C', 'D'
+  word: string;
+  definitionVi: string;
+}
+
+export interface ClozeQuestionDto {
+  questionId: string;
+  contextSentence: string;
+  sentenceTranslationVi: string;
+  partOfSpeechHint: string;
+  options: ClozeOptionDto[];
+  explanationText: string;
+}
+
+export interface ClozeMasterInitResponse {
+  sessionId: string;
+  gameType: 'ClozeMaster';
+  timePerQuestionSeconds: number;
+  totalQuestions: number;
+  questions: ClozeQuestionDto[];
+}
+
+// 6. Grammar Detective DTOs
+export interface GrammarTokenDto {
+  index: number;
+  text: string;
+}
+
+export interface GrammarDetectiveCaseDto {
+  caseId: string;
+  caseTitle: string;
+  rawSentence: string;
+  tokens: GrammarTokenDto[];
+  errorTokenIndex: number;
+  errorTokenText: string;
+  correctionOptions: string[];
+  correctReplacement: string;
+  grammarRuleExplanation: string;
+}
+
+export interface GrammarDetectiveInitResponse {
+  sessionId: string;
+  gameType: 'GrammarDetective';
+  initialMagnifiers: number;
+  timePerCaseSeconds: number;
+  totalCases: number;
+  cases: GrammarDetectiveCaseDto[];
 }
 
 // Completion

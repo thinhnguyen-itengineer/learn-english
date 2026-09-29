@@ -195,6 +195,249 @@ public class GameService : IGameService
                 };
             }
 
+            case GameType.AudioBlitz:
+            {
+                var questions = await _context.AudioBlitzQuestions
+                    .Where(q => q.TopicId == request.TopicId)
+                    .ToListAsync();
+
+                if (questions.Count == 0)
+                {
+                    questions = await _context.AudioBlitzQuestions.Take(8).ToListAsync();
+                }
+
+                var items = new List<AudioBlitzItemDto>();
+                if (questions.Count > 0)
+                {
+                    var selected = questions.OrderBy(_ => rnd.Next()).Take(8).ToList();
+                    foreach (var q in selected)
+                    {
+                        var targetWord = q.TargetWord.Trim().ToUpperInvariant();
+                        var letters = targetWord.Select(c => c.ToString()).ToList();
+                        
+                        var distractorsSource = string.IsNullOrEmpty(q.DistractorLetters) ? "ETAOIN" : q.DistractorLetters;
+                        var distractorChars = distractorsSource.ToUpperInvariant()
+                            .Where(char.IsLetter)
+                            .OrderBy(_ => rnd.Next())
+                            .Take(3)
+                            .Select(c => c.ToString())
+                            .ToList();
+
+                        letters.AddRange(distractorChars);
+                        var letterBank = letters.OrderBy(_ => rnd.Next()).ToList();
+
+                        items.Add(new AudioBlitzItemDto
+                        {
+                            QuestionId = q.Id.ToString(),
+                            AudioUrl = q.AudioUrl,
+                            SlowAudioUrl = q.SlowAudioUrl,
+                            Phonetic = q.Phonetic,
+                            PartOfSpeech = q.PartOfSpeech,
+                            DefinitionVi = q.DefinitionVi,
+                            ContextSentence = q.ContextSentence,
+                            TargetWordLength = targetWord.Length,
+                            LetterBank = letterBank,
+                            TimeLimitSeconds = 15
+                        });
+                    }
+                }
+                else
+                {
+                    var words = topic.Words.Take(8).ToList();
+                    foreach (var w in words)
+                    {
+                        var target = w.Term.Trim().ToUpperInvariant();
+                        var letters = target.Select(c => c.ToString()).ToList();
+                        var distractors = "ETAOINSRHD".Where(c => !target.Contains(c)).OrderBy(_ => rnd.Next()).Take(3).Select(c => c.ToString());
+                        letters.AddRange(distractors);
+
+                        items.Add(new AudioBlitzItemDto
+                        {
+                            QuestionId = w.Id.ToString(),
+                            AudioUrl = w.AudioUrl ?? "",
+                            SlowAudioUrl = null,
+                            Phonetic = w.Phonetic ?? "",
+                            PartOfSpeech = w.PartOfSpeech ?? "word",
+                            DefinitionVi = w.DefinitionVi,
+                            ContextSentence = string.IsNullOrEmpty(w.ExampleSentence) 
+                                ? $"Listen and spell: {w.Term}" 
+                                : w.ExampleSentence.Replace(w.Term, "______", StringComparison.OrdinalIgnoreCase),
+                            TargetWordLength = target.Length,
+                            LetterBank = letters.OrderBy(_ => rnd.Next()).ToList(),
+                            TimeLimitSeconds = 15
+                        });
+                    }
+                }
+
+                return new AudioBlitzInitResponse
+                {
+                    SessionId = session.Id,
+                    InitialLives = 3,
+                    Items = items
+                };
+            }
+
+            case GameType.ClozeMaster:
+            {
+                var questions = await _context.ClozeQuestions
+                    .Where(q => q.TopicId == request.TopicId)
+                    .ToListAsync();
+
+                if (questions.Count == 0)
+                {
+                    questions = await _context.ClozeQuestions.Take(10).ToListAsync();
+                }
+
+                var items = new List<ClozeQuestionDto>();
+                var optionLetters = new[] { "A", "B", "C", "D" };
+
+                if (questions.Count > 0)
+                {
+                    var selected = questions.OrderBy(_ => rnd.Next()).Take(10).ToList();
+                    foreach (var q in selected)
+                    {
+                        var allOpts = new List<ClozeDistractorItem>
+                        {
+                            new() { Word = q.CorrectWord, DefinitionVi = q.CorrectDefinitionVi }
+                        };
+                        allOpts.AddRange(q.Distractors);
+
+                        var shuffled = allOpts.OrderBy(_ => rnd.Next()).Take(4).ToList();
+                        var optionDtos = shuffled.Select((opt, idx) => new ClozeOptionDto
+                        {
+                            Id = idx < optionLetters.Length ? optionLetters[idx] : $"{(char)('A' + idx)}",
+                            Word = opt.Word,
+                            DefinitionVi = opt.DefinitionVi
+                        }).ToList();
+
+                        items.Add(new ClozeQuestionDto
+                        {
+                            QuestionId = q.Id.ToString(),
+                            ContextSentence = q.ContextSentence,
+                            SentenceTranslationVi = q.SentenceTranslationVi,
+                            PartOfSpeechHint = q.PartOfSpeechHint,
+                            Options = optionDtos,
+                            ExplanationText = q.ExplanationText
+                        });
+                    }
+                }
+                else
+                {
+                    var sentences = topic.Sentences.Take(10).ToList();
+                    foreach (var s in sentences)
+                    {
+                        var wordsInSentence = s.EnglishText.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                        var target = wordsInSentence.FirstOrDefault(w => w.Length > 4) ?? wordsInSentence[0];
+                        var cleanTarget = new string(target.Where(char.IsLetter).ToArray());
+
+                        var opts = new List<ClozeOptionDto>
+                        {
+                            new() { Id = "A", Word = cleanTarget, DefinitionVi = "Đáp án đúng ngữ cảnh" },
+                            new() { Id = "B", Word = cleanTarget + "ing", DefinitionVi = "Dạng từ biến đổi" },
+                            new() { Id = "C", Word = cleanTarget + "ly", DefinitionVi = "Dạng trạng từ" },
+                            new() { Id = "D", Word = "un" + cleanTarget, DefinitionVi = "Dạng phủ định" }
+                        }.OrderBy(_ => rnd.Next()).Select((opt, idx) => opt with { Id = optionLetters[idx] }).ToList();
+
+                        items.Add(new ClozeQuestionDto
+                        {
+                            QuestionId = s.Id.ToString(),
+                            ContextSentence = s.EnglishText.Replace(cleanTarget, "[ ________ ]", StringComparison.OrdinalIgnoreCase),
+                            SentenceTranslationVi = s.VietnameseTranslation,
+                            PartOfSpeechHint = "Từ vựng ngữ cảnh",
+                            Options = opts,
+                            ExplanationText = $"Đáp án chuẩn xác là '{cleanTarget}' theo đúng cấu trúc câu."
+                        });
+                    }
+                }
+
+                return new ClozeMasterInitResponse
+                {
+                    SessionId = session.Id,
+                    TimePerQuestionSeconds = 20,
+                    TotalQuestions = items.Count,
+                    Questions = items
+                };
+            }
+
+            case GameType.GrammarDetective:
+            {
+                var questions = await _context.GrammarDetectiveQuestions
+                    .Where(q => q.TopicId == request.TopicId)
+                    .ToListAsync();
+
+                if (questions.Count == 0)
+                {
+                    questions = await _context.GrammarDetectiveQuestions.Take(5).ToListAsync();
+                }
+
+                var cases = new List<GrammarDetectiveCaseDto>();
+                if (questions.Count > 0)
+                {
+                    var selected = questions.OrderBy(_ => rnd.Next()).Take(5).ToList();
+                    foreach (var q in selected)
+                    {
+                        var tokens = q.TokenSequence.Select(t => new GrammarTokenDto
+                        {
+                            Index = t.Index,
+                            Text = t.Text
+                        }).ToList();
+
+                        cases.Add(new GrammarDetectiveCaseDto
+                        {
+                            CaseId = q.Id.ToString(),
+                            CaseTitle = q.CaseTitle,
+                            RawSentence = q.RawSentence,
+                            Tokens = tokens,
+                            ErrorTokenIndex = q.ErrorTokenIndex,
+                            ErrorTokenText = q.ErrorTokenText,
+                            CorrectionOptions = q.CorrectionOptions,
+                            CorrectReplacement = q.CorrectReplacement,
+                            GrammarRuleExplanation = q.GrammarRuleExplanation
+                        });
+                    }
+                }
+                else
+                {
+                    cases.Add(new GrammarDetectiveCaseDto
+                    {
+                        CaseId = Guid.NewGuid().ToString(),
+                        CaseTitle = "Vụ Án #1: Giới Từ Thời Gian & Thì Hiện Tại Hoàn Thành",
+                        RawSentence = "She has worked as a software engineer in this company since five years .",
+                        Tokens = new List<GrammarTokenDto>
+                        {
+                            new() { Index = 0, Text = "She" },
+                            new() { Index = 1, Text = "has" },
+                            new() { Index = 2, Text = "worked" },
+                            new() { Index = 3, Text = "as" },
+                            new() { Index = 4, Text = "a" },
+                            new() { Index = 5, Text = "software" },
+                            new() { Index = 6, Text = "engineer" },
+                            new() { Index = 7, Text = "in" },
+                            new() { Index = 8, Text = "this" },
+                            new() { Index = 9, Text = "company" },
+                            new() { Index = 10, Text = "since" },
+                            new() { Index = 11, Text = "five" },
+                            new() { Index = 12, Text = "years" },
+                            new() { Index = 13, Text = "." }
+                        },
+                        ErrorTokenIndex = 10,
+                        ErrorTokenText = "since",
+                        CorrectionOptions = new List<string> { "for", "during", "from" },
+                        CorrectReplacement = "for",
+                        GrammarRuleExplanation = "Với khoảng thời gian kéo dài ('five years'), ta phải dùng giới từ 'for'. Giới từ 'since' chỉ dùng với mốc thời gian xác định."
+                    });
+                }
+
+                return new GrammarDetectiveInitResponse
+                {
+                    SessionId = session.Id,
+                    InitialMagnifiers = 3,
+                    TimePerCaseSeconds = 60,
+                    TotalCases = cases.Count,
+                    Cases = cases
+                };
+            }
+
             default:
                 throw new ArgumentOutOfRangeException(nameof(request.GameType), "Game type không hợp lệ.");
         }
@@ -316,6 +559,36 @@ public class GameService : IGameService
                 BadgeName = "Bách phát bách trúng",
                 Description = "Hoàn thành bài tập với tỷ lệ chính xác tuyệt đối 100%!",
                 IconUrl = "Target"
+            });
+        }
+        if (session.GameType == GameType.AudioBlitz && accuracy >= 90m)
+        {
+            badges.Add(new UnlockedBadgeDto
+            {
+                BadgeCode = "GOLDEN_EAR",
+                BadgeName = "Đôi Tai Vàng",
+                Description = "Hoàn thành bài luyện nghe Audio Blitz với độ chính xác trên 90%!",
+                IconUrl = "Headphones"
+            });
+        }
+        if (session.GameType == GameType.ClozeMaster && request.CorrectAnswers >= 5)
+        {
+            badges.Add(new UnlockedBadgeDto
+            {
+                BadgeCode = "CONTEXT_PRO",
+                BadgeName = "Bậc Thầy Ngữ Cảnh",
+                Description = "Trả lời xuất sắc các câu hỏi điền từ trong Cloze Master!",
+                IconUrl = "BookOpen"
+            });
+        }
+        if (session.GameType == GameType.GrammarDetective && request.CorrectAnswers >= 3)
+        {
+            badges.Add(new UnlockedBadgeDto
+            {
+                BadgeCode = "SHERLOCK_GRAMMAR",
+                BadgeName = "Thám Tử Bắt Lỗi",
+                Description = "Phá thành công các vụ án ngữ pháp trong Grammar Detective!",
+                IconUrl = "Search"
             });
         }
         if (isNewLevel)
