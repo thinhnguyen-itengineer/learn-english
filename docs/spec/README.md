@@ -65,6 +65,13 @@ Hệ thống tài liệu spec được chia thành các file chuyên sâu phục
      3. *Social Study Squads & Async Challenges:* Nhóm học tập 5-10 người, Thanh tiến độ chung mở rương, Link thách đấu bất đồng bộ.
      4. *AI Speaking Partner & Phoneme Heatmap:* Bản đồ nhiệt âm vị phát âm và hội thoại nhập vai AI.
    - Lộ trình triển khai phân kỳ (Gantt Roadmap), chỉ số KPIs (D1/D7/D30 Retention) và phân công nhiệm vụ cho Product BA & Tech Lead.
+9. [retention-and-gamification-expansion.md](./retention-and-gamification-expansion.md):
+   - **Đặc tả nghiệp vụ chi tiết Hệ thống Giữ chân Người dùng (Retention & Gamification Expansion):**
+     1. *Ngân hàng lỗi sai (Mistake Bank) & Thuật toán SM-2:* Công thức tính khoảng cách ôn tập, hệ số $EF$, quy chế tốt nghiệp lỗi sai (Mastered) và chế độ chơi "Phòng Khám Điểm Yếu" (Weakness Clinic).
+     2. *Duolingo-style Daily Habit Loop:* Cơ chế mua và tự động kích hoạt Băng Bảo Vệ Chuỗi (Streak Freeze), cơ chế Cứu Chuỗi Khẩn Cấp 48h, Hòm Báu 3 Khung Giờ (Early Bird, Midday Energy, Night Owl) kèm bảng tỷ lệ Gacha Loot.
+     3. *Giải Đấu Phân Hạng Tuần (Weekly Leagues):* 5 bậc rank, thuật toán phân bảng 30 người (Lazy Partitioning) và chốt thăng/xuống hạng 23:59:59 Chủ Nhật.
+     4. *Social Study Squads & Async Challenges:* Nhóm học tập 5-10 người, thanh tiến độ chung 5,000 XP/tuần, mở Squad Mega Chest và Link thách đấu bất đồng bộ (Seed snapshot + Open Graph preview).
+   - Mô hình dữ liệu PostgreSQL DDL, C# EF Core entities, TypeScript interfaces, RESTful API contracts và bộ tiêu chí nghiệm thu Given-When-Then cho QA & Tech Lead.
 
 ---
 
