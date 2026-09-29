@@ -46,6 +46,11 @@ Hệ thống tài liệu spec được chia thành các file chuyên sâu phục
    - Thuật toán ghép cặp thích ứng (Adaptive Matchmaking) và cơ chế Bot thông minh dự phòng.
    - Luật thi đấu 1v1, xử lý ngắt kết nối (Grace Period) / bỏ cuộc (Forfeit).
    - Thiết kế CSDL PostgreSQL, SignalR BattleHub WebSocket protocol và tiêu chí nghiệm thu (Given-When-Then).
+6. [new-minigames-specification.md](./new-minigames-specification.md):
+   - Đặc tả mở rộng 3 mini-game mới: **Audio Blitz** (Nghe & Điền chính tả), **Cloze Master** (Điền từ ngữ cảnh), **Grammar Detective** (Thám tử bắt lỗi ngữ pháp).
+   - Luật chơi, win/lose logic, timers, scoring mechanisms và gamification feedback loops (Streak, Coins, Level progress).
+   - Thiết kế lược đồ CSDL PostgreSQL, C# EF Core entities, TypeScript interfaces và sample mock JSON.
+   - Tiêu chí nghiệm thu (Given-When-Then) chi tiết cho QA và Tech Lead.
 
 ---
 
