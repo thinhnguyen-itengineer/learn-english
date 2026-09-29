@@ -1,12 +1,12 @@
-# Hệ Thống Thiết Kế UI/UX: Leaderboard & Realtime 1v1 Battle
+# Hệ Thống Thiết Kế UI/UX: Leaderboard, 1v1 Battle & 3 Mini-Game Mới (Game Expansion Pack)
 ## Design System & Component Library Specification
 
 **Tài liệu:** Đặc tả quy chuẩn giao diện người dùng, Tokens và Thư viện Component (Design System Specification)  
 **Tác giả:** UI/UX Designer & Design Technologist (`c74ffe18-11a2-47b9-a7f4-a3600b2f07c0`)  
 **Báo cáo cho:** Tech Lead & Software Architect (`11dba413-036f-4ce1-950e-252419384dce`)  
-**Dự án:** learn-english (Paperclip Issue PHU-8)  
-**Phạm vi áp dụng:** Toàn bộ giao diện Gamified PvP 1v1, Bảng Xếp Hạng (Leaderboard), Hàng Chờ Tìm Trận (Radar Matchmaking), Màn hình Tổng kết (Match Result) và Thư viện UI Component (`frontend/src/components/ui/`)  
-**Tài liệu tham chiếu:** [`docs/spec/leaderboard-and-battle.md`](../spec/leaderboard-and-battle.md) và [`docs/architecture/system-design.md`](../architecture/system-design.md)  
+**Dự án:** learn-english (Paperclip Issues PHU-8 & PHU-11)  
+**Phạm vi áp dụng:** Toàn bộ giao diện Gamified PvP 1v1, Bảng Xếp Hạng (Leaderboard), 3 Mini-Game Mở Rộng (Audio Blitz, Cloze Master, Grammar Detective) và Thư viện UI Component (`frontend/src/components/ui/`)  
+**Tài liệu tham chiếu:** [`docs/spec/leaderboard-and-battle.md`](../spec/leaderboard-and-battle.md), [`docs/spec/new-minigames-specification.md`](../spec/new-minigames-specification.md) và [`docs/architecture/system-design.md`](../architecture/system-design.md)  
 
 ---
 
@@ -204,3 +204,339 @@ Mọi component đều tuân thủ:
 - **TypeScript Strict Mode:** Đầy đủ types, interfaces và JSDoc hướng dẫn props.
 - **Accessibility & Keyboard Friendly:** Thẻ và nút bấm hỗ trợ focus ring, `aria-label`, và kích hoạt bằng phím Enter/Space.
 - **Zero Runtime Dependencies Ngoại Lai:** Chỉ dùng React 19, Lucide React icons và Tailwind CSS tokens.
+
+---
+
+## 8. Mở Rộng Thiết Kế Cho 3 Mini-Game Mới (Game Expansion Pack - PHU-11)
+
+Theo tài liệu đặc tả nghiệp vụ [`docs/spec/new-minigames-specification.md`](../spec/new-minigames-specification.md), nền tảng mở rộng thêm 3 mini-game:
+1. **Audio Blitz** (Listen & Spell - Âm Thanh Đoán Chữ & Luyện Chính Tả)
+2. **Cloze Master** (Context Fill-in-the-Blank - Điền Từ Ngữ Cảnh & Collocations)
+3. **Grammar Detective** (Error Hunter - Thám Tử Bắt Lỗi Ngữ Pháp)
+
+---
+
+## 9. Triết Lý Thiết Kế & Nhận Diện Cho Từng Trò Chơi Mới
+
+### 9.1. Audio Blitz (Visualizing Sound & Tactile Spelling)
+- **Cảm hứng:** Arcade Rhythm Game kết hợp Luyện phát âm & Phonics Duolingo.
+- **Điểm nhấn thị giác:**
+  - Sóng âm thanh nhảy múa (Animated Soundwave Bars) phát sáng theo tần số audio thực tế.
+  - Nút phát âm to tròn 3D Duolingo với hiệu ứng sóng lan tỏa (`ring-4 ring-cyan-300/40`).
+  - Ô ký tự mục tiêu (Letter Input Slots) có con trỏ nhấp nháy, nảy ngọc bích khi hoàn thành đúng (`animate-pop-bounce`), rung lắc đỏ khi gõ sai (`animate-shake`).
+  - Ngân hàng ô ký tự (Letter Tiles Bank) vát đáy 3D cơ học, bấm lún mượt mà.
+  - Phím tắt vật lý: `Spacebar` để nghe lại, gõ trực tiếp `a-z`, `Backspace`, `Enter`.
+
+### 9.2. Cloze Master (Contextual Clarity & Smart Distractor Highlighting)
+- **Cảm hứng:** Thử thách tư duy ngữ cảnh và collocations thực tế, loại bỏ cảm giác học vẹt.
+- **Điểm nhấn thị giác:**
+  - Thẻ câu ngữ cảnh trang trọng, ô trống `[ ________ ]` nổi bật với viền nét đứt neon cyan hoặc hiển thị chữ cái đầu `[ e_______ ]` khi dùng quyền trợ giúp.
+  - 4 Thẻ đáp án thông minh (Smart Distractors) phân bổ 2x2, có nhãn A/B/C/D dập nổi, hiển thị song ngữ tinh tế (từ tiếng Anh + sắc thái nghĩa tiếng Việt).
+  - Quyền trợ giúp trong game: nút `50:50` làm mờ 2 phương án sai với hiệu ứng gạch ngang; nút `Gợi ý ký tự đầu`.
+  - Hộp kiến thức **Mini Grammar Bite**: trượt nảy êm ái ngay sau khi chọn đáp án, phân tích bẫy từ vựng/collocation/giới từ sâu sắc.
+
+### 9.3. Grammar Detective (Noir Mystery Dossier & Interactive Token Sentence)
+- **Cảm hứng:** Phòng điều tra thám tử hồ sơ mật (Classified Dossier), tìm kiếm manh mối ngữ pháp.
+- **Điểm nhấn thị giác:**
+  - Bảng hồ sơ vụ án tông màu da/amber/sepia viền kim loại trầm (`border-amber-600/60 shadow-[0_8px_0_#451a03]`).
+  - Mạng sống Kính Lúp (`3/3 🔍`), phát sáng viền hổ phách, nứt vỡ/mờ khi chọn nhầm người vô tội.
+  - Câu văn tương tác (Interactive Tokenized Sentence): phân tách thành các chip từ độc lập, hover kính lúp, click đối tượng tình nghi.
+  - Bắt đúng thủ phạm: chip từ phát sáng rực lửa hổ phách (`ring-4 ring-amber-400 bg-amber-400 text-yellow-950 font-black`) kèm huy hiệu "Thủ phạm!".
+  - Giai đoạn 2 (Sửa chữa lỗi sai): popup sửa án với 3 phương án chuẩn xác và bản tóm tắt quy tắc ngữ pháp phá án.
+
+---
+
+## 10. Bảng Tokens Bổ Sung Cho 3 Mini-Game Mới
+
+### 10.1. Color Tokens Bổ Sung (`frontend/tailwind.config.js`)
+
+| Nhóm Token | Tên Token | Hex Code | Ứng Dụng Thực Tế |
+| :--- | :--- | :--- | :--- |
+| **`audio`** | `audio.cyan` | `#06b6d4` | Nút phát âm chính, sóng âm thanh, viền ô nhập chữ cái |
+| | `audio.wave` | `#6366f1` | Dải sóng âm phụ, chuyển màu gradient |
+| | `audio.speed` | `#10b981` | Nút chọn tốc độ chuẩn 1.0x |
+| | `audio.slow` | `#f59e0b` | Nút chọn tốc độ chậm 0.75x (Rùa) |
+| **`cloze`** | `cloze.teal` | `#0d9488` | Thẻ chủ đề, icon kiến thức |
+| | `cloze.tealDark` | `#0f766e` | Viền 3D thẻ chủ đề |
+| | `cloze.blank` | `#fde047` | Ô trống cần điền, gợi ý ký tự đầu |
+| | `cloze.hint` | `#38bdf8` | Nút trợ giúp 50:50 và Gợi ý ký tự |
+| **`detective`** | `detective.noir` | `#1e293b` | Nền thẻ hồ sơ vụ án mật |
+| | `detective.amber` | `#f59e0b` | Màu chủ đạo thám tử, kính lúp điều tra |
+| | `detective.amberDark` | `#b45309` | Viền 3D hổ phách cổ điển |
+| | `detective.culprit` | `#ef4444` | Đánh dấu thủ phạm bị bắt, cảnh báo lỗi sai |
+| | `detective.solved` | `#10b981` | Phá án thành công, từ sửa đúng |
+
+### 10.2. 3D Shadow Tokens & Glow Effects
+
+| Tên Shadow | Giá Trị CSS | Ứng Dụng |
+| :--- | :--- | :--- |
+| `3d-tile` | `0 4px 0 #334155` | Ngân hàng ô chữ cái, token từ tương tác |
+| `3d-tile-emerald` | `0 4px 0 #047857` | Ô chữ cái / đáp án đúng |
+| `3d-tile-ruby` | `0 4px 0 #b91c1c` | Ô chữ cái / đáp án sai |
+| `3d-tile-amber` | `0 4px 0 #b45309` | Nút chức năng Đổi vị trí, Sửa lỗi án |
+| `3d-tile-cyan` | `0 4px 0 #0e7490` | Nút Gợi ý ký tự, Trợ giúp |
+| `glow-detective` | `0 0 25px rgba(245, 158, 11, 0.5)` | Hào quang kính lúp, bắt đúng thủ phạm |
+| `glow-soundwave` | `0 0 25px rgba(6, 182, 212, 0.5)` | Hào quang nút phát âm đang chạy |
+
+### 10.3. Micro-Animations & Keyframes Bổ Sung
+
+1. **`soundwave-pulse`:** Các thanh sóng âm thanh co giãn theo chiều dọc (`scaleY(0.3) -> scaleY(1.0)`).
+2. **`tile-slotted`:** Chữ cái bay nảy vào ô trống với gia tốc nảy mượt mà (`cubic-bezier(0.34, 1.56, 0.64, 1)`).
+3. **`magnifier-pulse`:** Kính lúp nhịp đập phóng to xoay nhẹ khi quét tìm manh mối.
+4. **`clue-glow`:** Vòng sáng sóng xung kích hổ phách tỏa ra từ từ sai khi bị phát hiện.
+5. **`streak-flame`:** Ngọn lửa chuỗi đúng lắc lư nhấp nhô sống động.
+
+---
+
+## 11. Bố Cục Chi Tiết 3 Màn Hình Mini-Game (Layout & Wireframes)
+
+### 11.1. Audio Blitz (Listen & Spell)
+```
++-----------------------------------------------------------------------+
+|  [<- Thoát]    [🎧 Audio Blitz - 3/8]    ❤️ ❤️ ❤️    ⭐ 450    🔥 x1.2 |
++-----------------------------------------------------------------------+
+|                                                                       |
+|   [⭐ Perfect Ear Bonus: +30 pts]          [ 🐢 0.75x ]  [ ⚡ 1.0x ]  |
+|                                                                       |
+|                          ( 🔊 PHÁT ÂM )                               |
+|                     ||||||||||||||||||||||                            |
+|                                                                       |
+|                  Phiên âm:  /ˌkɒm.prɪˈhen.ʃən/                        |
+|                  Từ loại:  (Noun) - Sự nhận thức, thấu hiểu           |
+|                                                                       |
+|   Ngữ cảnh: "Reading ________ is an essential skill for students."    |
+|                                                                       |
+|   Ô nhập kết quả:                                                     |
+|   +---+---+---+---+---+---+---+---+---+---+---+---+---+               |
+|   | C | O | M | P | R | E | H | E | N | S | I | O | N |               |
+|   +---+---+---+---+---+---+---+---+---+---+---+---+---+               |
+|                                                                       |
+|   Ngân hàng ký tự:                                                    |
+|   [ O ]  [ H ]  [ E ]  [ C ]  [ R ]  [ P ]  [ M ]  [ S ]              |
+|   [ N ]  [ I ]  [ E ]  [ O ]  [ N ]  [ T ]  [ A ]  [ L ]              |
+|                                                                       |
+|   [ 🔀 Đổi vị trí ]      [ ⌫ Xóa lùi ]         [ 🗑️ Xóa hết ]        |
++-----------------------------------------------------------------------+
+|  ⏱️ 12s [=================================-------------------------] |
++-----------------------------------------------------------------------+
+```
+
+### 11.2. Cloze Master (Context Fill-in-the-Blank)
+```
++-----------------------------------------------------------------------+
+|  [<- Thoát]    [🧩 Cloze Master - 4/10]    ⭐ 680    🔥 Streak: 3      |
++-----------------------------------------------------------------------+
+|  [🏷️ Công sở & Kinh doanh]  [MEDIUM]        [💡 50:50]  [✨ Gợi ý ký tự]|
+|                                                                       |
+|  +-----------------------------------------------------------------+  |
+|  |  "Despite unexpected logistical delays, the team managed to     |  |
+|  |   [ ________ ] their sales target for Q3."                      |  |
+|  |                                                                 |  |
+|  |   Từ loại: (verb - nguyên mẫu)                                  |  |
+|  |   Nghĩa: Dù gặp sự chậm trễ hậu cần, đội ngũ vẫn đạt chỉ tiêu.  |  |
+|  +-----------------------------------------------------------------+  |
+|                                                                       |
+|  +-------------------------------+ +-------------------------------+  |
+|  | [A] exceed                    | | [B] expand                    |  |
+|  | (vượt quá, vượt mức)          | | (mở rộng kích thước)          |  |
+|  +-------------------------------+ +-------------------------------+  |
+|  +-------------------------------+ +-------------------------------+  |
+|  | [C] extend                    | | [D] excess                    |  |
+|  | (kéo dài thời gian)           | | (sự vượt quá mức)             |  |
+|  +-------------------------------+ +-------------------------------+  |
+|                                                                       |
+|  [💡 Mini Grammar Bite Popup trượt vào khi chọn xong phương án...]   |
++-----------------------------------------------------------------------+
+```
+
+### 11.3. Grammar Detective (Error Hunter)
+```
++-----------------------------------------------------------------------+
+|  [<- Thoát]    [🕵️‍♂️ Grammar Detective - 2/5]    🔍 🔍 🔍 (3/3 Kính Lúp)  |
++-----------------------------------------------------------------------+
+|  [📁 HỒ SƠ VỤ ÁN #02] - Lỗi thì hoàn thành & Giới từ chỉ thời gian   |
+|  🔍 Nhiệm vụ: Chạm vào TỪ hoặc CỤM TỪ bị lỗi ngữ pháp trong câu dưới |
+|                                                                       |
+|  +-----------------------------------------------------------------+  |
+|  |                                                                 |  |
+|  |   [ She ]  [ has ]  [ worked ]  [ as ]  [ a ]  [ software ]     |  |
+|  |                                                                 |  |
+|  |   [ engineer ]  [ in ]  [ this ]  [ company ]  🔴[ since ]      |  |
+|  |                                                                 |  |
+|  |   [ five ]  [ years ]  [ . ]                                    |  |
+|  |                                                                 |  |
+|  +-----------------------------------------------------------------+  |
+|                                                                       |
+|  [Popup Giai đoạn 2: Sửa lỗi án...]                                  |
+|  +-----------------------------------------------------------------+  |
+|  |  🎯 Bắt đúng thủ phạm: "since" là từ sai!                       |  |
+|  |  Chọn phương án thay thế chuẩn xác:                             |  |
+|  |  [ (1) for ]         [ (2) during ]         [ (3) from ]        |  |
+|  +-----------------------------------------------------------------+  |
++-----------------------------------------------------------------------+
+```
+
+---
+
+## 12. Danh Mục Thư Viện UI Component Mới (`frontend/src/components/ui/`)
+
+Tất cả các component dưới đây được triển khai dưới dạng **Pure Presentational Components (Zero Backend/SignalR Dependency)**, sẵn sàng nhận props và callbacks từ Senior Fullstack Engineer (`PHU-12`):
+
+| Tên Component | File Path | Vai Trò & Tính Năng Chính |
+| :--- | :--- | :--- |
+| **`AudioSoundwavePlayer`** | `src/components/ui/AudioSoundwavePlayer.tsx` | Máy phát âm thanh Audio Blitz với nút Play 3D, sóng âm visualizer, toggle 0.75x/1.0x, phiên âm IPA, từ loại, câu ngữ cảnh và phím tắt Spacebar. |
+| **`LetterTileBank`** | `src/components/ui/LetterTileBank.tsx` | Dãy ô chữ cái kết quả (letter slots) kèm con trỏ nhấp nháy, ngân hàng ký tự tiles 3D Duolingo-style, hỗ trợ bàn phím thật (a-z, Backspace, Enter) và các nút tiện ích Shuffle, Backspace, Clear All. |
+| **`ClozeQuestionCard`** | `src/components/ui/ClozeQuestionCard.tsx` | Thẻ câu hỏi ngữ cảnh Cloze Master với ô trống `[BLANK]`, thanh trợ giúp 50:50 và Gợi ý ký tự đầu, 4 thẻ đáp án thông minh (A/B/C/D) với phản hồi màu sắc đúng/sai. |
+| **`MiniGrammarBiteModal`** | `src/components/ui/MiniGrammarBiteModal.tsx` | Thẻ/Modal giải thích kiến thức tức thì sau khi trả lời, làm rõ bẫy từ vựng/collocations/giới từ và nút tiếp tục. |
+| **`DetectiveCaseFile`** | `src/components/ui/DetectiveCaseFile.tsx` | Giao diện hồ sơ vụ án thám tử, chỉ số kính lúp mạng sống, câu văn phân rã thành các chip từ tương tác (interactive tokens), cảnh báo bắt nhầm và hào quang khi tóm đúng thủ phạm. |
+| **`DetectiveCorrectionModal`** | `src/components/ui/DetectiveCorrectionModal.tsx` | Popup giai đoạn 2 sửa chữa lỗi sai của vụ án, 3 phương án thay thế 3D, báo cáo phá án thành công và quy tắc ngữ pháp. |
+| **`GameHUD`** | `src/components/ui/GameHUD.tsx` | Thanh điều khiển đỉnh ván đấu dùng chung cho các single-player mini-games: Nút thoát, icon game, mạng sống (trái tim/kính lúp), điểm số ticker, chuỗi combo lửa và thanh đếm ngược thời gian. |
+| **`StreakMilestoneModal`** | `src/components/ui/StreakMilestoneModal.tsx` | Popup chúc mừng cột mốc chuỗi đúng (Streak 3, 5, 7..) phong cách Duolingo với hiệu ứng lửa bốc cháy, nhân hệ số điểm và pháo hoa Confetti. |
+
+---
+
+## 13. Hướng Dẫn Tích Hợp Kỹ Thuật Cho Senior Fullstack Engineer (`PHU-12`)
+
+Senior Fullstack Engineer (`PHU-12`) có thể import toàn bộ hệ thống component mới trực tiếp từ `@/components/ui`:
+
+```tsx
+import {
+  // Audio Blitz
+  AudioSoundwavePlayer,
+  LetterTileBank,
+  // Cloze Master
+  ClozeQuestionCard,
+  MiniGrammarBiteModal,
+  // Grammar Detective
+  DetectiveCaseFile,
+  DetectiveCorrectionModal,
+  // Common Game Controls & Celebration
+  GameHUD,
+  StreakMilestoneModal,
+  // Base UI
+  Button,
+  ProgressBar,
+  RankBadge,
+  FlipCard
+} from '@/components/ui';
+```
+
+### 13.1. Hợp Đồng Luồng Sự Kiện Cho Audio Blitz
+```tsx
+<GameHUD
+  title="Audio Blitz"
+  icon="🎧"
+  lives={lives}
+  score={score}
+  streak={streak}
+  comboMultiplier={comboMultiplier}
+  timeLeft={timeLeft}
+  totalTime={15}
+  progress={{ current: currentWordIndex + 1, total: totalWords }}
+  onExit={handleExit}
+/>
+
+<AudioSoundwavePlayer
+  isPlaying={isPlayingAudio}
+  speed={playbackSpeed} // 0.75 | 1.0
+  onSpeedChange={(speed) => setPlaybackSpeed(speed)}
+  onPlayAudio={playCurrentWordAudio}
+  ipa={currentWord.ipa}
+  partOfSpeech={currentWord.partOfSpeech}
+  meaningVi={currentWord.meaningVi}
+  contextSentence={currentWord.contextSentence}
+  playCount={audioPlayCount}
+  isPerfectEarEligible={audioPlayCount === 1 && playbackSpeed === 1.0}
+/>
+
+<LetterTileBank
+  wordLength={currentWord.word.length}
+  slottedLetters={slottedLetters}
+  bankTiles={bankTiles}
+  status={validationStatus} // 'idle' | 'correct' | 'wrong'
+  revealedWord={revealedWord}
+  onSelectTile={handleSlotTile}
+  onRemoveSlottedLetter={handleRemoveSlot}
+  onShuffle={handleShuffleTiles}
+  onBackspace={handleBackspace}
+  onClearAll={handleClearAll}
+  onSubmit={handleSubmitWord}
+/>
+```
+
+### 13.2. Hợp Đồng Luồng Sự Kiện Cho Cloze Master
+```tsx
+<ClozeQuestionCard
+  topic={question.topic}
+  difficulty={question.difficulty}
+  questionProgress={{ current: qIndex + 1, total: totalQuestions }}
+  sentenceBefore={question.sentenceBefore}
+  sentenceAfter={question.sentenceAfter}
+  partOfSpeechHint={question.partOfSpeechHint}
+  sentenceMeaningVi={question.sentenceMeaningVi}
+  firstLetterHint={revealedFirstLetter}
+  options={question.options}
+  selectedOptionId={selectedOptionId}
+  eliminatedOptionIds={eliminatedOptionIds}
+  answerState={answerState} // 'idle' | 'correct' | 'wrong'
+  correctOptionId={question.correctOptionId}
+  is5050Available={powerups.canUse5050}
+  isFirstLetterAvailable={powerups.canUseFirstLetter}
+  onSelectOption={handleSelectOption}
+  onUse5050={handleUse5050}
+  onUseFirstLetterHint={handleUseFirstLetterHint}
+/>
+
+{showMiniGrammarBite && (
+  <MiniGrammarBiteModal
+    isCorrect={answerState === 'correct'}
+    correctAnswer={question.correctWord}
+    userAnswer={question.options.find(o => o.id === selectedOptionId)?.word}
+    explanation={question.grammarBite.explanation}
+    category={question.grammarBite.category}
+    usageTip={question.grammarBite.usageTip}
+    onContinue={handleNextQuestion}
+  />
+)}
+```
+
+### 13.3. Hợp Đồng Luồng Sự Kiện Cho Grammar Detective
+```tsx
+<GameHUD
+  title="Grammar Detective"
+  icon="🕵️‍♂️"
+  lives={magnifiers}
+  maxLives={3}
+  lifeType="magnifiers"
+  score={score}
+  progress={{ current: currentCaseIndex + 1, total: totalCases }}
+  onExit={handleExit}
+/>
+
+<DetectiveCaseFile
+  caseNumber={`HỒ SƠ VỤ ÁN #${currentCaseIndex + 1}`}
+  caseTitle={currentCase.title}
+  magnifiers={magnifiers}
+  tokens={tokenizedSentence}
+  caughtCulpritId={caughtCulprit?.id}
+  innocentTokenIds={innocentClickedIds}
+  onSelectToken={handleTokenClick}
+  disabled={isPhase2Active}
+/>
+
+{isPhase2Active && (
+  <DetectiveCorrectionModal
+    culpritWord={caughtCulprit.word}
+    sentenceBefore={currentCase.sentenceBefore}
+    sentenceAfter={currentCase.sentenceAfter}
+    options={currentCase.correctionOptions}
+    selectedOptionId={selectedCorrectionId}
+    status={correctionStatus} // 'idle' | 'correct' | 'wrong'
+    correctOptionId={currentCase.correctCorrectionId}
+    ruleExplanation={currentCase.ruleExplanation}
+    onSelectOption={handlePickCorrection}
+    onCloseCase={handleCaseClosed}
+  />
+)}
+```
+
