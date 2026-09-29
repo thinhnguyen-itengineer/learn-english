@@ -19,6 +19,15 @@ Chào mừng đến với thư viện kiến trúc hệ thống của dự án *
    - **Tên:** Kiến Trúc Hệ Thống: Bảng Xếp Hạng & Đấu Đối Kháng Trực Tiếp 1v1 (System Architecture: Leaderboard & 1v1 Battle).
    - **Phạm vi:** SignalR BattleHub WebSocket protocol, In-Memory Matchmaking Queue, Elo Rating Engine, Bot Simulation Runner, PostgreSQL Schema cho Realtime PvP.
 
+3. **[avatar-and-shop-architecture.md](./avatar-and-shop-architecture.md) (Mới - PHU-22):**
+   - **Tên:** Thiết Kế Kiến Trúc Kỹ Thuật: Hệ Thống Hồ Sơ Cá Nhân Hóa (Avatar Customization), Cửa Hàng Vật Phẩm Game Hóa & Kinh Tế Token (System Architecture: Modular 2D Avatar, Gamified Item Shop & Token Economy).
+   - **Phạm vi:**
+     - **Trụ cột 1: Modular 2D Layered Avatar Engine:** Hệ tọa độ 500x600 px, 11 tầng Z-Index (từ Handheld, Eyewear, Headwear, Tops, Bottoms, Footwear đến Base Body & Pedestal Aura), cơ chế đổi màu động qua CSS Variables (`--avatar-skin-color`, `--avatar-hair-color`). Component `ModularAvatar.tsx` hỗ trợ Full-body, Thumbnail 40px và Idle Breathing animation.
+     - **Trụ cột 2: Cửa Hàng Vật Phẩm & Live Fitting Room:** Giao diện Split-View 40/60, Instant Try-On không trừ token, mua nhanh 1-click & mua trọn gói giỏ hàng (Bundle Checkout), Seed data 28 vật phẩm mẫu 4 cấp độ hiếm (Common, Rare, Epic, Legendary).
+     - **Trụ cột 3: Kinh Tế Token & Sổ Cái Bất Biến (Token Ledger):** Chu trình Learn-to-Earn kết nối bài học 4 kỹ năng & 6 mini-games, cơ chế chống lạm phát Soft-Cap 600 tokens/ngày, giao dịch ACID khóa hàng bi quan (`SELECT FOR UPDATE`) ngăn chặn race condition / double-spending.
+     - **Trụ cột 4: Quản Lý Tủ Đồ & Bộ Phối Yêu Thích (Presets):** Tủ đồ cá nhân, trang bị/tháo bỏ vật phẩm, lưu và chuyển đổi tức thì giữa 3 bộ Outfit Presets.
+   - **Thành phần kỹ thuật:** CSDL PostgreSQL (6 bảng DDL), Entity Framework Core 8 Entities & Migrations, 5 Bộ RESTful Controllers (`Profile`, `Avatar`, `Shop`, `Inventory`, `Tokens`), Hợp đồng API contracts đầy đủ.
+
 ---
 
 ## 2. Tiêu Chuẩn & Quy Định Kỹ Thuật Dành Cho Subordinates
