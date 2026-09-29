@@ -1,1001 +1,1036 @@
-# Đặc Tả Kỹ Thuật & Nghiệp Vụ Chi Tiết: Hệ Thống Giữ Chân Người Dùng & Gamification Đột Phá (Retention & Gamification Expansion)
+# Đặc Tả Nghiệp Vụ & Thiết Kế Chức Năng: Hệ Thống Giữ Chân Người Dùng & Gamification Nâng Cao (SRS Flashcards, Daily Habit Loop, Study Squads & AI Speaking)
 
 **Mã tài liệu:** `SPEC-RETENTION-GAMIFICATION-V1`  
 **Phiên bản:** 1.0  
 **Tác giả:** Senior Product Business Analyst (Product BA)  
-**Người nhận bàn giao:** Tech Lead / Architect, UI/UX Designer, Senior Fullstack Engineer, QA Team  
+**Người nhận bàn giao:** Tech Lead / Architect (`11dba413-036f-4ce1-950e-252419384dce`), UI/UX Designer, Senior Fullstack Engineer, QA Team  
 **Ngày ban hành:** 29/09/2026  
-**Trạng thái:** Đã hoàn thiện - Sẵn sàng chuyển giao thiết kế kỹ thuật & lập trình  
+**Dự án liên quan:** Learn English Mini-game Platform  
+**Trạng thái:** Đã hoàn thiện - Sẵn sàng chuyển giao kiến trúc & triển khai kỹ thuật  
 
 ---
 
-## 1. Tổng Quan & Kiến Trúc Vòng Lặp Giữ Chân Người Dùng (Retention Flywheel Architecture)
+## 1. Tổng Quan & Bối Cảnh Chiến Lược (Executive Summary)
 
-### 1.1. Bối Cảnh & Mục Tiêu Kinh Doanh
-Để chuyển đổi nền tảng từ một tập hợp các mini-game rời rạc thành một **Hệ sinh thái học tập gây nghiện lành mạnh (Healthy Learning Habit)**, tài liệu này đặc tả chi tiết 3 hệ thống giữ chân cốt lõi:
-1. **Trụ Cột 1 - Bộ Nhớ Dài Hạn (Pedagogical Long-Term Retention):** Hệ thống Ngân Hàng Lỗi Sai (Mistake Bank) tích hợp Thuật toán Lặp lại Ngắt quãng SuperMemo-2 (SM-2 Spaced Repetition) và chế độ "Phòng Khám Điểm Yếu" (Weakness Clinic).
-2. **Trụ Cột 2 - Vòng Lặp Thói Quen Hàng Ngày (Daily Habit & Urgency Loop):** Vật phẩm bảo vệ chuỗi Streak Freeze, Hòm phần thưởng 3 khung giờ vàng (Early Bird, Midday Energy, Night Owl Chests) và Giải đấu phân hạng tuần 30 người (Weekly Leagues).
-3. **Trụ Cột 3 - Trách Nhiệm Xã Hội & Lan Truyền Tự Nhiên (Social Accountability & Viral Loops):** Nhóm học tập 5–10 người (Study Squads) cày chung rương kho báu tuần và Cơ chế Thách đấu Bất đồng bộ (Async Challenge Deep Links).
+### 1.1. Mục Tiêu Sản Phẩm & Định Hướng Giữ Chân (Retention Goals)
+Dựa trên báo cáo nghiên cứu đối chuẩn thị trường tại [`docs/spec/product-research-retention-expansion.md`](./product-research-retention-expansion.md) (tham chiếu mô hình thành công của Duolingo, ELSA Speak, Quizlet, Anki và Kahoot), nền tảng học tiếng Anh qua mini-game chuyển mình từ một "Arcade giải trí ngắn hạn" thành một **Hệ sinh thái học tập hình thành thói quen lâu dài (Habit-forming Learning Ecosystem)**.
 
-### 1.2. Sơ Đồ Vòng Lặp Giữ Chân (Retention Flywheel)
+Mục tiêu định lượng chiến lược:
+1. **D1 Retention:** Đạt **> 45%** (nhờ cơ chế Streak Freeze và Hòm nhiệm vụ Bình minh).
+2. **D7 Retention:** Đạt **> 25%** (nhờ Giải đấu tuần Weekly League 30 người và Ngân hàng lỗi sai Spaced Repetition).
+3. **D30 Retention:** Đạt **> 15%** (nhờ Nhóm học tập Study Squads và cấp bậc Giải đấu).
+4. **Hệ số Lan truyền Tự nhiên (Viral K-factor):** Đạt **> 0.35** thông qua Liên kết thách đấu bất đồng bộ (Async Challenge Links).
+
+---
+
+## 2. Kiến Trúc 4 Trụ Cột Giữ Chân (Core Pillars Architecture)
 
 ```mermaid
-flowchart TD
-    A["Chơi Mini-games (Word Match, Falling Words, Audio Blitz...)"] -->|"Trả lời sai"| B["Ngân Hàng Lỗi Sai (Mistake Bank)"]
-    A -->|"Tích lũy XP & Điểm"| C["Nhiệm Vụ Ngày & Hòm 3 Khung Giờ"]
-    A -->|"Đóng góp XP"| D["Bảng Xếp Hạng Tuần (Weekly League 30 người)"]
-    A -->|"Đóng góp XP nhóm"| E["Nhóm Học Tập (Study Squads)"]
+graph TD
+    User[Người Học - English Learner] --> Hub[Cổng Học Tập 4 Kỹ Năng & 6+ Mini-Games]
     
-    B -->|"Thuật toán SM-2 nhắc nhở"| F["Phòng Khám Điểm Yếu (Weakness Clinic)"]
-    F -->|"Tốt nghiệp từ vựng (Mastered)"| G["Nhận Coins & Phục hồi Mastery"]
-    
-    C -->|"Nhận Coins & Buff"| H["Shop Vật Phẩm: Mua Streak Freeze"]
-    H -->|"Bảo vệ chuỗi khi bận"| I["Duy trì Streak dài hạn (Tránh Churn)"]
-    
-    D -->|"Top 7 thăng hạng Chủ Nhật"| J["Nhận Danh Hiệu & Khung Avatar"]
-    E -->|"Đạt 5,000 XP/tuần toàn đội"| K["Mở Squad Mega Chest"]
-    
-    A -->|"Lập kỷ lục điểm số"| L["Tạo Link Thách Đấu Bất Đồng Bộ (Async Link)"]
-    L -->|"Gửi qua MXH / Zalo / Messenger"| M["Bạn bè vào chơi vượt điểm (Viral Loop)"]
-    M --> A
+    subgraph Trụ Cột 1: Trí Nhớ Dài Hạn
+        Hub -- Trả lời sai --> MB[Ngân Hàng Lỗi Sai - Mistake Bank]
+        MB --> SRS[Thuật Toán SM-2 Spaced Repetition]
+        SRS --> Clinic[Phòng Khám Lỗi Sai - Weakness Clinic]
+        Clinic -- Thuộc từ & Sửa sai --> Mastered[Huy Hiệu Xóa Sạch Lỗi + Hoàn XP]
+    end
+
+    subgraph Trụ Cột 2: Thói Quen Hàng Ngày
+        User --> Streak[Daily Streak & Streak Freeze]
+        User --> Chests[Hòm Nhiệm Vụ 3 Mốc: Sáng / Trưa / Tối]
+        User --> League[Giải Đấu Tuần 30 Người: Đồng ➔ Kim Cương]
+    end
+
+    subgraph Trụ Cột 3: Tương Tác Xã Hội
+        User --> Squad[Nhóm Học Tập Study Squads: 5-10 Bạn]
+        Squad --> SquadChest[Hòm Siêu Cấp Nhóm 5000 XP]
+        User --> Async[Thách Đấu Bất Đồng Bộ - Viral Ghost Race]
+    end
+
+    subgraph Trụ Cột 4: Đột Phá Kỹ Năng Nói
+        User --> AIPhoneme[Bản Đồ Nhiệt Âm Vị - Phoneme Heatmap]
+        User --> AIRoleplay[Hội Thoại Nhập Vai Tình Huống - AI Partner]
+    end
 ```
 
 ---
 
-## 2. Trụ Cột 1: Smart Spaced Repetition (SRS) Flashcards & Mistake Bank ("Phòng Khám Điểm Yếu")
-
-### 2.1. Cơ Chế Thu Thập Lỗi Sai Tự Động (Auto-Capture Pipeline)
-Mọi lượt tương tác của người dùng trên toàn bộ các mini-game (Word Match, Speed Falling, Sentence Scramble, Audio Blitz, Cloze Master, Grammar Detective, v.v.) và đấu 1v1 đều được lắng nghe bởi sự kiện trung tâm `GameQuestionEvaluatedEvent`:
-- Khi người chơi chọn sai thẻ trong **Word Match**: Thu thập cặp `(Word, VietnameseMeaning)`.
-- Khi để từ chạm đáy trong **Speed Falling**: Thu thập từ bị lỡ kèm nghĩa đúng.
-- Khi xếp sai trật tự trong **Sentence Scramble**: Thu thập toàn bộ câu và vị trí từ bị sai ngữ pháp.
-- Khi gõ sai chính tả trong **Audio Blitz**: Thu thập phát âm audio, IPA và từ đúng.
-- Khi chọn sai đáp án trong **Cloze Master**: Thu thập câu đục lỗ, đáp án sai đã chọn và lời giải thích.
-- Khi bắt sai lỗi trong **Grammar Detective**: Thu thập quy tắc ngữ pháp bị vi phạm.
-
-Nếu câu hỏi đã tồn tại trong `UserMistakeBank` của người dùng:
-- Tăng biến `FailCount = FailCount + 1`.
-- Chuyển trạng thái sang `ActiveReview` (Kích hoạt ôn tập).
-- Cập nhật thời điểm sai gần nhất `LastFailedAt = UTC_NOW`.
-
-### 2.2. Thuật Toán Lặp Lại Ngắt Quãng SuperMemo-2 (SM-2) Cải Tiến
-Mỗi lỗi sai trong Mistake Bank được quản lý theo mô hình toán học lặp lại ngắt quãng SM-2:
-
-#### 2.2.1. Thang Đánh Giá Chất Lượng Trả Lời ($q$)
-Khi người học thực hiện phiên ôn tập tại "Phòng Khám Điểm Yếu", hệ thống đánh giá chất lượng phản xạ $q \in \{0, 1, 2, 3, 4, 5\}$ dựa trên tính đúng đắn và tốc độ trả lời:
-- $q = 5$ (Hoàn hảo): Trả lời đúng ngay lần đầu, thời gian phản xạ $\le 30\%$ thời gian tối đa cho phép.
-- $q = 4$ (Tốt): Trả lời đúng, thời gian phản xạ từ $30\% - 70\%$ thời gian tối đa.
-- $q = 3$ (Đạt): Trả lời đúng nhưng ngập ngừng, thời gian $> 70\%$ thời gian tối đa hoặc đã bấm nghe lại/xem gợi ý.
-- $q = 2$ (Sai sót nhẹ): Trả lời sai nhưng khi hiển thị đáp án thì nhận ra ngay (sai chính tả 1 ký tự).
-- $q = 1$ (Sai hoàn toàn): Trả lời sai, nhớ sai hoàn toàn ngữ nghĩa.
-- $q = 0$ (Hoàn toàn quên): Không nhớ bất kỳ điều gì, hết giờ mà không đưa ra câu trả lời.
-
-#### 2.2.2. Công Thức Cập Nhật Hệ Số Dễ/Khó (Ease Factor - $EF$)
-Hệ số $EF$ khởi tạo mặc định là $2.5$. Sau mỗi lượt ôn tập:
-$$EF' = EF + \left(0.1 - (5 - q) \times (0.08 + (5 - q) \times 0.02)\right)$$
-*Ràng buộc kỹ thuật:* $EF' = \max(1.3, EF')$. Hệ số $EF$ không bao giờ giảm xuống dưới $1.3$.
-
-#### 2.2.3. Công Thức Tính Khoảng Cách Ngày Ôn Tập Kế Tiếp ($I_n$)
-Gọi $n$ là số lần ôn tập thành công liên tiếp ($q \ge 3$):
-- Nếu $q < 3$ (Ôn tập thất bại):
-  $$n = 0, \quad I = 1 \text{ ngày}$$
-  Lỗi sai tiếp tục giữ ở danh sách ôn tập ưu tiên ngày mai.
-- Nếu $q \ge 3$ (Ôn tập thành công):
-  - Lần 1 ($n = 1$): $I_1 = 1 \text{ ngày}$
-  - Lần 2 ($n = 2$): $I_2 = 3 \text{ ngày}$ (Tối ưu hóa so với SM-2 gốc là 6 ngày để tăng cường ghi nhớ ngắn hạn)
-  - Lần 3 trở đi ($n \ge 3$):
-    $$I_n = \text{Round}(I_{n-1} \times EF)$$
-Thời điểm ôn tập kế tiếp:
-$$\text{NextReviewDate} = \text{CurrentReviewDate} + I_n \text{ (ngày)}$$
-
-#### 2.2.4. Điều Kiện Tốt Nghiệp Lỗi Sai (Graduation to "Mastered")
-Một câu hỏi/từ vựng được công nhận là **Đã Làm Chủ (Mastered)** và rời khỏi danh sách ôn tập định kỳ khi thỏa mãn đồng thời:
-1. Số lần ôn tập thành công liên tiếp $n \ge 4$.
-2. Hệ số Ease Factor $EF \ge 2.5$.
-3. Tổng số lần trả lời đúng liên tiếp trong Weakness Clinic đạt tối thiểu 3 lần với $q \ge 4$.
-
-**Phần Thưởng Tốt Nghiệp (Graduation Bounty):**
-- Thưởng ngay **+25 Coins** và **+50 XP**.
-- Khôi phục chỉ số thông thạo trong Radar Chart 4 kỹ năng (`MasteryScore` tương ứng $+3$ điểm).
-
-### 2.3. Chế Độ Chơi Chuyên Biệt: "Weakness Clinic" (Phòng Khám Điểm Yếu)
-
-#### 2.3.1. Bố Cục Giao Diện ASCII Wireframe
-
-```
-+-----------------------------------------------------------------------+
-|  <- Quay lại     🏥 PHÒNG KHÁM ĐIỂM YẾU (CLINIC)      ❤️ ❤️ ❤️     ⭐ 180   |
-+-----------------------------------------------------------------------+
-|  Tiến độ cấp cứu: [================>--------] 4 / 6 từ cần giải cứu   |
-+-----------------------------------------------------------------------+
-|                                                                       |
-|         [🚨 TỪ BẠN ĐÃ TỪNG SAI TẠI MINI-GAME: AUDIO BLITZ]            |
-|                                                                       |
-|                          🔊 [ Nghe Lại ]                              |
-|                                                                       |
-|                   Phiên âm:  /ˌkɒm.prɪˈhen.ʃən/                       |
-|                   Đã trả lời sai: 3 lần trong quá khứ                 |
-|                                                                       |
-|   Ngữ cảnh gây bối rối:                                               |
-|   "His ________ of quantum mechanics surprised the professor."        |
-|                                                                       |
-|   Chọn đáp án chính xác nhất để chữa lành từ này:                     |
-|                                                                       |
-|   [ A. Comprehensive ]                   [ B. Comprehension  ✅ ]      |
-|   [ C. Comprehend    ]                   [ D. Comprehensibly ]        |
-|                                                                       |
-+-----------------------------------------------------------------------+
-|  ⏱️ Thời gian phản xạ: 14s              🔥 Hệ số phục hồi: x1.5      |
-+-----------------------------------------------------------------------+
-```
-
-#### 2.3.2. Quy Tắc Gameplay, Timers & Scoring
-- **Quy mô phiên:** Mỗi phiên khám gồm đúng **10 từ/câu hỏi** có `NextReviewDate <= UTC_NOW` được ưu tiên theo thứ tự độ khẩn cấp (ngày trễ hạn dài nhất).
-- **Bộ đếm thời gian:** Mỗi câu hỏi có **15 giây** suy nghĩ.
-- **Tính điểm & Phục hồi:**
-  - Điểm cơ bản: $100 \text{ điểm/câu}$.
-  - Thưởng tốc độ: $\max(0, \text{Thời gian còn lại}) \times 10 \text{ điểm}$.
-  - Hệ số Combo: Mỗi câu đúng liên tiếp tăng hệ số Combo ($x1.0 \rightarrow x1.2 \rightarrow x1.5 \rightarrow x2.0$).
-  - Mất mạng: Sai mất 1 tim (tổng 3 tim/phiên). Nếu hết tim, phiên chơi dừng lại nhưng các từ đã trả lời đúng trước đó vẫn được ghi nhận cập nhật tiến độ SRS.
-
-### 2.4. JSON Schema & Sample Mock Data cho Mistake Card
-
-```json
-{
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "SrsMistakeCard",
-  "type": "object",
-  "required": [
-    "id",
-    "userId",
-    "questionId",
-    "originGameType",
-    "skillType",
-    "prompt",
-    "correctAnswer",
-    "easeFactor",
-    "intervalDays",
-    "repetitionCount",
-    "consecutiveSuccesses",
-    "status",
-    "nextReviewDate"
-  ],
-  "properties": {
-    "id": { "type": "string", "format": "uuid" },
-    "userId": { "type": "string", "format": "uuid" },
-    "questionId": { "type": "string" },
-    "originGameType": { "type": "string", "enum": ["WordMatch", "SpeedFalling", "SentenceScramble", "AudioBlitz", "ClozeMaster", "GrammarDetective", "Battle1v1"] },
-    "skillType": { "type": "string", "enum": ["Listening", "Reading", "Writing", "Speaking"] },
-    "prompt": { "type": "string" },
-    "phonetic": { "type": "string" },
-    "audioUrl": { "type": "string", "format": "uri" },
-    "contextSentence": { "type": "string" },
-    "correctAnswer": { "type": "string" },
-    "wrongAttempts": { "type": "array", "items": { "type": "string" } },
-    "explanation": { "type": "string" },
-    "easeFactor": { "type": "number", "minimum": 1.3 },
-    "intervalDays": { "type": "integer", "minimum": 1 },
-    "repetitionCount": { "type": "integer", "minimum": 0 },
-    "consecutiveSuccesses": { "type": "integer", "minimum": 0 },
-    "status": { "type": "string", "enum": ["Learning", "Reviewing", "Mastered"] },
-    "lastEvaluatedQuality": { "type": "integer", "minimum": 0, "maximum": 5 },
-    "nextReviewDate": { "type": "string", "format": "date-time" }
-  }
-}
-```
-
-*Sample Mock Data:*
-
-```json
-{
-  "id": "7f8b3c94-1a2b-4e8f-9a0d-5b6c7d8e9f01",
-  "userId": "37c318ff-653b-4461-a1ea-36602bae2e40",
-  "questionId": "q_audio_comprehension_01",
-  "originGameType": "AudioBlitz",
-  "skillType": "Listening",
-  "prompt": "Listen to the word and select the correct noun form",
-  "phonetic": "/ˌkɒm.prɪˈhen.ʃən/",
-  "audioUrl": "https://assets.learnenglish.app/audio/comprehension.mp3",
-  "contextSentence": "His ________ of quantum mechanics surprised the professor.",
-  "correctAnswer": "Comprehension",
-  "wrongAttempts": ["Comprehensive", "Comprehend"],
-  "explanation": "'His' là tính từ sở hữu, vị trí chỗ trống đứng trước giới từ 'of' cần một danh từ (Comprehension - sự thấu hiểu).",
-  "easeFactor": 2.36,
-  "intervalDays": 3,
-  "repetitionCount": 2,
-  "consecutiveSuccesses": 2,
-  "status": "Reviewing",
-  "lastEvaluatedQuality": 4,
-  "nextReviewDate": "2026-10-02T08:00:00Z"
-}
-```
+## 3. Đặc Tả Chi Tiết Từng Phân Hệ Chức Năng
 
 ---
 
-## 3. Trụ Cột 2: Duolingo-style Daily Habit Loop (Streak Freeze, Daily Quest Chests & Weekly Leagues)
+### Phân Hệ 1: Ngân Hàng Lỗi Sai (Mistake Bank) & Thuật Toán Lặp Lại Ngắt Quãng (SRS Flashcards)
 
-### 3.1. Cơ Chế Bảo Vệ Chuỗi Streak Freeze & Shop Vật Phẩm
+#### 1.1. Cơ Chế Thu Thập Lỗi Sai Tự Động (Automatic Mistake Capture)
+Trong quá trình người dùng chơi bất kỳ mini-game nào trong hệ thống (Word Match, Speed Falling, Sentence Scramble, Audio Blitz, Cloze Master, Grammar Detective, v.v.):
+- Mỗi khi người dùng chọn đáp án sai, gõ sai chính tả hoặc sắp xếp sai cú pháp:
+  - Client gửi payload kết thúc ván hoặc submit câu hỏi về Backend.
+  - Backend tự động trích xuất các câu hỏi bị làm sai, kiểm tra xem từ/câu hỏi đó đã tồn tại trong `user_mistakes` của người dùng chưa:
+    - Nếu **chưa có:** Tạo một bản ghi mới với trạng thái `new_mistake`, số lần lặp $n = 0$, hệ số $EF = 2.5$, ngày ôn tập kế tiếp $NextReviewAt = Now + 1\text{ ngày}$.
+    - Nếu **đã có và đang ở trạng thái `mastered`:** Đưa trạng thái trở lại `learning`, reset $n = 0$, giữ nguyên hoặc giảm nhẹ hệ số $EF$.
+    - Nếu **đang trong chu trình ôn tập (`learning` hoặc `review_due`):** Tăng trường `failure_count`, cập nhật lại mốc ôn tập sớm nhất.
 
-```
-+-----------------------------------------------------------------------+
-|  🛒 CỬA HÀNG VẬT PHẨM (GAMIFICATION SHOP)           💰 Số dư: 640 Coins|
-+-----------------------------------------------------------------------+
-|                                                                       |
-|  [ 🧊 BĂNG BẢO VỆ CHUỖI (STREAK FREEZE) ]                            |
-|  Bảo vệ chuỗi ngày học của bạn không bị mất nếu bạn quên học 1 ngày.  |
-|  Đang sở hữu: [ 🧊 1 / 2 ] (Tối đa 2 bình)                            |
-|                                                                       |
-|  +------------------------------------+                               |
-|  |  Giá mua: 200 Coins / 1 bình       |                               |
-|  |  [ MUA THÊM 1 BÌNH (+200 Coins) ]  |                               |
-|  +------------------------------------+                               |
-|                                                                       |
-|  [ ⚡ BÌNH NĂNG LƯỢNG 1V1 ]        [ 🎯 VÉ ĐỔI NHIỆM VỤ ]              |
-|  Nhận 3 lượt thi đấu 1v1 miễn phí | Đổi 1 nhiệm vụ ngày không thích   |
-|  Giá: 80 Coins                    | Giá: 30 Coins                     |
-|                                                                       |
-+-----------------------------------------------------------------------+
-```
+#### 1.2. Thuật Toán Lặp Lại Ngắt Quãng SuperMemo-2 (SM-2) Chuẩn Hóa
+Khoảng cách ngày ôn tập $I(n)$ (Interval in days) và Hệ số Dễ/Khó $EF$ (Ease Factor) được tính toán theo quy tắc:
 
-#### 3.1.1. Quy Tắc Sở Hữu & Tích Trữ
-- **Giá mua vật phẩm:** `200 Coins` đổi 1 Streak Freeze.
-- **Giới hạn tích trữ tối đa (Cap):** Mỗi người dùng chỉ được trữ tối đa **2 Streak Freezes** cùng lúc trong túi đồ (`InventoryCount <= 2`). Nếu đã đủ 2 bình, nút mua bị vô hiệu hóa kèm tooltip *"Túi đồ đã đầy (Tối đa 2 bình)"*.
-- **Thời hạn sử dụng:** Vĩnh viễn cho đến khi được kích hoạt tiêu thụ.
+1. **Thang điểm chất lượng phản hồi ($q \in \{0, 1, 2, 3, 4, 5\}$):**
+   - $q = 5$ (Hoàn hảo - Easy): Nhớ ngay lập tức, không tốn thời gian suy nghĩ ($< 3$ giây).
+   - $q = 4$ (Đúng - Good): Trả lời đúng sau một chút do dự (3 - 7 giây).
+   - $q = 3$ (Khó - Hard): Trả lời đúng nhưng mất nhiều thời gian hoặc bấm nhầm 1 lần ($> 7$ giây).
+   - $q = 2$ (Sai nhẹ - Again/Incorrect): Chọn sai nhưng khi thấy đáp án nhận ra ngay.
+   - $q = 1$ (Quên hẳn - Blackout): Hoàn toàn không nhớ từ/quy tắc này.
+   - $q = 0$ (Hoàn toàn mù tịt).
 
-#### 3.1.2. Cơ Chế Tự Động Kích Hoạt Lúc 23:59:59 (Midnight Protection Job)
-Một tác vụ nền (Scheduled Background Job) chạy lúc 23:59:59 (giờ địa phương của User):
-- Kiểm tra xem người dùng có bất kỳ tương tác ghi nhận học tập (`DailyActivityCount > 0`) trong ngày hôm nay hay không.
-- **Nếu đã học:** Giữ nguyên Streak Freeze. Tăng `CurrentStreak = CurrentStreak + 1`.
-- **Nếu CHƯA học:**
-  - Nếu `StreakFreezeCount > 0`:
-    - Trừ `StreakFreezeCount = StreakFreezeCount - 1`.
-    - Giữ nguyên `CurrentStreak` (Không tăng nhưng KHÔNG bị reset về 0).
-    - Tạo thông báo hệ thống: *"🧊 Băng bảo vệ đã tự động kích hoạt để giữ vững chuỗi {CurrentStreak} ngày học của bạn!"*.
-    - Ghi nhận `StreakProtectedDates` kèm lý do `AutoFreezeConsumed`.
-  - Nếu `StreakFreezeCount == 0`:
-    - Kích hoạt trạng thái **Chuỗi Bị Đóng Băng Tạm Thời (Streak Broken - In Grace Period)** trong 48 giờ.
+2. **Công thức tính khoảng cách lặp lại $I(n)$:**
+   $$\begin{cases}
+   I(1) = 1 \text{ ngày} & \text{với } n = 1 \\
+   I(2) = 3 \text{ ngày} & \text{với } n = 2 \\
+   I(3) = 7 \text{ ngày} & \text{với } n = 3 \\
+   I(4) = 14 \text{ ngày} & \text{với } n = 4 \\
+   I(5) = 30 \text{ ngày} & \text{với } n = 5 \\
+   I(n) = \text{Round}(I(n-1) \times EF) & \text{với } n > 5
+   \end{cases}$$
 
-#### 3.1.3. Cơ Chế Cứu Chuỗi Khẩn Cấp (Emergency Streak Repair)
-Khi người dùng bị mất chuỗi do hết Streak Freeze, họ không bị mất vĩnh viễn ngay lập tức (tránh cảm giác thất vọng muốn bỏ app - Churn Trigger):
-- **Cửa sổ cơ hội:** Kéo dài đúng **48 giờ** kể từ khi chuỗi bị gãy.
-- **Lựa chọn cứu chuỗi:**
-  1. *Cách 1 (Trả phí Coins):* Tiêu tốn `500 Coins` để mua vé "Sơ Cứu Chuỗi".
-  2. *Cách 2 (Thử Thách Cứu Chuỗi - Skill Repair Challenge):* Hoàn thành 1 bài thi tổng hợp gồm 15 câu hỏi thuộc 4 kỹ năng với độ chính xác $\ge 85\%$ trong 5 phút.
-- Sau khi hoàn thành một trong hai cách, chuỗi được phục hồi nguyên vẹn. Sau 48 giờ nếu không hành động, `CurrentStreak` chính thức trở về 0.
+3. **Công thức cập nhật Hệ số Dễ/Khó $EF$:**
+   $$EF' = EF + (0.1 - (5 - q) \times (0.08 + (5 - q) \times 0.02))$$
+   - Giới hạn sàn: $EF \ge 1.3$ (tránh việc một từ bị lặp lại quá dày đặc vô tận).
+   - Nếu $q < 3$ (người dùng trả lời sai trong buổi ôn tập):
+     - Reset số lần ôn đúng liên tiếp: $n = 0$.
+     - Khoảng cách ôn tập tiếp theo: $I = 1\text{ ngày}$.
+   - Nếu $q \ge 3$ (trả lời đúng):
+     - Tăng số lần ôn đúng liên tiếp: $n = n + 1$.
+     - Nếu $n \ge 5$ và $I(n) \ge 30\text{ ngày}$: Bản ghi được chuyển sang trạng thái **`mastered`** (Đã làm chủ hoàn toàn).
 
----
-
-### 3.2. Hòm Báu Nhiệm Vụ 3 Khung Giờ (Daily Quest Chests)
-
-Để kích thích thói quen mở ứng dụng nhiều lần trong ngày, hệ thống triển khai 3 Hòm Thưởng tại 3 khung giờ cố định:
-
-```
-+-----------------------------------------------------------------------+
-|  🎁 HÒM THƯỞNG 3 KHUNG GIỜ VÀNG HÔM NAY                               |
-+-----------------------------------------------------------------------+
-|                                                                       |
-|   [ 🌅 HÒM BÌNH MINH ]       [ ☀️ HÒM NĂNG LƯỢNG ]   [ 🌙 HÒM HOÀNG HÔN ] |
-|   Khung giờ: 06:00 - 10:00   11:30 - 13:30           19:00 - 23:00    |
-|   Trạng thái: [ĐÃ MỞ ✅]     [ĐANG MỞ KHÓA 🎁]       [CHƯA ĐẾN GIỜ 🔒]|
-|   Quà: +20% XP (30 phút)     Vé Đấu 1v1 + 50 Coins   Hòm Siêu Cấp     |
-|                                                                       |
-+-----------------------------------------------------------------------+
-```
-
-#### 3.2.1. Chi Tiết 3 Khung Giờ & Điều Kiện Mở
-1. **Hòm Bình Minh (Early Bird Chest) - [06:00 đến 10:00]:**
-   - *Điều kiện:* Hoàn thành ít nhất 1 ván mini-game hoặc 1 phiên ôn tập Clinic trước 10:00 sáng.
-   - *Phần thưởng cố định:* Kích hoạt Buff nhân $+20\%$ XP toàn bộ mini-game trong 30 phút tiếp theo + $30 \text{ Coins}$.
-2. **Hòm Năng Lượng (Midday Energy Chest) - [11:30 đến 13:30]:**
-   - *Điều kiện:* Đăng nhập và hoàn thành 1 trận Đấu Đối Kháng 1v1 (Realtime Battle).
-   - *Phần thưởng cố định:* Tặng 2 vé đấu 1v1 miễn phí + $40 \text{ Coins}$.
-3. **Hòm Hoàng Hôn (Night Owl Super Chest) - [19:00 đến 23:00]:**
-   - *Điều kiện:* Đạt tổng cộng ít nhất $300 \text{ XP}$ trong ngày hôm nay.
-   - *Phần thưởng:* Hòm báu siêu cấp với cơ chế Gacha ngẫu nhiên.
-
-#### 3.2.2. Bảng Tỷ Lệ Rơi Quà Ngẫu Nhiên Hòm Hoàng Hôn (Gacha Loot Table)
-
-| STT | Loại Quà Rơi (Loot Item) | Tỷ Lệ Xuất Hiện (Drop Probability) | Mô Tả & Giá Trị |
-| :--- | :--- | :--- | :--- |
-| 1 | **Túi Tiền Lớn (Gold Sack)** | $50.0\%$ | Nhận ngẫu nhiên từ $80 - 150 \text{ Coins}$. |
-| 2 | **Bình Băng Bảo Vệ (Streak Freeze)** | $25.0\%$ | Thêm 1 Streak Freeze vào túi đồ (nếu túi chưa đầy). |
-| 3 | **Bùa Nhân Đôi XP (Double XP Token)** | $15.0\%$ | Kích hoạt hiệu ứng x2 XP trong 45 phút học tiếp theo. |
-| 4 | **Vé Cứu Chuỗi Vàng (Golden Repair Pass)** | $7.0\%$ | Vật phẩm cấp cao miễn phí phục hồi chuỗi khi bị đứt. |
-| 5 | **Mảnh Khung Avatar Huyền Thoại (Avatar Fragment)** | $3.0\%$ | Tích lũy 3 mảnh ghép để sở hữu Khung Avatar "Cú Đêm Chăm Chỉ". |
-
----
-
-### 3.3. Hệ Thống Giải Đấu Phân Hạng Tuần (Weekly Leagues - 30 Người/Bảng)
-
-```
-+-----------------------------------------------------------------------+
-|  🏆 GIẢI ĐẤU TUẦN: BẢNG LAM NGỌC (SAPPHIRE LEAGUE - NHÓM #142)         |
-|  ⏱️ Thời gian còn lại: 1 ngày 04 giờ (Kết thúc 23:59 Chủ Nhật)        |
-+-----------------------------------------------------------------------+
-|  Hạng  Người học               XP Tuần    Khu Vực                     |
-|  -------------------------------------------------------------------  |
-|  🥇 1.  Nguyễn Văn A (Bạn)      2,450 XP   🟢 KHU VỰC THĂNG HẠNG (Top 7)|
-|  🥈 2.  Sarah Jenkins           2,310 XP   🟢                          |
-|  🥉 3.  Trần Bảo Nam            2,100 XP   🟢                          |
-|   4.   Alex Miller             1,950 XP   🟢                          |
-|   ...                                                                 |
-|   7.   Phạm Quỳnh Nga          1,620 XP   🟢 ------------------------- |
-|   8.   David Beckham           1,590 XP   ⚪ KHU VỰC AN TOÀN (8 - 25)  |
-|   ...                                                                 |
-|  25.   Lê Hoàng Long             850 XP   ⚪ ------------------------- |
-|  26.   John Doe                  720 XP   🔴 KHU VỰC XUỐNG HẠNG (26-30)|
-|  27.   Vũ Đình Trọng             610 XP   🔴                          |
-|  ...                                                                  |
-|  30.   Emily Watson              320 XP   🔴                          |
-+-----------------------------------------------------------------------+
-```
-
-#### 3.3.1. Các Bậc Giải Đấu (League Tiers)
-Hệ thống gồm **5 Bậc Giải Đấu** tuần tiến:
-1. 🥉 **Bronze League (Đồng):** Bậc nhập môn. Không bao giờ bị xuống hạng.
-2. 🥈 **Silver League (Bạc):** Người học đạt nhịp độ trung bình.
-3. 🥇 **Gold League (Vàng):** Cạnh tranh sôi nổi.
-4. 💎 **Sapphire League (Lam Ngọc):** Người học kiên trì, tương tác cao.
-5. 👑 **Diamond League (Kim Cương):** Đỉnh cao danh vọng của toàn nền tảng.
-
-#### 3.3.2. Thuật Toán Phân Bảng 30 Người (Cohort Partitioning)
-- **Cơ chế gom nhóm lười (Lazy Partitioning):** Vào 00:00 Thứ Hai, người dùng chưa được xếp bảng ngay. Chỉ khi người dùng hoàn thành **ván game hoặc bài học đầu tiên trong tuần**, hệ thống mới gán họ vào một bảng đấu (Room) đang mở có cùng Tier, tối đa 30 người.
-- *Lợi ích sản phẩm:* Tránh tình trạng người bận rộn cả tuần bị xếp chung với người cày điểm từ 0h sáng thứ Hai, đảm bảo độ cạnh tranh công bằng.
-
-#### 3.3.3. Quy Tắc Thăng Hạng & Xuống Hạng (Promotion / Demotion Rules)
-Vào đúng **23:59:59 Chủ Nhật (UTC+7)**, hệ thống khóa bảng và xử lý:
-- **Top 1 – Top 7 (Khu vực thăng hạng - Promotion Zone):**
-  - Thăng lên 1 Bậc League cao hơn cho tuần tiếp theo.
-  - Thưởng lớn: Top 1 ($+300 \text{ Coins}$, Huy hiệu Tuần), Top 2 ($+200 \text{ Coins}$), Top 3 ($+100 \text{ Coins}$), Top 4–7 ($+50 \text{ Coins}$).
-- **Hạng 8 – Hạng 25 (Khu vực an toàn - Safe Zone):**
-  - Trụ lại Bậc League hiện tại cho tuần kế tiếp.
-  - Thưởng hoàn thành tuần: $+20 \text{ Coins}$.
-- **Hạng 26 – Hạng 30 (Khu vực xuống hạng - Demotion Zone):**
-  - Rớt xuống 1 Bậc League thấp hơn (riêng bậc Bronze không bị rớt).
-  - Nhận thông điệp động viên và lời mời tham gia tuần mới.
-
----
-
-## 4. Trụ Cột 3: Social Study Squads & Async Viral Challenges
-
-### 4.1. Study Squads (Nhóm Học Tập 5 – 10 Người)
-
-```
-+-----------------------------------------------------------------------+
-|  🛡️ NHÓM HỌC TẬP: "THE IELTS OVERCOMERS" (#SQUAD-9821)                |
-|  Thành viên: 7 / 10 bạn   |   Cấp độ nhóm: Level 4                    |
-+-----------------------------------------------------------------------+
-|  🎯 TIẾN ĐỘ RƯƠNG TUẦN (SQUAD MEGA CHEST):                             |
-|  [=======================>--------] 3,850 / 5,000 XP (Đạt 77%)        |
-|  ⏱️ Thời gian còn lại: 2 ngày 18 giờ                                   |
-+-----------------------------------------------------------------------+
-|  BẢNG CỐNG HIẾN NỘI BỘ (SQUAD CONTRIBUTIONS):                         |
-|  👑 1. Nguyễn Văn A (Bạn)      1,250 XP   [ Đạt chỉ tiêu rương ✅ ]   |
-|  ⭐ 2. Lê Thị Mai                890 XP   [ Đạt chỉ tiêu rương ✅ ]   |
-|  ⭐ 3. Trần Tuấn Kiệt            720 XP   [ Đạt chỉ tiêu rương ✅ ]   |
-|  ...                                                                  |
-|  ⚠️ 7. Hoàng Minh Thắng           80 XP   [ Cần thêm 70 XP để nhận quà]|
-|                                                                       |
-|  [ 💬 Chat Động Viên ]   [ 👥 Mời Bạn Bè Bằng Mã ]   [ 🚪 Rời Nhóm ]  |
-+-----------------------------------------------------------------------+
-```
-
-#### 4.1.1. Quy Chế Thành Lập & Gia Nhập Nhóm
-- **Quy mô nhóm:** Tối thiểu 1 thành viên, tối đa **10 thành viên** (Quy mô nhóm nhỏ tối ưu tâm lý trách nhiệm chéo - Social Accountability).
-- **Mã Nhóm (Squad Code):** Mỗi nhóm có một mã định danh duy nhất (ví dụ: `ENG-8821`) dùng để gửi bạn bè gia nhập tức thì.
-- **Vai trò:** Trưởng nhóm (Leader - người tạo nhóm, có quyền đổi tên, duyệt/kick thành viên) và Thành viên (Member).
-
-#### 4.1.2. Thanh Tiến Độ Chung & Phần Thưởng Hòm Nhóm (Squad Mega Chest)
-- Toàn bộ XP kiếm được của các thành viên từ việc chơi mini-game, học SRS, thắng đấu 1v1 đều được cộng dồn $1:1$ vào **Quỹ XP Nhóm Hàng Tuần**.
-- Mục tiêu tuần chuẩn: **5,000 XP / tuần**.
-- **Điều kiện nhận thưởng rương cá nhân:** Để chống gian lận (Free-riding), mỗi cá nhân trong nhóm phải đóng góp tối thiểu **150 XP** trong tuần đó mới có quyền mở rương nhóm khi đội ngũ hoàn thành mục tiêu.
-- **Phần thưởng Squad Mega Chest:**
-  - $+150 \text{ Coins}$ cho mỗi thành viên đạt chuẩn.
-  - $1 \text{ Streak Freeze}$ bảo vệ chuỗi.
-  - Danh hiệu vinh danh độc quyền: *"Squad Champion"*.
-  - Thành viên Top 1 XP của nhóm nhận thêm danh hiệu *"Squad MVP"* và $+100 \text{ Coins}$ bổ sung.
-
----
-
-### 4.2. Thách Đấu Bất Đồng Bộ (Async Viral Challenges)
-
-```
-+-----------------------------------------------------------------------+
-|  🎮 KẾT QUẢ VÁN CHƠI: SPEED FALLING WORD                              |
-|  ⭐ Kỷ lục mới: 1,420 Điểm!  |  Chính xác: 18 / 20 từ  |  Combo Max: x6|
-+-----------------------------------------------------------------------+
-|                                                                       |
-|         🚀 BẠN CÓ DÁM THÁCH ĐẤU BẠN BÈ VƯỢT QUA ĐIỂM SỐ NÀY?          |
-|                                                                       |
-|   Link thách đấu của bạn:                                             |
-|   [ https://learnenglish.app/c/x9aB7zKd2                         📋 ]  |
-|                                                                       |
-|   [ 📤 Gửi Qua Zalo ]    [ 📤 Gửi Messenger ]    [ 📥 Tải Ảnh Thẻ Kỷ Lục] |
-|                                                                       |
-+-----------------------------------------------------------------------+
-```
-
-#### 4.2.1. Cơ Chế Tạo Link Thách Đấu (Challenge Link Generation)
-Khi người chơi kết thúc một ván mini-game đơn lẻ (Speed Falling, Word Match, Audio Blitz, Cloze Master, Sentence Scramble, Grammar Detective) và đạt số điểm $\ge 300$, họ có thể bấm nút **"Thách Đấu Bạn Bè"**:
-1. Hệ thống snapshot lại chính xác bộ câu hỏi của ván đấu đó thông qua `Seed` số ngẫu nhiên hoặc danh sách `QuestionIds`.
-2. Tạo bản ghi `AsyncChallenge` với mã token ngắn gọn (ví dụ: `x9aB7zKd2`).
-3. Sinh Deep Link: `https://learnenglish.app/c/{challengeToken}`.
-
-#### 4.2.2. Thẻ Xem Trước Mạng Xã Hội (Open Graph Card Preview)
-Khi dán link lên Zalo, Facebook, Telegram, hệ thống trả về metadata:
-- **Title:** *"🔥 Nguyễn Văn A vừa đạt 1,420 điểm môn Speed Falling Word!"*
-- **Description:** *"Bộ từ vựng chủ đề Technology. Bạn có đủ nhanh tay để vượt qua kỷ lục này không? Bấm để đọ sức ngay!"*
-- **Image Preview:** Ảnh render động tự động chứa avatar người thách đấu, điểm số to nổi bật và logo trò chơi.
-
-#### 4.2.3. Quy Tắc Thi Đấu & So Sánh Kết Quả Bất Đồng Bộ
-- Người nhận mở liên kết:
-  - Nếu **chưa có tài khoản:** Cho phép chơi ngay dưới tư cách Khách (Guest). Hệ thống tự động ghi nhận mã giới thiệu (`ReferralCode = ChallengerUserId`).
-  - Giao diện hiển thị: *"Đang thi đấu cùng bộ câu hỏi với {ChallengerName}"*.
-- Khi hoàn thành ván đấu:
-  - Hiển thị màn hình so găng 2 cột (Head-to-head split view).
-  - Nếu người được thách đấu **Thắng điểm:** Thưởng $+50 \text{ XP}$ và thông báo gửi ngược lại cho người thách ban đầu *"Kỷ lục của bạn vừa bị phá vỡ bởi {FriendName}!"*.
-  - Nếu người được thách đấu **Thua điểm:** Cho phép bấm *"Thử lại ván khác để phục thù"*.
-
----
-
-## 5. Thiết Kế Mô Hình Dữ Liệu Chi Tiết (Data Models)
-
-### 5.1. Sơ Đồ Thực Thể Liên Kết (Mermaid ERD)
-
+#### 1.3. Vòng Đời Trạng Thái Lỗi Sai (State Machine)
 ```mermaid
-erDiagram
-    USERS ||--o{ USER_MISTAKE_BANK : owns
-    USERS ||--o{ USER_HABIT_STATE : maintains
-    USERS ||--o{ USER_INVENTORY : holds
-    USERS ||--o{ WEEKLY_LEAGUE_MEMBERS : competes
-    USERS ||--o{ SQUAD_MEMBERS : belongs
-    USERS ||--o{ ASYNC_CHALLENGES : creates
-    
-    STUDY_SQUADS ||--|{ SQUAD_MEMBERS : contains
-    STUDY_SQUADS ||--o{ SQUAD_WEEKLY_GOALS : tracks
-    WEEKLY_LEAGUES ||--|{ WEEKLY_LEAGUE_MEMBERS : includes
-    
-    USER_MISTAKE_BANK {
-        uuid id PK
-        uuid user_id FK
-        varchar question_id
-        varchar origin_game_type
-        varchar skill_type
-        text prompt
-        varchar correct_answer
-        decimal ease_factor
-        int interval_days
-        int repetition_count
-        int consecutive_successes
-        varchar status
-        timestamp next_review_date
-        timestamp last_failed_at
-    }
-    
-    USER_HABIT_STATE {
-        uuid user_id PK, FK
-        int current_streak
-        int max_streak
-        int streak_freeze_count
-        timestamp last_active_date
-        timestamp streak_broken_at
-        boolean early_bird_claimed
-        boolean midday_claimed
-        boolean night_owl_claimed
-        date active_claimed_date
-    }
-    
-    WEEKLY_LEAGUES {
-        uuid id PK
-        int league_tier
-        date week_start_date
-        date week_end_date
-        varchar room_code
-        int max_participants
-        varchar status
-    }
-    
-    WEEKLY_LEAGUE_MEMBERS {
-        uuid id PK
-        uuid league_id FK
-        uuid user_id FK
-        int weekly_xp
-        int final_rank
-        varchar outcome_status
-    }
-    
-    STUDY_SQUADS {
-        uuid id PK
-        varchar squad_code UK
-        varchar name
-        uuid leader_user_id FK
-        int max_members
-        int current_members_count
-        int total_accumulated_xp
-    }
-    
-    SQUAD_MEMBERS {
-        uuid id PK
-        uuid squad_id FK
-        uuid user_id FK
-        varchar role
-        int weekly_contributed_xp
-        timestamp joined_at
-    }
-    
-    ASYNC_CHALLENGES {
-        uuid id PK
-        varchar challenge_token UK
-        uuid creator_user_id FK
-        varchar game_type
-        int creator_score
-        jsonb question_snapshot
-        int attempt_count
-        timestamp expires_at
-    }
+stateDiagram-v2
+    [*] --> New_Mistake: Bắt lỗi sai từ Mini-game
+    New_Mistake --> Review_Due: Sau 24h (Tới hạn ôn)
+    Review_Due --> Learning: Bắt đầu ôn trong Weakness Clinic
+    Learning --> Review_Due: Trả lời Sai (q < 3) -> Reset về 1 ngày
+    Learning --> Learning: Trả lời Đúng (q >= 3) -> Tăng n (1 -> 4)
+    Learning --> Mastered: Trả lời Đúng liên tục n >= 5 & I >= 30 ngày
+    Mastered --> Review_Due: Tái phạm trong Mini-game thường
 ```
+
+#### 1.4. Chế Độ Chơi Ôn Tập: "Phòng Khám Lỗi Sai" (Weakness Clinic)
+- **Vị trí UI:** Nút nổi bật kèm huy hiệu đỏ hiển thị số lượng từ tới hạn ôn: `🩺 Phòng Khám Lỗi Sai (8 từ cần chữa)`.
+- **Cấu trúc phiên ôn tập:**
+  - Mỗi phiên gồm 10 thẻ câu hỏi (Flashcard lật thẻ, Gõ lại chính tả, hoặc Trắc nghiệm ngữ cảnh 4 đáp án).
+  - Không tính áp lực thời gian đếm ngược (để người học đọc kỹ giải thích).
+- **Cơ chế thưởng phục hồi (Recovery Rewards):**
+  - Mỗi câu trả lời đúng ($q \ge 3$): Nhận lại **+10 XP** và **+2 Coins** (bù đắp số điểm đã mất khi làm sai trong game trước).
+  - Khi hoàn thành toàn bộ số từ tới hạn trong ngày: Nhận Huy hiệu danh giá **"Bác Sĩ Trị Lỗi" (Bug Slayer)** và thưởng Bonus **+30 Coins**.
 
 ---
 
-### 5.2. Lược Đồ CSDL PostgreSQL (PostgreSQL DDL)
+### Phân Hệ 2: Vòng Lặp Thói Quen Hàng Ngày (Duolingo-style Daily Habit Loop)
+
+#### 2.1. Bảo Vệ Chuỗi (Streak Freeze & Streak Repair)
+- **Quy tắc tính Daily Streak:**
+  - Một ngày học hợp lệ (Active Day) được tính khi người dùng kiếm được ít nhất **10 XP** trong khoảng thời gian từ `00:00:00` đến `23:59:59` theo múi giờ địa phương của người dùng (`Asia/Ho_Chi_Minh` - UTC+7 mặc định).
+  - Hoàn thành liên tục các ngày $\implies$ Streak tăng $+1$.
+- **Vật phẩm Bảo Vệ Chuỗi (Streak Freeze):**
+  - **Nơi bán:** Cửa hàng Vật Phẩm (Item Shop).
+  - **Giá bán:** `100 Coins` / 1 Freeze.
+  - **Giới hạn lưu trữ:** Tối đa **2 Freeze** trong hòm đồ cá nhân cùng một thời điểm.
+- **Cơ chế kích hoạt tự động (Auto-Consume at Midnight):**
+  - Định kỳ lúc `00:00:05` hàng ngày, một Background Service chạy kiểm tra:
+    - Nếu người dùng KHÔNG có hoạt động học tập nào trong ngày hôm qua:
+      - Nếu `streak_freeze_count > 0`: Trừ 1 Freeze, giữ nguyên `current_streak`, đánh dấu ngày đó là `is_frozen = true`, tạo thông báo In-app: *"🧊 Chiếc Băng Bảo Vệ đã kích hoạt để giữ vững chuỗi 15 ngày của bạn!"*.
+      - Nếu `streak_freeze_count == 0`: Reset `current_streak = 0`.
+- **Cơ chế Cứu Chuỗi Trong 24 Giờ (Streak Repair Window):**
+  - Khi người dùng bị mất chuỗi vì không có Freeze, trong vòng 24 giờ tiếp theo khi mở app, hiển thị màn hình Cứu Chuỗi: Cho phép bỏ ra `200 Coins` (hoặc xem 1 bài chia sẻ) để phục hồi lại chuỗi ngày học đã mất. Mỗi tháng chỉ được cứu chuỗi tối đa 1 lần.
+
+#### 2.2. Hòm Báu Nhiệm Vụ 3 Mốc (Daily Quest Chests)
+Nhằm kéo người dùng quay trở lại app nhiều lần trong ngày (Multi-session engagement), hệ thống thiết lập 3 hòm nhiệm vụ theo khung giờ vàng:
+
+| Mốc Nhiệm Vụ | Khung Giờ (UTC+7) | Điều Kiện Mở Hòm | Phần Thưởng | Tác Động Giữ Chân |
+| :--- | :--- | :--- | :--- | :--- |
+| **🌅 Hòm Bình Minh (Early Bird Chest)** | 06:00 - 10:00 | Hoàn thành ít nhất 1 bài học/mini-game trong khung giờ sáng | • **+20% XP Booster** trong 30 phút kế tiếp.<br>• 10 Coins. | Khởi đầu ngày mới với thói quen học tiếng Anh; kích thích học tiếp nhờ hiệu ứng Booster. |
+| **☀️ Hòm Năng Lượng (Lunchtime Boost)** | 11:30 - 13:30 | Chơi tối thiểu 1 ván mini-game bất kỳ | • **1 Vé Đấu 1v1 Miễn Phí (Battle Ticket)**.<br>• 15 Coins. | Tận dụng thời gian nghỉ trưa của học sinh/dân văn phòng để vào game so tài. |
+| **🌙 Hòm Báu Ngày (Daily Master Chest)** | Cả ngày (Reset 23:59) | Hoàn thành trọn vẹn 3 nhiệm vụ ngày (ví dụ: Đạt 100 XP, Ôn 5 thẻ Mistake, Thắng 1 trận 1v1) | • **Gacha Hộp Quà:**<br>  - 70%: 50 - 100 Coins<br>  - 25%: 100 - 200 XP<br>  - 5%: Trúng 1 Streak Freeze hoặc Mảnh Avatar hiếm. | Vòng lặp đóng ngày trọn vẹn; tạo cảm giác thỏa mãn và bất ngờ (Variable Reward). |
+
+#### 2.3. Giải Đấu Tuần (Weekly Leagues & 30-Player Division)
+- **5 Cấp bậc Giải đấu (League Tiers):**
+  1. 🥉 **Bronze (Đồng)** — Khởi đầu mặc định.
+  2. 🥈 **Silver (Bạc)**
+  3. 🥇 **Gold (Vàng)**
+  4. 💎 **Sapphire (Lam Ngọc)**
+  5. 👑 **Diamond (Kim Cương)** — Đấu trường đỉnh cao của các bậc thầy.
+- **Cơ chế Xếp Phòng 30 Người (Rolling 30-Player Cohort):**
+  - Không xếp bảng tĩnh theo danh sách user. Khi một tuần mới bắt đầu (từ 00:00 Thứ Hai), người dùng chỉ thực sự được đưa vào một phòng đấu 30 người (League Room) sau khi hoàn thành bài học đầu tiên trong tuần đó.
+  - Cơ chế này đảm bảo người chơi được ghép cùng những người có mức độ tích cực tương đương nhau (Active Cohort Matching), không bị tình trạng phòng "chết".
+- **Quy tắc Thăng / Giữ / Rớt Hạng (Chốt lúc 23:59:59 Chủ Nhật UTC+7):**
+  - **Top 1 - 7 (Vùng Thăng Hạng - Promotion Zone):** Thăng lên League cao hơn vào tuần sau + Thưởng Rương Vinh Quang (Coins, Khung viền Avatar).
+  - **Top 8 - 25 (Vùng An Toàn - Safe Zone):** Trụ hạng tại League hiện tại.
+  - **Top 26 - 30 (Vùng Rớt Hạng - Demotion Zone):** Rớt xuống League thấp hơn liền kề (Ngoại trừ Bronze League không bao giờ bị rớt hạng).
+  - **Top 3 Chung Cuộc (Podium Winners):** Nhận Cúp Tuần (Vàng, Bạc, Đồng) ghim cố định trên trang cá nhân.
+
+---
+
+### Phân Hệ 3: Tính Năng Xã Hội Hợp Tác (Study Squads & Async Challenges)
+
+#### 3.1. Nhóm Học Tập Hợp Tác (Study Squads - 5 đến 10 Thành Viên)
+- **Quy mô:** Tối thiểu 2, tối đa **10 thành viên/nhóm** (giữ quy mô nhỏ để tạo sự thân thiết và trách nhiệm đồng đội, không loãng như Guild 50 người).
+- **Mã gia nhập (Squad Code):** Mỗi nhóm có một mã định danh 6 ký tự ngẫu nhiên (ví dụ `SQUAD9`) hoặc Link mời trực tiếp.
+- **Mục Tiêu Nhóm Hàng Tuần (Weekly Squad Quest):**
+  - Toàn nhóm cùng đóng góp XP học tập tích lũy từ Thứ Hai đến Chủ Nhật.
+  - Các mốc mở khóa rương báu nhóm:
+    - **Mốc 1 (1,000 XP):** Rương Gỗ Nhóm $\implies$ +20 Coins cho mỗi thành viên.
+    - **Mốc 2 (2,500 XP):** Rương Bạc Nhóm $\implies$ +50 Coins + 1 Giờ Double XP cho mỗi thành viên.
+    - **Mốc 3 (5,000 XP):** **Hòm Siêu Cấp Nhóm (Squad Mega Chest)** $\implies$ +150 Coins + 1 Băng Bảo Vệ Chuỗi (Streak Freeze) + Huy hiệu "Biệt Đội Chăm Chỉ".
+- **Điều kiện nhận thưởng:** Thành viên phải đóng góp tối thiểu **100 XP** trong tuần đó để tránh tình trạng "ngồi mát ăn bát vàng" (Anti-free-riding rule).
+- **Bảng Vinh Danh Nội Bộ:** Hiển thị danh hiệu `Squad MVP` cho người có số XP đóng góp cao nhất trong tuần.
+
+#### 3.2. Thách Đấu Bất Đồng Bộ Qua Liên Kết (Async Viral Challenge Links)
+- **Kịch bản trải nghiệm (User Flow):**
+  1. Người dùng A chơi một ván game (ví dụ: Speed Falling Word đạt 1,250 điểm hoặc Audio Blitz đúng 10/10 câu).
+  2. Tại màn hình tổng kết, hiển thị nút CTA nổi bật: **"⚔️ Thách Đấu Bạn Bè Vượt Kỷ Lục Này"**.
+  3. Hệ thống sinh ra một `challenge_token` mang metadata:
+     - `game_type`: Loại trò chơi (`speed_falling`, `audio_blitz`, `word_match`, v.v.).
+     - `game_seed`: Seed ngẫu nhiên để client sinh ra bộ từ vựng và thứ tự rơi y hệt ván chơi của người A.
+     - `target_score`: Điểm số người A đạt được (1,250 điểm).
+     - `time_limit`: Thời gian ván đấu.
+  4. Người A chia sẻ link qua Facebook, Zalo, Telegram, Messenger (`https://learnenglish.app/challenge/CHL-8F92A`).
+  5. Người B bấm vào link:
+     - Được dẫn thẳng vào phòng đấu với giao diện "Đua với Bóng" (Ghost Race): Thanh tiến độ hiển thị avatar và điểm số của Người A chạy song song.
+     - Sau khi kết thúc ván:
+       - Nếu B $\ge$ A: Người B thắng cuộc $\implies$ B nhận **+50 Coins**, Người A nhận thông báo *"Bạn B đã phá kỷ lục của bạn! Nhận ngay +20 Coins quà thách đấu"*.
+       - Nếu B $<$ A: Người A giữ vững ngôi vị $\implies$ Cả 2 đều nhận **+10 Coins** khích lệ.
+  6. **Động lực Viral:** Biến mỗi ván game thành một mẩu nội dung có thể chia sẻ, thu hút người dùng mới tham gia nền tảng mà không tốn chi phí Marketing.
+
+---
+
+### Phân Hệ 4: Tích Hợp AI Luyện Nói (AI Speaking Partner & Phoneme Heatmap)
+
+#### 4.1. Cơ Chế Bản Đồ Nhiệt Âm Vị (Phoneme Scoring Heatmap)
+- **Công nghệ nền tảng:** Kết hợp Web Speech API (Client) và Audio Recognition / Phonetic Alignment Service (Backend/Gemini API).
+- **Quy trình đánh giá:**
+  1. Người học phát âm một từ hoặc câu mẫu (ví dụ: *"She sells seashells by the seashore"*).
+  2. Hệ thống thu âm và chuyển đổi âm thanh thành chuỗi âm vị chuẩn IPA (International Phonetic Alphabet).
+  3. So khớp từng âm vị (Phoneme) với IPA chuẩn của người bản xứ và chấm điểm từ 0 đến 100%:
+     - 🟢 **Xanh lá ($\ge 85\%$):** Phát âm chuẩn xác, rõ ràng.
+     - 🟡 **Vàng ($60\% - 84\%$):** Phát âm tạm được nhưng sai trọng âm hoặc phát âm chưa dứt khoát.
+     - 🔴 **Đỏ ($< 60\%$):** Phát âm sai âm vị cốt lõi, nuốt âm hoặc thiếu âm đuôi (Ending sounds như /-s/, /-t/, /-d/, /-θ/).
+- **Giao diện trực quan:** Hiển thị từng âm tiết với màu sắc tương ứng, cho phép bấm vào từng âm đỏ để nghe lại khẩu hình mẫu và so sánh với âm thanh mình vừa đọc.
+
+#### 4.2. Kịch Bản Hội Thoại Nhập Vai Tình Huống Với AI (Interactive AI Roleplay)
+- **Danh mục tình huống thực tế (Roleplay Scenarios):**
+  1. ☕ *At the Coffee Shop:* Đặt món, yêu cầu tùy chỉnh đường/sữa, thanh toán.
+  2. 💼 *Job Interview Prep:* Giới thiệu bản thân, trả lời điểm mạnh/yếu theo phương pháp STAR.
+  3. ✈️ *Airport & Hotel Check-in:* Xử lý tình huống thất lạc hành lý, đổi phòng khách sạn.
+  4. 🎓 *IELTS Speaking Part 1 & 2 Practice:* Trả lời câu hỏi học thuật với thời gian chuẩn bị 1 phút.
+- **Vòng lặp tương tác (Multi-turn Loop):**
+  - AI đọc câu thoại bằng giọng đọc tự nhiên (TTS chuẩn US/UK).
+  - Người dùng bấm giữ micro để nói câu trả lời của mình (STT chuyển thành văn bản).
+  - AI chấm điểm tức thì và đưa ra câu phản hồi tiếp theo để tiếp nối mạch câu chuyện.
+- **Báo cáo tổng kết buổi nói (Post-session Scorecard):**
+  - **Điểm Trôi Chảy (Fluency):** Tốc độ nói (WPM - Words Per Minute) và độ ngập ngừng.
+  - **Độ Chuẩn Ngữ Pháp (Grammar Accuracy):** Nhắc nhở các lỗi chia động từ, giới từ phát sinh khi nói.
+  - **Độ Phong Phú Từ Vựng (Lexical Resource):** Đánh giá mức độ sử dụng từ vựng theo khung tham chiếu CEFR (A2, B1, B2, C1).
+
+---
+
+## 4. Thiết Kế Cơ Sở Dữ Liệu (PostgreSQL Schema & EF Core Entities)
+
+### 4.1. Lược Đồ DDL PostgreSQL
 
 ```sql
--- ============================================================================
--- SCRIPT DDL: RETENTION & GAMIFICATION EXPANSION
--- ============================================================================
-
--- 1. BẢNG NGÂN HÀNG LỖI SAI (MISTAKE BANK & SRS)
-CREATE TABLE user_mistake_banks (
+-- 1. Bảng Ngân Hàng Lỗi Sai (Mistake Bank)
+CREATE TABLE user_mistakes (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    question_id VARCHAR(100) NOT NULL,
-    origin_game_type VARCHAR(50) NOT NULL, -- WordMatch, SpeedFalling, AudioBlitz, etc.
-    skill_type VARCHAR(20) NOT NULL,       -- Listening, Reading, Writing, Speaking
-    prompt TEXT NOT NULL,
-    phonetic VARCHAR(100),
-    audio_url TEXT,
-    context_sentence TEXT,
-    correct_answer VARCHAR(500) NOT NULL,
-    wrong_attempts JSONB DEFAULT '[]'::jsonb,
+    question_id UUID,
+    game_type VARCHAR(50) NOT NULL, -- 'word_match', 'speed_falling', 'sentence_scramble', 'audio_blitz', 'cloze_master', 'grammar_detective'
+    target_text VARCHAR(255) NOT NULL, -- Từ hoặc cụm từ hoặc cấu trúc bị sai
+    prompt_question TEXT NOT NULL,
+    user_wrong_answer TEXT NOT NULL,
+    correct_answer TEXT NOT NULL,
     explanation TEXT,
-    ease_factor NUMERIC(4, 2) NOT NULL DEFAULT 2.50,
-    interval_days INT NOT NULL DEFAULT 1,
-    repetition_count INT NOT NULL DEFAULT 0,
-    consecutive_successes INT NOT NULL DEFAULT 0,
-    status VARCHAR(20) NOT NULL DEFAULT 'Learning', -- Learning, Reviewing, Mastered
-    last_evaluated_quality INT,
-    next_review_date TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    last_failed_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+    repetition_number INT NOT NULL DEFAULT 0, -- Số lần trả lời đúng liên tiếp (n trong SM-2)
+    interval_days INT NOT NULL DEFAULT 1, -- Khoảng cách ngày ôn tập kế tiếp (I trong SM-2)
+    ease_factor NUMERIC(4, 2) NOT NULL DEFAULT 2.50, -- Hệ số dễ/khó (EF trong SM-2, min 1.30)
+    failure_count INT NOT NULL DEFAULT 1, -- Tổng số lần làm sai
+    next_review_at TIMESTAMP WITH TIME ZONE NOT NULL, -- Thời điểm đến hạn ôn tập
+    status VARCHAR(30) NOT NULL DEFAULT 'new_mistake', -- 'new_mistake', 'learning', 'review_due', 'mastered'
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_mistake_user_review ON user_mistake_banks (user_id, status, next_review_date);
-CREATE INDEX idx_mistake_user_skill ON user_mistake_banks (user_id, skill_type);
+CREATE INDEX idx_user_mistakes_due ON user_mistakes(user_id, status, next_review_at);
+CREATE INDEX idx_user_mistakes_target ON user_mistakes(user_id, target_text);
 
--- 2. BẢNG TRẠNG THÁI THÓI QUEN NGÀY (DAILY HABIT & STREAK STATE)
-CREATE TABLE user_habit_states (
+-- 2. Nhật Ký Ôn Tập Thuật Toán SM-2 (Mistake Review Logs)
+CREATE TABLE mistake_review_logs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    mistake_id UUID NOT NULL REFERENCES user_mistakes(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    rating_q INT NOT NULL, -- 0 đến 5 theo chuẩn SM-2
+    previous_interval INT NOT NULL,
+    new_interval INT NOT NULL,
+    previous_ef NUMERIC(4, 2) NOT NULL,
+    new_ef NUMERIC(4, 2) NOT NULL,
+    reviewed_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+);
+
+-- 3. Bảng Quản Lý Chuỗi Học Tập & Bảo Hiểm Chuỗi (Streak Management)
+CREATE TABLE user_streaks (
     user_id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
     current_streak INT NOT NULL DEFAULT 0,
     max_streak INT NOT NULL DEFAULT 0,
-    streak_freeze_count INT NOT NULL DEFAULT 0 CHECK (streak_freeze_count BETWEEN 0 AND 2),
-    last_active_date DATE,
-    streak_broken_at TIMESTAMPTZ,
-    early_bird_claimed BOOLEAN NOT NULL DEFAULT FALSE,
-    midday_claimed BOOLEAN NOT NULL DEFAULT FALSE,
-    night_owl_claimed BOOLEAN NOT NULL DEFAULT FALSE,
-    active_claimed_date DATE,
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+    streak_freeze_count INT NOT NULL DEFAULT 0, -- Số lượng băng bảo vệ đang sở hữu (max 2)
+    last_learned_date DATE,
+    is_frozen_yesterday BOOLEAN NOT NULL DEFAULT FALSE,
+    repaired_at TIMESTAMP WITH TIME ZONE,
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
 );
 
--- 3. BẢNG GIẢI ĐẤU PHÂN HẠNG TUẦN (WEEKLY LEAGUES)
-CREATE TABLE weekly_leagues (
+-- 4. Bảng Nhiệm Vụ Hàng Ngày & Hòm Thưởng 3 Mốc (Daily Quests & Chests)
+CREATE TABLE daily_quest_progress (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    league_tier INT NOT NULL CHECK (league_tier BETWEEN 1 AND 5), -- 1:Bronze, 2:Silver, 3:Gold, 4:Sapphire, 5:Diamond
-    week_start_date DATE NOT NULL,
-    week_end_date DATE NOT NULL,
-    room_code VARCHAR(50) NOT NULL,
-    max_participants INT NOT NULL DEFAULT 30,
-    status VARCHAR(20) NOT NULL DEFAULT 'Active', -- Active, Finalized
-    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    quest_date DATE NOT NULL,
+    morning_chest_claimed BOOLEAN NOT NULL DEFAULT FALSE,
+    noon_chest_claimed BOOLEAN NOT NULL DEFAULT FALSE,
+    daily_chest_claimed BOOLEAN NOT NULL DEFAULT FALSE,
+    games_played_count INT NOT NULL DEFAULT 0,
+    xp_earned_today INT NOT NULL DEFAULT 0,
+    mistakes_reviewed_count INT NOT NULL DEFAULT 0,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+    CONSTRAINT uq_user_quest_date UNIQUE (user_id, quest_date)
 );
 
-CREATE UNIQUE INDEX uq_league_room ON weekly_leagues (week_start_date, league_tier, room_code);
-
-CREATE TABLE weekly_league_members (
+-- 5. Bảng Giải Đấu Tuần (Weekly Leagues & 30-Player Rooms)
+CREATE TABLE league_seasons (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    league_id UUID NOT NULL REFERENCES weekly_leagues(id) ON DELETE CASCADE,
+    season_number INT NOT NULL UNIQUE,
+    starts_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    ends_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    is_closed BOOLEAN NOT NULL DEFAULT FALSE
+);
+
+CREATE TABLE league_rooms (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    season_id UUID NOT NULL REFERENCES league_seasons(id) ON DELETE CASCADE,
+    league_tier VARCHAR(30) NOT NULL, -- 'bronze', 'silver', 'gold', 'sapphire', 'diamond'
+    room_number INT NOT NULL,
+    member_count INT NOT NULL DEFAULT 0,
+    max_members INT NOT NULL DEFAULT 30,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+    CONSTRAINT uq_season_tier_room UNIQUE (season_id, league_tier, room_number)
+);
+
+CREATE TABLE league_participants (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    room_id UUID NOT NULL REFERENCES league_rooms(id) ON DELETE CASCADE,
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     weekly_xp INT NOT NULL DEFAULT 0,
-    final_rank INT,
-    outcome_status VARCHAR(20) DEFAULT 'Pending', -- Promoted, Safe, Demoted
-    joined_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT uq_league_user UNIQUE (league_id, user_id)
+    rank_position INT,
+    final_status VARCHAR(30) DEFAULT 'active', -- 'active', 'promoted', 'demoted', 'maintained'
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+    CONSTRAINT uq_room_user UNIQUE (room_id, user_id)
 );
 
-CREATE INDEX idx_league_ranking ON weekly_league_members (league_id, weekly_xp DESC);
+CREATE INDEX idx_league_standings ON league_participants(room_id, weekly_xp DESC);
 
--- 4. BẢNG NHÓM HỌC TẬP (STUDY SQUADS)
+-- 6. Bảng Nhóm Học Tập Hợp Tác (Study Squads)
 CREATE TABLE study_squads (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    squad_code VARCHAR(20) NOT NULL UNIQUE,
     name VARCHAR(100) NOT NULL,
-    description TEXT,
-    leader_user_id UUID NOT NULL REFERENCES users(id),
+    invite_code VARCHAR(10) NOT NULL UNIQUE,
+    leader_id UUID NOT NULL REFERENCES users(id),
     max_members INT NOT NULL DEFAULT 10,
-    current_members_count INT NOT NULL DEFAULT 1,
-    total_accumulated_xp INT NOT NULL DEFAULT 0,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+    weekly_xp_target INT NOT NULL DEFAULT 5000,
+    current_weekly_xp INT NOT NULL DEFAULT 0,
+    chest_tier_unlocked INT NOT NULL DEFAULT 0, -- 0: None, 1: Wood (1000XP), 2: Silver (2500XP), 3: Mega (5000XP)
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE squad_members (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     squad_id UUID NOT NULL REFERENCES study_squads(id) ON DELETE CASCADE,
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    role VARCHAR(20) NOT NULL DEFAULT 'Member', -- Leader, Member
-    weekly_contributed_xp INT NOT NULL DEFAULT 0,
-    has_claimed_weekly_chest BOOLEAN NOT NULL DEFAULT FALSE,
-    joined_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    role VARCHAR(20) NOT NULL DEFAULT 'member', -- 'leader', 'member'
+    weekly_xp_contribution INT NOT NULL DEFAULT 0,
+    chest_claimed BOOLEAN NOT NULL DEFAULT FALSE,
+    joined_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     CONSTRAINT uq_squad_user UNIQUE (squad_id, user_id)
 );
 
--- 5. BẢNG THÁCH ĐẤU BẤT ĐỒNG BỘ (ASYNC CHALLENGES)
+-- 7. Bảng Thách Đấu Bất Đồng Bộ (Async Viral Challenges)
 CREATE TABLE async_challenges (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     challenge_token VARCHAR(32) NOT NULL UNIQUE,
-    creator_user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    creator_id UUID NOT NULL REFERENCES users(id),
     game_type VARCHAR(50) NOT NULL,
-    creator_score INT NOT NULL,
-    question_snapshot JSONB NOT NULL,
-    attempt_count INT NOT NULL DEFAULT 0,
-    expires_at TIMESTAMPTZ NOT NULL,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+    game_seed VARCHAR(64) NOT NULL,
+    target_score INT NOT NULL,
+    time_limit_seconds INT NOT NULL,
+    opponent_id UUID REFERENCES users(id),
+    opponent_score INT,
+    status VARCHAR(30) NOT NULL DEFAULT 'pending', -- 'pending', 'beaten', 'defended', 'expired'
+    expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
 );
 
-CREATE TABLE async_challenge_attempts (
+CREATE INDEX idx_async_challenges_token ON async_challenges(challenge_token);
+
+-- 8. Bảng Luyện Nói AI & Bản Đồ Âm Vị (AI Speaking & Phoneme Heatmap)
+CREATE TABLE ai_speaking_sessions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    challenge_id UUID NOT NULL REFERENCES async_challenges(id) ON DELETE CASCADE,
-    participant_user_id UUID REFERENCES users(id) ON DELETE SET NULL,
-    participant_name VARCHAR(100) NOT NULL,
-    score INT NOT NULL,
-    is_winner BOOLEAN NOT NULL DEFAULT FALSE,
-    completed_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    scenario_code VARCHAR(50) NOT NULL, -- 'coffee_shop', 'job_interview', 'hotel_checkin', 'ielts_part1'
+    overall_score NUMERIC(5, 2) NOT NULL,
+    fluency_score NUMERIC(5, 2) NOT NULL,
+    pronunciation_score NUMERIC(5, 2) NOT NULL,
+    grammar_score NUMERIC(5, 2) NOT NULL,
+    transcript_summary TEXT,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE ai_phoneme_evaluations (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    session_id UUID NOT NULL REFERENCES ai_speaking_sessions(id) ON DELETE CASCADE,
+    target_phrase TEXT NOT NULL,
+    spoken_phrase TEXT NOT NULL,
+    phoneme_breakdown_json JSONB NOT NULL, -- Cấu trúc chi tiết từng âm vị, màu sắc và điểm số
+    accuracy_percentage NUMERIC(5, 2) NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
 );
 ```
 
 ---
 
-### 5.3. Định Nghĩa C# Entity Framework Core 8 Entities
+### 4.2. C# Entity Framework Core Classes (.NET 8)
 
 ```csharp
+using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace LearnEnglish.Api.Domain.Entities;
-
-public enum SrsStatus
+namespace LearnEnglish.Domain.Entities
 {
-    Learning = 0,
-    Reviewing = 1,
-    Mastered = 2
-}
+    [Table("user_mistakes")]
+    public class UserMistake
+    {
+        [Key]
+        public Guid Id { get; set; } = Guid.NewGuid();
 
-[Table("user_mistake_banks")]
-public class UserMistakeBank
-{
-    [Key]
-    public Guid Id { get; set; } = Guid.NewGuid();
+        [Required]
+        public Guid UserId { get; set; }
 
-    [Required]
-    public Guid UserId { get; set; }
+        public Guid? QuestionId { get; set; }
 
-    [Required]
-    [MaxLength(100)]
-    public string QuestionId { get; set; } = string.Empty;
+        [Required]
+        [MaxLength(50)]
+        public string GameType { get; set; } = string.Empty;
 
-    [Required]
-    [MaxLength(50)]
-    public string OriginGameType { get; set; } = string.Empty;
+        [Required]
+        [MaxLength(255)]
+        public string TargetText { get; set; } = string.Empty;
 
-    [Required]
-    [MaxLength(20)]
-    public string SkillType { get; set; } = string.Empty;
+        [Required]
+        public string PromptQuestion { get; set; } = string.Empty;
 
-    [Required]
-    public string Prompt { get; set; } = string.Empty;
+        [Required]
+        public string UserWrongAnswer { get; set; } = string.Empty;
 
-    [MaxLength(100)]
-    public string? Phonetic { get; set; }
+        [Required]
+        public string CorrectAnswer { get; set; } = string.Empty;
 
-    public string? AudioUrl { get; set; }
+        public string? Explanation { get; set; }
 
-    public string? ContextSentence { get; set; }
+        public int RepetitionNumber { get; set; } = 0; // n
+        public int IntervalDays { get; set; } = 1;      // I
+        public decimal EaseFactor { get; set; } = 2.50m; // EF
+        public int FailureCount { get; set; } = 1;
 
-    [Required]
-    [MaxLength(500)]
-    public string CorrectAnswer { get; set; } = string.Empty;
+        public DateTime NextReviewAt { get; set; }
 
-    public string WrongAttemptsJson { get; set; } = "[]";
+        [Required]
+        [MaxLength(30)]
+        public string Status { get; set; } = "new_mistake"; // new_mistake, learning, review_due, mastered
 
-    public string? Explanation { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
-    [Column(TypeName = "decimal(4, 2)")]
-    public decimal EaseFactor { get; set; } = 2.50m;
+        public virtual ICollection<MistakeReviewLog> ReviewLogs { get; set; } = new List<MistakeReviewLog>();
+    }
 
-    public int IntervalDays { get; set; } = 1;
+    [Table("mistake_review_logs")]
+    public class MistakeReviewLog
+    {
+        [Key]
+        public Guid Id { get; set; } = Guid.NewGuid();
 
-    public int RepetitionCount { get; set; } = 0;
+        [Required]
+        public Guid MistakeId { get; set; }
 
-    public int ConsecutiveSuccesses { get; set; } = 0;
+        [ForeignKey("MistakeId")]
+        public virtual UserMistake Mistake { get; set; } = null!;
 
-    public SrsStatus Status { get; set; } = SrsStatus.Learning;
+        [Required]
+        public Guid UserId { get; set; }
 
-    public int? LastEvaluatedQuality { get; set; }
+        public int RatingQ { get; set; } // 0..5
+        public int PreviousInterval { get; set; }
+        public int NewInterval { get; set; }
+        public decimal PreviousEf { get; set; }
+        public decimal NewEf { get; set; }
+        public DateTime ReviewedAt { get; set; } = DateTime.UtcNow;
+    }
 
-    public DateTime NextReviewDate { get; set; } = DateTime.UtcNow;
+    [Table("user_streaks")]
+    public class UserStreak
+    {
+        [Key]
+        public Guid UserId { get; set; }
 
-    public DateTime LastFailedAt { get; set; } = DateTime.UtcNow;
+        public int CurrentStreak { get; set; } = 0;
+        public int MaxStreak { get; set; } = 0;
+        public int StreakFreezeCount { get; set; } = 0; // max 2
+        public DateOnly? LastLearnedDate { get; set; }
+        public bool IsFrozenYesterday { get; set; } = false;
+        public DateTime? RepairedAt { get; set; }
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+    }
 
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    [Table("daily_quest_progress")]
+    public class DailyQuestProgress
+    {
+        [Key]
+        public Guid Id { get; set; } = Guid.NewGuid();
 
-    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+        [Required]
+        public Guid UserId { get; set; }
 
-    [ForeignKey(nameof(UserId))]
-    public virtual User? User { get; set; }
-}
+        public DateOnly QuestDate { get; set; }
+        public bool MorningChestClaimed { get; set; } = false;
+        public bool NoonChestClaimed { get; set; } = false;
+        public bool DailyChestClaimed { get; set; } = false;
 
-[Table("user_habit_states")]
-public class UserHabitState
-{
-    [Key]
-    public Guid UserId { get; set; }
+        public int GamesPlayedCount { get; set; } = 0;
+        public int XpEarnedToday { get; set; } = 0;
+        public int MistakesReviewedCount { get; set; } = 0;
 
-    public int CurrentStreak { get; set; } = 0;
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+    }
 
-    public int MaxStreak { get; set; } = 0;
+    [Table("study_squads")]
+    public class StudySquad
+    {
+        [Key]
+        public Guid Id { get; set; } = Guid.NewGuid();
 
-    public int StreakFreezeCount { get; set; } = 0;
+        [Required]
+        [MaxLength(100)]
+        public string Name { get; set; } = string.Empty;
 
-    public DateOnly? LastActiveDate { get; set; }
+        [Required]
+        [MaxLength(10)]
+        public string InviteCode { get; set; } = string.Empty;
 
-    public DateTime? StreakBrokenAt { get; set; }
+        public Guid LeaderId { get; set; }
+        public int MaxMembers { get; set; } = 10;
+        public int WeeklyXpTarget { get; set; } = 5000;
+        public int CurrentWeeklyXp { get; set; } = 0;
+        public int ChestTierUnlocked { get; set; } = 0; // 0, 1, 2, 3
 
-    public bool EarlyBirdClaimed { get; set; } = false;
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
-    public bool MiddayClaimed { get; set; } = false;
+        public virtual ICollection<SquadMember> Members { get; set; } = new List<SquadMember>();
+    }
 
-    public bool NightOwlClaimed { get; set; } = false;
+    [Table("squad_members")]
+    public class SquadMember
+    {
+        [Key]
+        public Guid Id { get; set; } = Guid.NewGuid();
 
-    public DateOnly? ActiveClaimedDate { get; set; }
+        [Required]
+        public Guid SquadId { get; set; }
 
-    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+        [ForeignKey("SquadId")]
+        public virtual StudySquad Squad { get; set; } = null!;
 
-    [ForeignKey(nameof(UserId))]
-    public virtual User? User { get; set; }
+        [Required]
+        public Guid UserId { get; set; }
+
+        [MaxLength(20)]
+        public string Role { get; set; } = "member"; // leader, member
+
+        public int WeeklyXpContribution { get; set; } = 0;
+        public bool ChestClaimed { get; set; } = false;
+        public DateTime JoinedAt { get; set; } = DateTime.UtcNow;
+    }
+
+    [Table("async_challenges")]
+    public class AsyncChallenge
+    {
+        [Key]
+        public Guid Id { get; set; } = Guid.NewGuid();
+
+        [Required]
+        [MaxLength(32)]
+        public string ChallengeToken { get; set; } = string.Empty;
+
+        [Required]
+        public Guid CreatorId { get; set; }
+
+        [Required]
+        [MaxLength(50)]
+        public string GameType { get; set; } = string.Empty;
+
+        [Required]
+        [MaxLength(64)]
+        public string GameSeed { get; set; } = string.Empty;
+
+        public int TargetScore { get; set; }
+        public int TimeLimitSeconds { get; set; }
+
+        public Guid? OpponentId { get; set; }
+        public int? OpponentScore { get; set; }
+
+        [MaxLength(30)]
+        public string Status { get; set; } = "pending"; // pending, beaten, defended, expired
+
+        public DateTime ExpiresAt { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    }
 }
 ```
 
 ---
 
-### 5.4. Định Nghĩa TypeScript DTOs & Interfaces (Frontend)
+### 4.3. TypeScript DTO Interfaces (Frontend React Vite)
 
 ```typescript
-export type SkillType = 'Listening' | 'Reading' | 'Writing' | 'Speaking';
-export type SrsStatus = 'Learning' | 'Reviewing' | 'Mastered';
-export type LeagueTier = 'Bronze' | 'Silver' | 'Gold' | 'Sapphire' | 'Diamond';
+// 1. Mistake Bank & Spaced Repetition DTOs
+export type MistakeStatus = 'new_mistake' | 'learning' | 'review_due' | 'mastered';
 
-export interface SrsMistakeCard {
+export interface UserMistakeDto {
   id: string;
-  userId: string;
-  questionId: string;
-  originGameType: string;
-  skillType: SkillType;
-  prompt: string;
-  phonetic?: string;
-  audioUrl?: string;
-  contextSentence?: string;
+  questionId?: string;
+  gameType: string;
+  targetText: string;
+  promptQuestion: string;
+  userWrongAnswer: string;
   correctAnswer: string;
-  wrongAttempts: string[];
   explanation?: string;
-  easeFactor: number;
+  repetitionNumber: number;
   intervalDays: number;
-  repetitionCount: number;
-  consecutiveSuccesses: number;
-  status: SrsStatus;
-  lastEvaluatedQuality?: number;
-  nextReviewDate: string;
+  easeFactor: number;
+  failureCount: number;
+  nextReviewAt: string;
+  status: MistakeStatus;
 }
 
-export interface ClinicEvaluationRequest {
+export interface ReviewRatingRequest {
   mistakeId: string;
-  selectedAnswer: string;
-  responseTimeMs: number;
-  usedHint: boolean;
+  ratingQ: 0 | 1 | 2 | 3 | 4 | 5; // Hoặc nút: 1: Again, 2: Hard, 3: Good, 4: Easy
 }
 
-export interface ClinicEvaluationResult {
+export interface ReviewSubmitResponse {
   mistakeId: string;
-  isCorrect: boolean;
-  qualityScore: number; // 0 to 5
-  newEaseFactor: number;
   newIntervalDays: number;
-  nextReviewDate: string;
-  isGraduated: boolean;
-  awardedCoins: number;
-  awardedXp: number;
+  newStatus: MistakeStatus;
+  xpEarned: number;
+  coinsEarned: number;
+  allDueCompleted: boolean;
+  cleanSlateBadgeEarned?: boolean;
 }
 
-export interface UserHabitSummary {
+// 2. Streak & Quest Chests DTOs
+export interface UserStreakDto {
   currentStreak: number;
   maxStreak: number;
-  streakFreezeCount: number; // max 2
-  isStreakProtectedToday: boolean;
-  isStreakInGracePeriod: boolean;
-  gracePeriodExpiresAt?: string;
-  chests: {
-    earlyBird: { available: boolean; claimed: boolean; window: string };
-    midday: { available: boolean; claimed: boolean; window: string };
-    nightOwl: { available: boolean; claimed: boolean; window: string };
+  streakFreezeCount: number; // 0, 1, 2
+  isFrozenYesterday: boolean;
+  lastLearnedDate: string | null;
+  freezePriceCoins: number; // Thường là 100
+  canRepairStreak: boolean;
+  repairPriceCoins: number; // Thường là 200
+}
+
+export interface DailyChestStatusDto {
+  questDate: string;
+  morningChest: {
+    available: boolean;
+    claimed: boolean;
+    activeWindow: string; // "06:00 - 10:00"
+    rewardDescription: string; // "+20% XP Booster (30m)"
+  };
+  noonChest: {
+    available: boolean;
+    claimed: boolean;
+    activeWindow: string; // "11:30 - 13:30"
+    rewardDescription: string; // "1 Battle Ticket + 15 Coins"
+  };
+  dailyMasterChest: {
+    available: boolean;
+    claimed: boolean;
+    progressText: string; // "2/3 tasks completed"
+    canClaim: boolean;
   };
 }
 
-export interface WeeklyLeagueLeaderboard {
-  leagueTier: LeagueTier;
-  roomCode: string;
-  expiresInSeconds: number;
-  currentUserRank: number;
-  currentUserXp: number;
-  participants: Array<{
-    rank: number;
-    userId: string;
-    userName: string;
-    avatarUrl?: string;
-    weeklyXp: number;
-    zone: 'Promotion' | 'Safe' | 'Demotion';
-  }>;
+// 3. Weekly League DTOs
+export type LeagueTier = 'bronze' | 'silver' | 'gold' | 'sapphire' | 'diamond';
+
+export interface LeagueStandingDto {
+  rankPosition: number;
+  userId: string;
+  displayName: string;
+  avatarUrl?: string;
+  weeklyXp: number;
+  zone: 'promotion' | 'safe' | 'demotion';
+  isCurrentUser: boolean;
 }
 
-export interface StudySquadDetail {
-  squadId: string;
-  squadCode: string;
+export interface LeagueRoomDto {
+  tier: LeagueTier;
+  roomNumber: number;
+  timeLeftSeconds: number; // Đếm ngược tới 23:59 Chủ Nhật
+  currentUserRank: number;
+  standings: LeagueStandingDto[];
+}
+
+// 4. Study Squad DTOs
+export interface SquadMemberDto {
+  userId: string;
+  displayName: string;
+  avatarUrl?: string;
+  role: 'leader' | 'member';
+  weeklyXpContribution: number;
+  joinedAt: string;
+}
+
+export interface StudySquadDto {
+  id: string;
   name: string;
-  leaderUserId: string;
+  inviteCode: string;
+  leaderId: string;
   memberCount: number;
   maxMembers: number;
-  weeklyGoalXp: number;
+  weeklyXpTarget: number;
   currentWeeklyXp: number;
-  currentUserContributionXp: number;
-  hasClaimedReward: boolean;
-  members: Array<{
-    userId: string;
-    userName: string;
-    role: 'Leader' | 'Member';
-    weeklyXp: number;
-    hasReachedThreshold: boolean;
-  }>;
+  chestTierUnlocked: 0 | 1 | 2 | 3;
+  currentUserContribution: number;
+  canClaimChest: boolean;
+  members: SquadMemberDto[];
+}
+
+// 5. Async Challenge DTOs
+export interface CreateChallengeRequest {
+  gameType: string;
+  score: number;
+  gameSeed: string;
+  timeLimitSeconds: number;
+}
+
+export interface AsyncChallengeDto {
+  token: string;
+  shareableUrl: string;
+  creatorName: string;
+  creatorAvatar?: string;
+  gameType: string;
+  targetScore: number;
+  timeLimitSeconds: number;
+  status: 'pending' | 'beaten' | 'defended' | 'expired';
 }
 ```
 
 ---
 
-## 6. Hợp Đồng API RESTful (API Contracts)
+## 5. Hợp Đồng API RESTful Chuẩn Hóa
 
-| Method | Endpoint | Mô Tả | Yêu Cầu Auth |
-| :--- | :--- | :--- | :--- |
-| `GET` | `/api/v1/srs/mistakes/summary` | Lấy số lượng từ cần ôn hôm nay & thống kê Mastered | Bearer Token |
-| `GET` | `/api/v1/srs/clinic/session` | Khởi tạo phiên khám gồm 10 thẻ đến hạn ôn tập | Bearer Token |
-| `POST` | `/api/v1/srs/clinic/submit` | Gửi kết quả trả lời từng câu, tính toán SM-2 | Bearer Token |
-| `GET` | `/api/v1/habits/summary` | Lấy trạng thái Streak, Băng bảo vệ & 3 Hòm thưởng | Bearer Token |
-| `POST` | `/api/v1/habits/shop/buy-freeze` | Mua thêm 1 bình Băng Bảo Vệ (trừ 200 Coins) | Bearer Token |
-| `POST` | `/api/v1/habits/chests/claim` | Mở 1 trong 3 Hòm Thưởng Khung Giờ | Bearer Token |
-| `POST` | `/api/v1/habits/streak/repair` | Cứu chuỗi trong 48h bằng Coins hoặc Challenge | Bearer Token |
-| `GET` | `/api/v1/leagues/current` | Lấy BXH bảng 30 người của tuần hiện tại | Bearer Token |
-| `GET` | `/api/v1/squads/my-squad` | Lấy thông tin nhóm học tập & tiến độ rương tuần | Bearer Token |
-| `POST` | `/api/v1/squads/join` | Gia nhập nhóm bằng `squadCode` | Bearer Token |
-| `POST` | `/api/v1/squads/claim-chest` | Mở Squad Mega Chest khi cả đội đạt 5,000 XP | Bearer Token |
-| `POST` | `/api/v1/challenges/create` | Tạo link thách đấu bất đồng bộ từ ván game vừa chơi | Bearer Token |
-| `GET` | `/api/v1/challenges/{token}` | Lấy snapshot bộ câu hỏi để thi đấu so tài | Public / Guest |
-| `POST` | `/api/v1/challenges/{token}/submit` | Nộp kết quả đọ điểm với người thách đấu | Public / Guest |
+### 5.1. Nhóm API Ngân Hàng Lỗi Sai (`/api/v1/mistakes/*`)
 
----
+* `GET /api/v1/mistakes/due`
+  * **Mô tả:** Lấy danh sách các câu hỏi lỗi sai đã đến hạn cần ôn tập hôm nay ($NextReviewAt \le Now$).
+  * **Response 200 OK:**
+    ```json
+    {
+      "totalDue": 5,
+      "items": [
+        {
+          "id": "e4f8e5b2-7c3a-4a8d-9a67-111111111111",
+          "gameType": "audio_blitz",
+          "targetText": "conscientious",
+          "promptQuestion": "Nghe và viết lại từ chỉ tính cẩn thận, tận tụy:",
+          "correctAnswer": "conscientious",
+          "userWrongAnswer": "conscientus",
+          "explanation": "Conscientious (adj) = chu đáo, tận tâm. Lưu ý cụm âm -tious.",
+          "repetitionNumber": 2,
+          "intervalDays": 3,
+          "easeFactor": 2.36
+        }
+      ]
+    }
+    ```
 
-## 7. Tiêu Chí Nghiệm Thu Độc Lập Cho QA & Tech Lead (Given - When - Then)
-
-### 7.1. Nhóm Kịch Bản: Mistake Bank & Thuật Toán SM-2
-
-#### Kịch bản AC-SRS-01: Tự động ghi nhận câu trả lời sai vào Mistake Bank
-- **Given:** Người học đang chơi mini-game `AudioBlitz` và trả lời sai chính tả từ `"comprehension"`.
-- **When:** Hệ thống gửi kết quả chấm điểm câu hỏi về endpoint `/api/v1/games/evaluate`.
-- **Then:**
-  1. Bản ghi mới được tạo trong bảng `user_mistake_banks` với `question_id = 'q_audio_comprehension_01'`, `ease_factor = 2.50`, `interval_days = 1`.
-  2. Trường `next_review_date` được đặt bằng thời điểm hiện tại `UTC_NOW`.
-  3. Badge "Lỗi sai cần khắc phục" trên thanh Menu tăng thêm 1 đơn vị.
-
-#### Kịch bản AC-SRS-02: Cập nhật SM-2 khi trả lời đúng xuất sắc ($q = 5$) trong Weakness Clinic
-- **Given:** Từ vựng trong Mistake Bank đang có `repetition_count = 1`, `interval_days = 1`, `ease_factor = 2.50`.
-- **When:** Người học vào Phòng Khám Điểm Yếu và trả lời đúng từ đó trong vòng $2.5$ giây (thời gian phản xạ cực nhanh, $q = 5$).
-- **Then:**
-  1. Thuật toán tính $EF' = 2.50 + (0.1 - 0) = 2.60$.
-  2. Khoảng cách ôn tập kế tiếp $I_2 = 3 \text{ ngày}$.
-  3. `repetition_count` tăng lên thành 2.
-  4. `next_review_date` được dời về đúng `UTC_NOW + 3 ngày`.
-  5. Thưởng ngay $+10 \text{ Coins}$ và $+25 \text{ XP}$.
-
-#### Kịch bản AC-SRS-03: Tốt nghiệp từ vựng (Mastered) khi thỏa mãn điều kiện
-- **Given:** Từ vựng đã đạt `repetition_count = 3`, `consecutive_successes = 2`, `ease_factor = 2.60`.
-- **When:** Người học tiếp tục trả lời đúng lần thứ 3 với $q \ge 4$.
-- **Then:**
-  1. Trạng thái `status` chuyển thành `'Mastered'`.
-  2. Hệ thống bắn hiệu ứng pháo hoa chúc mừng tốt nghiệp từ vựng.
-  3. Người học nhận **+25 Coins** và **+50 XP** Graduation Bounty.
-  4. Radar Chart kỹ năng tương ứng tăng điểm kinh nghiệm chuyên sâu.
-
----
-
-### 7.2. Nhóm Kịch Bản: Daily Habit Loop & Streak Protection
-
-#### Kịch bản AC-HABIT-01: Giới hạn mua Streak Freeze trong Shop
-- **Given:** Người học đang sở hữu 2 bình Streak Freeze trong túi đồ (`streak_freeze_count = 2`).
-- **When:** Người học truy cập Cửa Hàng và cố gắng bấm nút "Mua thêm 1 bình" (giá 200 Coins).
-- **Then:**
-  1. Nút mua bị disable với màu xám mờ.
-  2. Hệ thống hiển thị tooltip/toast thông báo: *"Túi đồ đã đầy. Bạn chỉ có thể tích trữ tối đa 2 Băng Bảo Vệ."*.
-  3. Số dư Coins của người học không bị trừ.
-
-#### Kịch bản AC-HABIT-02: Tự động kích hoạt Streak Freeze khi người dùng quên học
-- **Given:** Người học có `current_streak = 15`, sở hữu `streak_freeze_count = 1`, và không thực hiện bất kỳ hoạt động học nào trong ngày 29/09/2026.
-- **When:** Đồng hồ hệ thống chạm mốc 23:59:59 ngày 29/09/2026 và Cron Job chạy.
-- **Then:**
-  1. `current_streak` vẫn được bảo toàn nguyên vẹn là 15 ngày.
-  2. `streak_freeze_count` bị trừ từ 1 về 0.
-  3. Một bản ghi thông báo hệ thống được gửi đến User: *"Băng bảo vệ đã tự kích hoạt để bảo vệ chuỗi 15 ngày học của bạn!"*.
-
-#### Kịch bản AC-HABIT-03: Nhận Hòm Bình Minh đúng khung giờ
-- **Given:** Đồng hồ hiện tại là 07:30 sáng và người học hoàn thành 1 ván mini-game.
-- **When:** Người học bấm nút "Mở Hòm Bình Minh" tại màn hình chính.
-- **Then:**
-  1. Endpoint `/api/v1/habits/chests/claim` trả về mã `200 OK`.
-  2. Người học nhận $+30 \text{ Coins}$.
-  3. Kích hoạt hiệu ứng Buff `+20% XP Booster` với đồng hồ đếm ngược 30 phút trên thanh trạng thái.
-  4. Nút Hòm Bình Minh chuyển sang trạng thái "Đã Nhận ✅" cho đến sáng hôm sau.
+* `POST /api/v1/mistakes/review`
+  * **Mô tả:** Gửi kết quả đánh giá một thẻ sau khi ôn tập trong Phòng Khám Điểm Yếu.
+  * **Request Body:**
+    ```json
+    {
+      "mistakeId": "e4f8e5b2-7c3a-4a8d-9a67-111111111111",
+      "ratingQ": 4
+    }
+    ```
+  * **Response 200 OK:**
+    ```json
+    {
+      "mistakeId": "e4f8e5b2-7c3a-4a8d-9a67-111111111111",
+      "newIntervalDays": 7,
+      "newEaseFactor": 2.36,
+      "repetitionNumber": 3,
+      "status": "learning",
+      "xpEarned": 10,
+      "coinsEarned": 2,
+      "remainingDue": 4,
+      "allCompleted": false
+    }
+    ```
 
 ---
 
-### 7.3. Nhóm Kịch Bản: Weekly Leagues & Bảng Xếp Hạng 30 Người
+### 5.2. Nhóm API Chuỗi Ngày Học & Hòm Báu (`/api/v1/streaks/*` & `/api/v1/quests/*`)
 
-#### Kịch bản AC-LEAGUE-01: Phân bảng lười (Lazy Partitioning) vào đầu tuần
-- **Given:** Đã bước sang tuần mới (08:00 sáng Thứ Hai), người dùng thuộc Bậc Vàng (Gold League) nhưng chưa chơi ván game nào.
-- **When:** Người dùng đăng nhập vào hệ thống.
-- **Then:** Người dùng chưa bị ép vào bảng đấu nào.
-- **When:** Người dùng hoàn thành ván chơi `Sentence Scramble` đầu tiên và nhận 150 XP.
-- **Then:** Hệ thống tự động gán người dùng vào phòng thi đấu `Gold-Room-XX` đang còn chỗ ($< 30$ người), cập nhật điểm tuần bằng 150 XP và hiển thị thứ hạng ban đầu.
+* `GET /api/v1/streaks/status`
+  * **Response 200 OK:**
+    ```json
+    {
+      "currentStreak": 14,
+      "maxStreak": 28,
+      "streakFreezeCount": 1,
+      "isFrozenYesterday": false,
+      "canBuyFreeze": true,
+      "freezePriceCoins": 100
+    }
+    ```
 
-#### Kịch bản AC-LEAGUE-02: Chốt thăng hạng và xuống hạng lúc 23:59:59 Chủ Nhật
-- **Given:** Bảng đấu Sapphire League gồm 30 người kết thúc tuần. User A đứng Hạng 3, User B đứng Hạng 12, User C đứng Hạng 28.
-- **When:** Job chốt kết quả tuần chạy lúc 23:59:59 Chủ Nhật.
-- **Then:**
-  1. User A (Hạng 3): Thăng hạng lên **Diamond League**, nhận huy hiệu vinh danh và $+100 \text{ Coins}$.
-  2. User B (Hạng 12): Trụ lại **Sapphire League**, nhận thưởng hoàn thành $+20 \text{ Coins}$.
-  3. User C (Hạng 28): Xuống hạng **Gold League**, nhận thư động viên cho tuần mới.
+* `POST /api/v1/streaks/buy-freeze`
+  * **Mô tả:** Mua vật phẩm Băng Bảo Vệ Chuỗi bằng Coins.
+  * **Response 200 OK:**
+    ```json
+    {
+      "success": true,
+      "streakFreezeCount": 2,
+      "coinsRemaining": 250,
+      "message": "Đã trang bị thành công Băng Bảo Vệ Chuỗi!"
+    }
+    ```
+
+* `GET /api/v1/quests/daily-chests`
+  * **Response 200 OK:**
+    ```json
+    {
+      "questDate": "2026-09-29",
+      "morningChest": {
+        "available": false,
+        "claimed": true,
+        "activeWindow": "06:00 - 10:00"
+      },
+      "noonChest": {
+        "available": true,
+        "claimed": false,
+        "activeWindow": "11:30 - 13:30"
+      },
+      "dailyMasterChest": {
+        "tasksTotal": 3,
+        "tasksCompleted": 2,
+        "canClaim": false
+      }
+    }
+    ```
+
+* `POST /api/v1/quests/claim-chest`
+  * **Request Body:** `{ "chestType": "noon" }`
+  * **Response 200 OK:**
+    ```json
+    {
+      "claimed": true,
+      "rewards": {
+        "coins": 15,
+        "battleTickets": 1
+      },
+      "message": "Mở hòm thành công! Nhận 15 Coins và 1 Vé đấu 1v1."
+    }
+    ```
 
 ---
 
-### 7.4. Nhóm Kịch Bản: Study Squads & Async Challenges
+### 5.3. Nhóm API Nhóm Học Tập Hợp Tác (`/api/v1/squads/*`)
 
-#### Kịch bản AC-SQUAD-01: Đạt chỉ tiêu nhóm 5,000 XP và phân phối thưởng
-- **Given:** Nhóm học tập gồm 6 thành viên, đã tích lũy được 4,900 XP. Thành viên A đã cống hiến 500 XP, Thành viên B mới cống hiến 40 XP.
-- **When:** Thành viên A hoàn thành 1 ván game nhận 120 XP, đưa tổng điểm nhóm lên 5,020 XP ($> 5,000$).
-- **Then:**
-  1. Trạng thái rương nhóm chuyển sang "Sẵn sàng mở 🎁".
-  2. Thành viên A bấm mở rương: Nhận thành công $+150 \text{ Coins}$, $1 \text{ Streak Freeze}$ và danh hiệu "Squad Champion".
-  3. Thành viên B bấm mở rương: Bị chặn kèm thông báo: *"Bạn cần đóng góp thêm 110 XP (tối thiểu 150 XP) để đủ điều kiện mở rương nhóm."*.
+* `POST /api/v1/squads/create`
+  * **Request Body:** `{ "name": "IELTS 7.5 Aimers" }`
+  * **Response 201 Created:**
+    ```json
+    {
+      "squadId": "f78d91c2-3e4a-4b1f-9988-222222222222",
+      "name": "IELTS 7.5 Aimers",
+      "inviteCode": "AIM75X",
+      "memberCount": 1,
+      "maxMembers": 10
+    }
+    ```
 
-#### Kịch bản AC-ASYNC-01: Tạo và thi đấu qua Link Thách Đấu Bất Đồng Bộ
-- **Given:** Người học hoàn thành ván `Speed Falling Word` với điểm số 1,250 điểm.
-- **When:** Người học bấm "Thách đấu bạn bè".
-- **Then:** Hệ thống sinh mã token `https://learnenglish.app/c/techlead_challenge_01` chứa chính xác snapshot 20 từ vựng đã xuất hiện.
-- **When:** Người bạn mở link, chơi cùng bộ từ vựng và đạt 1,380 điểm.
-- **Then:**
-  1. Người bạn thắng cuộc, nhận ngay $+50 \text{ XP}$.
-  2. Màn hình hiển thị bảng so tài: Người bạn (1,380 điểm) 🟢 Thắng - Người thách đấu (1,250 điểm) 🔴 Thua.
-  3. Người thách đấu nhận được thông báo: *"Bạn của bạn vừa vượt qua kỷ lục với 1,380 điểm!"*.
+* `POST /api/v1/squads/join`
+  * **Request Body:** `{ "inviteCode": "AIM75X" }`
+  * **Response 200 OK:**
+    ```json
+    {
+      "success": true,
+      "squadId": "f78d91c2-3e4a-4b1f-9988-222222222222",
+      "name": "IELTS 7.5 Aimers",
+      "weeklyTargetXp": 5000,
+      "currentWeeklyXp": 1420
+    }
+    ```
+
+* `GET /api/v1/squads/my-squad`
+  * **Response 200 OK:** Trả về thông tin nhóm, tiến độ mở rương tuần và bảng xếp hạng thành viên.
+
+---
+
+### 5.4. Nhóm API Thách Đấu Bất Đồng Bộ (`/api/v1/challenges/*`)
+
+* `POST /api/v1/challenges`
+  * **Request Body:**
+    ```json
+    {
+      "gameType": "speed_falling",
+      "score": 1450,
+      "gameSeed": "SEEDA1B2C3D4",
+      "timeLimitSeconds": 60
+    }
+    ```
+  * **Response 201 Created:**
+    ```json
+    {
+      "challengeToken": "CHL-7K99M",
+      "shareableUrl": "https://learnenglish.app/challenge/CHL-7K99M",
+      "expiresAt": "2026-10-06T12:00:00Z"
+    }
+    ```
+
+* `GET /api/v1/challenges/{token}`
+  * **Response 200 OK:** Trả về thông tin người thách đấu, điểm cần vượt qua, game seed để chuẩn bị chơi.
+
+* `POST /api/v1/challenges/{token}/submit`
+  * **Request Body:** `{ "userScore": 1520 }`
+  * **Response 200 OK:**
+    ```json
+    {
+      "result": "beaten",
+      "creatorScore": 1450,
+      "yourScore": 1520,
+      "coinsEarned": 50,
+      "message": "Chúc mừng! Bạn đã xuất sắc vượt qua kỷ lục của đối thủ!"
+    }
+    ```
+
+---
+
+## 6. Tiêu Chí Nghiệm Thu Chuẩn Mực (Given - When - Then Acceptance Criteria)
+
+### Kịch Bản 1: Tự động ghi nhận câu sai vào Mistake Bank
+* **Given (Bối cảnh):** Người dùng đang chơi mini-game `Audio Blitz`.
+* **When (Hành động):** Người dùng nghe từ *"accommodation"* nhưng gõ sai thành *"acomodation"* và hết lượt thử.
+* **Then (Kết quả kỳ vọng):**
+  1. Backend ghi nhận câu trả lời không chính xác.
+  2. Bảng `user_mistakes` tự động thêm 1 dòng mới với `target_text = 'accommodation'`, `status = 'new_mistake'`, `repetition_number = 0`, `interval_days = 1`.
+  3. Thời điểm `next_review_at` được gán chính xác là $Now + 24\text{ giờ}$.
+  4. Nút "Phòng Khám Lỗi Sai" trên giao diện tăng số lượng badge đỏ lên $+1$.
+
+---
+
+### Kịch Bản 2: Ôn tập thẻ trong Weakness Clinic và áp dụng SM-2
+* **Given (Bối cảnh):** Người dùng vào "Phòng Khám Lỗi Sai" với 1 từ đang ở trạng thái `review_due`, khoảng cách hiện tại $I = 1$, $EF = 2.50$, $n = 0$.
+* **When (Hành động):** Người dùng lật thẻ, nhớ chính xác từ vựng và chọn nút đánh giá "Tốt / Good" ($q = 4$).
+* **Then (Kết quả kỳ vọng):**
+  1. Backend tính toán: $n' = 1$, $I(1) = 1\text{ ngày}$ (hoặc mốc kế tiếp $3\text{ ngày}$ theo cấu hình $n=1 \to 3$).
+  2. Hệ số $EF' = 2.50 + (0.1 - (5 - 4) \times (0.08 + (5 - 4) \times 0.02)) = 2.50 + (0.1 - 0.10) = 2.50$.
+  3. Người dùng được cộng ngay **+10 XP** và **+2 Coins**.
+  4. Trạng thái bản ghi chuyển thành `learning`.
+
+---
+
+### Kịch Bản 3: Tự động tiêu thụ Streak Freeze vào nửa đêm
+* **Given (Bối cảnh):** Người dùng đang có chuỗi học tập `current_streak = 25` ngày và sở hữu `streak_freeze_count = 1`. Ngày 29/09 người dùng bận việc và không có bất kỳ phiên học nào (0 XP kiếm được).
+* **When (Hành động):** Đồng hồ hệ thống chạm mốc `00:00:05` ngày 30/09 (UTC+7) và Background Worker kích hoạt.
+* **Then (Kết quả kỳ vọng):**
+  1. Hệ thống phát hiện ngày 29/09 không có hoạt động.
+  2. Hệ thống trừ `streak_freeze_count` từ 1 về 0.
+  3. Giữ nguyên `current_streak = 25` (không bị reset về 0).
+  4. Đánh dấu `is_frozen_yesterday = true`.
+  5. Khi người dùng mở app vào ngày 30/09, hiển thị modal thông báo chúc mừng chiếc Băng Bảo Vệ đã cứu chuỗi thành công kèm nút mua bổ sung Freeze mới.
+
+---
+
+### Kịch Bản 4: Giới hạn lưu trữ Streak Freeze trong Shop
+* **Given (Bối cảnh):** Người dùng đang có sẵn 2 Streak Freeze trong hòm đồ và có 500 Coins.
+* **When (Hành động):** Người dùng vào Cửa hàng vật phẩm và bấm nút "Mua thêm Băng Bảo Vệ Chuỗi (100 Coins)".
+* **Then (Kết quả kỳ vọng):**
+  1. Client vô hiệu hóa nút mua (Disabled) kèm nhãn "Đã đạt giới hạn tối đa (2/2)".
+  2. Nếu người dùng cố tình gửi request `POST /api/v1/streaks/buy-freeze`, Backend trả về mã lỗi `400 Bad Request` kèm thông điệp: `"Bạn chỉ có thể lưu trữ tối đa 2 Băng Bảo Vệ Chuỗi cùng lúc"`.
+  3. Tài khoản không bị trừ Coins.
+
+---
+
+### Kịch Bản 5: Chốt Giải đấu tuần (Weekly League Demotion / Promotion)
+* **Given (Bối cảnh):** Phòng đấu Bronze League số 12 gồm 30 người chơi, thời điểm là `23:59:59` Chủ Nhật.
+  - Người chơi Minh đang xếp Hạng 3 với 850 XP.
+  - Người chơi Hùng đang xếp Hạng 28 với 40 XP.
+* **When (Hành động):** Cron Job chốt mùa giải tuần chạy xử lý.
+* **Then (Kết quả kỳ vọng):**
+  1. Người chơi Minh thuộc Top 1 - 7: Được đánh dấu `final_status = 'promoted'`. Tuần kế tiếp được xếp vào Silver League + nhận thưởng Rương Thăng Hạng (100 Coins).
+  2. Người chơi Hùng thuộc Top 26 - 30: Do đang ở hạng Bronze (thấp nhất) nên không bị rớt hạng, giữ nguyên ở Bronze League tuần sau (`final_status = 'maintained'`).
+  3. Toàn bộ `weekly_xp` của các thành viên được reset về 0 cho tuần thi đấu mới.
+
+---
+
+### Kịch Bản 6: Nhận Hòm Báu Nhóm Học Tập (Squad Mega Chest)
+* **Given (Bối cảnh):** Nhóm học tập "IELTS 7.5 Aimers" có 6 thành viên, đã đạt tổng điểm tuần `current_weekly_xp = 5,200 XP` (vượt mốc 5,000 XP mở Rương Cấp 3).
+  - Thành viên An đóng góp 1,200 XP.
+  - Thành viên Bình chỉ đóng góp 30 XP (dưới mốc tối thiểu 100 XP).
+* **When (Hành động):** Thành viên An và Thành viên Bình bấm nút "Nhận Rương Nhóm".
+* **Then (Kết quả kỳ vọng):**
+  1. Thành viên An nhận thành công: **+150 Coins**, **+1 Streak Freeze**, Huy hiệu tuần "Chiến Binh Nhóm".
+  2. Thành viên Bình nhận thông báo: `"Bạn cần đóng góp tối thiểu 100 XP trong tuần để cùng đồng đội nhận thưởng hòm báu này (Hiện tại: 30/100 XP)"`.
+
+---
+
+### Kịch Bản 7: Thách đấu bất đồng bộ qua Viral Link
+* **Given (Bối cảnh):** Người chơi A hoàn thành ván Speed Falling Word với 1,400 điểm và tạo link thách đấu `https://learnenglish.app/challenge/CHL-XYZ`.
+* **When (Hành động):** Người chơi B (chưa đăng nhập hoặc là bạn bè) mở link và hoàn thành ván chơi đạt 1,450 điểm.
+* **Then (Kết quả kỳ vọng):**
+  1. Màn hình của B hiển thị: Cúp Chiến Thắng, Điểm của bạn: 1,450 vs Kỷ lục của A: 1,400.
+  2. B được cộng **+50 Coins**.
+  3. Hệ thống cập nhật bản ghi challenge thành `status = 'beaten'`.
+  4. Người chơi A nhận thông báo In-app: *"Người chơi B vừa vượt qua kỷ lục 1,400 điểm của bạn! Bạn được tặng +20 Coins quà khích lệ"*.
+
+---
+
+## 7. Kế Hoạch Chuyển Giao Cho Đội Ngũ Kỹ Thuật (Handoff & Implementation Tasks)
+
+1. **Tech Lead / Architect (`11dba413-036f-4ce1-950e-252419384dce`):**
+   - Thiết lập các Background Worker (Hangfire / Periodic HostedService) trong .NET 8 cho:
+     - Worker 1: Midnight Streak Checker (chạy 00:00:05 hàng ngày) xử lý tự động tiêu thụ Streak Freeze.
+     - Worker 2: Sunday League Finalizer (chạy 23:59:59 Chủ Nhật) xử lý thăng/hạ hạng phòng 30 người.
+   - Thêm Migration EF Core cho 8 bảng dữ liệu mới: `user_mistakes`, `mistake_review_logs`, `user_streaks`, `daily_quest_progress`, `league_seasons`, `league_rooms`, `league_participants`, `study_squads`, `squad_members`, `async_challenges`, `ai_speaking_sessions`.
+2. **UI/UX Designer & Frontend Engineer:**
+   - Xây dựng component giao diện "Phòng Khám Lỗi Sai" (Weakness Clinic) với tương tác Flashcard 3D lật thẻ mượt mà.
+   - Thiết kế Modal Hòm Báu 3 Mốc với Animation mở rương phát sáng và rơi đồng xu (Framer Motion).
+   - Thiết kế Bảng Xếp Hạng League 30 Người với 3 dải màu rõ rệt: Xanh lá (Promotion), Xám (Safe), Đỏ (Demotion).
+   - Giao diện Study Squad với thanh tiến độ hợp tác mở rương nhóm.
+3. **QA Team:**
+   - Dựa trên 7 kịch bản Given-When-Then để xây dựng Test Cases và chạy kiểm thử tự động (Unit Test thuật toán SM-2, Integration Test kịch bản rớt mạng, boundary test mua tối đa 2 freeze).
