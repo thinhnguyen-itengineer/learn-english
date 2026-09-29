@@ -57,6 +57,14 @@ Hệ thống tài liệu spec được chia thành các file chuyên sâu phục
    - Đặc tả chi tiết các mini-game mới theo từng kỹ năng: `Dictation Dash` (Nghe), `Skim & Scan Sprint` (Đọc), `Collocation Chain` (Viết), `Minimal Pairs Duel` (Nói).
    - Cơ chế Gamification toàn diện: Radar Chart 4 kỹ năng (Skill Mastery Matrix), Nhiệm vụ Cân bằng Hàng ngày (Balanced Learner Daily Bonus +50 Coins & +100 XP), Hệ thống huy hiệu theo từng kỹ năng.
    - Thiết kế CSDL PostgreSQL, C# EF Core entities, TypeScript interfaces, RESTful APIs và kịch bản nghiệm thu Given-When-Then.
+8. [product-research-retention-expansion.md](./product-research-retention-expansion.md):
+   - **Nghiên cứu & Đối sánh thị trường (Competitive Benchmarking):** Khảo sát chuyên sâu Duolingo, ELSA Speak, Quizlet, Memrise, Busuu, Kahoot.
+   - **4 Trụ cột chiến lược đột phá (Core Strategic Pillars):**
+     1. *Smart Spaced Repetition (SRS) Flashcards & Mistake Bank:* Thuật toán SM-2, Phòng khám lỗi sai (Weakness Clinic).
+     2. *Duolingo-style Daily Habit Loop:* Bảo hiểm chuỗi (Streak Freeze), Hòm báu nhiệm vụ 3 khung giờ, Giải đấu tuần (Weekly Leagues).
+     3. *Social Study Squads & Async Challenges:* Nhóm học tập 5-10 người, Thanh tiến độ chung mở rương, Link thách đấu bất đồng bộ.
+     4. *AI Speaking Partner & Phoneme Heatmap:* Bản đồ nhiệt âm vị phát âm và hội thoại nhập vai AI.
+   - Lộ trình triển khai phân kỳ (Gantt Roadmap), chỉ số KPIs (D1/D7/D30 Retention) và phân công nhiệm vụ cho Product BA & Tech Lead.
 
 ---
 
