@@ -1,14 +1,25 @@
 import React from 'react';
-import { Flame, Trophy, Snowflake, Sparkles } from 'lucide-react';
-import { UserProfileDto } from '../types/game';
+import { Flame, Trophy, Snowflake, Sparkles, Swords } from 'lucide-react';
+import { UserProfileDto, UserRankProfileDto, RankTier, RankDivision } from '../types/game';
+import { RankBadge, TrophyBadge } from './ui/RankBadge';
 
 interface NavbarProps {
   profile: UserProfileDto | null;
+  myRank: UserRankProfileDto | null;
   onOpenLeaderboard: () => void;
+  onOpenBattleLeaderboard: () => void;
+  onStart1v1Battle: () => void;
   onReturnToLobby: () => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ profile, onOpenLeaderboard, onReturnToLobby }) => {
+export const Navbar: React.FC<NavbarProps> = ({ 
+  profile, 
+  myRank,
+  onOpenLeaderboard, 
+  onOpenBattleLeaderboard,
+  onStart1v1Battle,
+  onReturnToLobby 
+}) => {
   return (
     <header className="sticky top-0 z-40 w-full border-b border-slate-800 bg-slate-900/80 backdrop-blur-md">
       <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
@@ -29,7 +40,19 @@ export const Navbar: React.FC<NavbarProps> = ({ profile, onOpenLeaderboard, onRe
         </div>
 
         {/* User Stats / Controls */}
-        <div className="flex items-center gap-3 sm:gap-6">
+        <div className="flex items-center gap-2 sm:gap-4">
+          {myRank && (
+            <div className="flex items-center gap-2">
+              <RankBadge
+                tier={(myRank.tier as RankTier) || 'Bronze'}
+                division={(myRank.division as RankDivision) || 'III'}
+                size="sm"
+                className="hidden md:inline-flex"
+              />
+              <TrophyBadge trophy={myRank.trophy} size="sm" />
+            </div>
+          )}
+
           {profile && (
             <>
               {/* Daily Streak */}
@@ -45,7 +68,7 @@ export const Navbar: React.FC<NavbarProps> = ({ profile, onOpenLeaderboard, onRe
               {/* Streak Freeze */}
               {profile.streakFreezeCount > 0 && (
                 <div 
-                  className="hidden md:flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400"
+                  className="hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400"
                   title="Thẻ bảo lưu Streak khi nghỉ 1 ngày"
                 >
                   <Snowflake className="w-4 h-4 text-cyan-400" />
@@ -54,12 +77,12 @@ export const Navbar: React.FC<NavbarProps> = ({ profile, onOpenLeaderboard, onRe
               )}
 
               {/* Level & XP */}
-              <div className="flex flex-col items-end">
+              <div className="hidden sm:flex flex-col items-end">
                 <div className="flex items-center gap-2">
                   <span className="text-xs text-slate-400">Lv.{profile.currentLevel}</span>
                   <span className="text-sm font-bold text-emerald-400">{profile.totalXp} XP</span>
                 </div>
-                <div className="w-24 sm:w-28 h-1.5 bg-slate-800 rounded-full overflow-hidden mt-1 border border-slate-700/50">
+                <div className="w-20 sm:w-24 h-1.5 bg-slate-800 rounded-full overflow-hidden mt-1 border border-slate-700/50">
                   <div 
                     className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full transition-all duration-500"
                     style={{ 
@@ -71,16 +94,27 @@ export const Navbar: React.FC<NavbarProps> = ({ profile, onOpenLeaderboard, onRe
             </>
           )}
 
+          {/* 1v1 Battle Quick Button */}
+          <button
+            onClick={onStart1v1Battle}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gradient-to-r from-amber-500 to-rose-600 hover:from-amber-400 hover:to-rose-500 text-slate-950 font-black text-xs sm:text-sm shadow-md transition-all cursor-pointer"
+          >
+            <Swords className="w-4 h-4 fill-slate-950 text-slate-950" />
+            <span className="hidden sm:inline">Đấu 1v1</span>
+          </button>
+
           {/* Leaderboard button */}
           <button
-            onClick={onOpenLeaderboard}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-slate-600 text-slate-200 transition-all font-medium text-xs sm:text-sm shadow-sm"
+            onClick={onOpenBattleLeaderboard}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-slate-600 text-slate-200 transition-all font-medium text-xs sm:text-sm shadow-sm cursor-pointer"
+            title="Bảng xếp hạng đấu thủ"
           >
             <Trophy className="w-4 h-4 text-amber-400" />
-            <span className="hidden sm:inline">Bảng xếp hạng</span>
+            <span className="hidden sm:inline">BXH</span>
           </button>
         </div>
       </div>
     </header>
   );
 };
+

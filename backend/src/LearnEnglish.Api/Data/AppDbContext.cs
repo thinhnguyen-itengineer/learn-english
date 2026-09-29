@@ -16,6 +16,11 @@ public class AppDbContext : DbContext
     public DbSet<Word> Words => Set<Word>();
     public DbSet<Sentence> Sentences => Set<Sentence>();
     public DbSet<GameSession> GameSessions => Set<GameSession>();
+    public DbSet<UserRank> UserRanks => Set<UserRank>();
+    public DbSet<Season> Seasons => Set<Season>();
+    public DbSet<MatchSession> MatchSessions => Set<MatchSession>();
+    public DbSet<MatchParticipant> MatchParticipants => Set<MatchParticipant>();
+    public DbSet<LeaderboardSnapshot> LeaderboardSnapshots => Set<LeaderboardSnapshot>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -131,6 +136,89 @@ public class AppDbContext : DbContext
 
             entity.HasIndex(e => e.UserId);
             entity.HasIndex(e => e.CompletedAt);
+        });
+
+        // UserRank
+        modelBuilder.Entity<UserRank>(entity =>
+        {
+            entity.ToTable("user_ranks");
+            entity.HasKey(e => e.UserId);
+            entity.Property(e => e.Tier).HasConversion<string>().HasMaxLength(20).IsRequired();
+            entity.Property(e => e.Division).HasMaxLength(10).HasDefaultValue("III");
+            entity.HasIndex(e => e.Trophy);
+            entity.HasIndex(e => new { e.Tier, e.Division });
+
+            entity.HasOne(e => e.User)
+                .WithOne(u => u.Rank)
+                .HasForeignKey<UserRank>(e => e.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // Season
+        modelBuilder.Entity<Season>(entity =>
+        {
+            entity.ToTable("seasons");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Name).HasMaxLength(100).IsRequired();
+            entity.HasIndex(e => e.SeasonNumber).IsUnique();
+            entity.HasIndex(e => e.IsActive);
+        });
+
+        // MatchSession
+        modelBuilder.Entity<MatchSession>(entity =>
+        {
+            entity.ToTable("match_sessions");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.MatchType).HasMaxLength(30).HasDefaultValue("SpeedWordMatch");
+            entity.Property(e => e.Status).HasMaxLength(20).HasDefaultValue("Waiting");
+            entity.Property(e => e.QuestionSeed).HasMaxLength(64);
+            entity.Property(e => e.FinishReason).HasMaxLength(30);
+
+            entity.HasOne(e => e.Season)
+                .WithMany(s => s.MatchSessions)
+                .HasForeignKey(e => e.SeasonId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasOne(e => e.Topic)
+                .WithMany()
+                .HasForeignKey(e => e.TopicId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasIndex(e => new { e.SeasonId, e.StartedAt });
+        });
+
+        // MatchParticipant
+        modelBuilder.Entity<MatchParticipant>(entity =>
+        {
+            entity.ToTable("match_participants");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Result).HasConversion<string>().HasMaxLength(20).IsRequired();
+
+            entity.HasOne(e => e.Match)
+                .WithMany(m => m.Participants)
+                .HasForeignKey(e => e.MatchId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasIndex(e => new { e.UserId, e.MatchId });
+        });
+
+        // LeaderboardSnapshot
+        modelBuilder.Entity<LeaderboardSnapshot>(entity =>
+        {
+            entity.ToTable("leaderboard_snapshots");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Type).HasMaxLength(20).HasDefaultValue("Weekly");
+            entity.Property(e => e.DisplayName).HasMaxLength(100).IsRequired();
+            entity.Property(e => e.AvatarUrl).HasMaxLength(255);
+            entity.Property(e => e.Tier).HasMaxLength(20).IsRequired();
+            entity.Property(e => e.WinRatePercentage).HasPrecision(5, 2);
+
+            entity.HasOne(e => e.Season)
+                .WithMany(s => s.Snapshots)
+                .HasForeignKey(e => e.SeasonId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasIndex(e => new { e.SeasonId, e.Type, e.RankPosition });
         });
     }
 }

@@ -131,12 +131,57 @@ class ApiService {
     return res.json();
   }
 
+  public getToken(): string | null {
+    return this.token || localStorage.getItem('token');
+  }
+
   public async getLeaderboard(): Promise<LeaderboardResponse> {
     const headers = await this.getAuthHeaders();
     const res = await fetch(`${API_BASE}/leaderboard/weekly`, { headers });
     if (!res.ok) throw new Error('Không thể tải bảng xếp hạng');
     return res.json();
   }
+
+  public async getBattleLeaderboard(
+    type: 'Season' | 'AllTime' = 'Season',
+    page = 1,
+    pageSize = 50
+  ): Promise<import('../types/game').BattleLeaderboardResponse> {
+    const headers = await this.getAuthHeaders();
+    const res = await fetch(
+      `${API_BASE}/leaderboard/battle?type=${type}&page=${page}&pageSize=${pageSize}`,
+      { headers }
+    );
+    if (!res.ok) throw new Error('Không thể tải bảng xếp hạng đấu thủ');
+    return res.json();
+  }
+
+  public async getMyRank(): Promise<import('../types/game').UserRankProfileDto> {
+    const headers = await this.getAuthHeaders();
+    const res = await fetch(`${API_BASE}/users/me/rank`, { headers });
+    if (!res.ok) throw new Error('Không thể tải thông tin Rank cá nhân');
+    return res.json();
+  }
+
+  public async getUserRank(userId: string): Promise<import('../types/game').UserRankProfileDto> {
+    const headers = await this.getAuthHeaders();
+    const res = await fetch(`${API_BASE}/users/${userId}/rank`, { headers });
+    if (!res.ok) throw new Error('Không thể tải thông tin Rank người dùng');
+    return res.json();
+  }
+
+  public async getMatchHistory(
+    page = 1,
+    pageSize = 10
+  ): Promise<import('../types/game').MatchHistoryResponse> {
+    const headers = await this.getAuthHeaders();
+    const res = await fetch(`${API_BASE}/matches/history?page=${page}&pageSize=${pageSize}`, {
+      headers
+    });
+    if (!res.ok) throw new Error('Không thể tải lịch sử trận đấu');
+    return res.json();
+  }
 }
 
 export const api = new ApiService();
+

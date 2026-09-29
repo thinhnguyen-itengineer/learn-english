@@ -143,3 +143,181 @@ export interface LeaderboardResponse {
   myRank?: LeaderboardRankDto;
   topRankings: LeaderboardRankDto[];
 }
+
+// ============================================================================
+// Realtime 1v1 Battle & Leaderboard DTOs (Strictly matching backend contracts)
+// ============================================================================
+
+export type RankTier = 'Bronze' | 'Silver' | 'Gold' | 'Platinum' | 'Diamond' | 'Master';
+export type RankDivision = 'I' | 'II' | 'III';
+
+export interface UserRankProfileDto {
+  userId: string;
+  trophy: number;
+  highestTrophy: number;
+  tier: RankTier | string;
+  division: RankDivision | string;
+  winStreak: number;
+  highestWinStreak: number;
+  protectionGamesLeft: number;
+  totalMatches: number;
+  wins: number;
+  losses: number;
+  draws: number;
+  winRate: number;
+  penaltyUntil?: string | null;
+}
+
+export interface MatchPlayerDto {
+  userId: string;
+  displayName: string;
+  avatarUrl: string;
+  tier: RankTier | string;
+  division: RankDivision | string;
+  currentTrophy: number;
+  isBot: boolean;
+}
+
+export interface WordPairDto {
+  id: string;
+  english: string;
+  vietnamese: string;
+}
+
+export interface MatchFoundPayload {
+  matchId: string;
+  durationSeconds: number;
+  topicId: string;
+  topicName: string;
+  opponent: MatchPlayerDto;
+  pairs: WordPairDto[];
+}
+
+export interface PlayerProgressDto {
+  matchId: string;
+  currentScore: number;
+  completedPairsCount: number;
+  currentCombo: number;
+  isCompleted: boolean;
+}
+
+export interface OpponentProgressPayload {
+  matchId: string;
+  opponentUserId: string;
+  currentScore: number;
+  completedPairsCount: number;
+  currentCombo: number;
+  isCompleted: boolean;
+}
+
+export interface FinishMatchRequest {
+  matchId: string;
+  totalTimeMs: number;
+}
+
+export interface ForfeitMatchRequest {
+  matchId: string;
+}
+
+export interface ReconnectMatchRequest {
+  matchId: string;
+}
+
+export interface JoinQueueRequest {
+  preferredTopicId?: string;
+}
+
+export interface QueueStatusPayload {
+  queueTimeSeconds: number;
+  searchRangeTrophy: number;
+}
+
+export interface BattleStartedPayload {
+  startTimeUtc: string;
+}
+
+export interface DisconnectGracePayload {
+  gracePeriodSeconds: number;
+}
+
+export interface MatchResultPayload {
+  matchId: string;
+  isWinner: boolean;
+  isDraw: boolean;
+  finishReason: 'NormalCompletion' | 'Timeout' | 'Forfeit' | 'DisconnectTimeout' | string;
+  myFinalScore: number;
+  opponentFinalScore: number;
+  trophyChange: number;
+  newTrophy: number;
+  newTier: RankTier | string;
+  newDivision: RankDivision | string;
+  earnedXp: number;
+  winStreak: number;
+  isPromotion: boolean;
+  isDemoted: boolean;
+}
+
+export interface SeasonInfoDto {
+  id: string;
+  seasonNumber: number;
+  name: string;
+  daysRemaining: number;
+}
+
+export interface BattleLeaderboardItemDto {
+  rankPosition: number;
+  userId: string;
+  displayName: string;
+  avatarUrl: string;
+  tier: RankTier | string;
+  division: RankDivision | string;
+  trophy: number;
+  winRate: number;
+  winStreak: number;
+}
+
+export interface BattleLeaderboardResponse {
+  season?: SeasonInfoDto | null;
+  myRank?: BattleLeaderboardItemDto | null;
+  items: BattleLeaderboardItemDto[];
+  totalCount: number;
+}
+
+export interface OpponentSummaryDto {
+  displayName: string;
+  avatarUrl: string;
+  tier: string;
+  division: string;
+}
+
+export interface MatchHistoryItemDto {
+  matchId: string;
+  topicName: string;
+  opponent: OpponentSummaryDto;
+  result: 'Win' | 'Loss' | 'Draw' | string;
+  myScore: number;
+  opponentScore: number;
+  trophyChange: number;
+  durationSeconds: number;
+  playedAt: string;
+}
+
+export interface MatchHistorySummaryDto {
+  totalMatches: number;
+  wins: number;
+  losses: number;
+  draws: number;
+  winRate: number;
+  currentWinStreak: number;
+  highestWinStreak: number;
+  currentTrophy: number;
+  highestTrophy: number;
+  currentTier: string;
+  currentDivision: string;
+}
+
+export interface MatchHistoryResponse {
+  summary: MatchHistorySummaryDto;
+  history: MatchHistoryItemDto[];
+}
+

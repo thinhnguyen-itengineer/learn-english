@@ -11,5 +11,7 @@ public class User
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
     public UserProfile? Profile { get; set; }
+    public UserRank? Rank { get; set; }
     public ICollection<GameSession> GameSessions { get; set; } = new List<GameSession>();
+    public ICollection<MatchParticipant> MatchParticipations { get; set; } = new List<MatchParticipant>();
 }

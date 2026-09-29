@@ -1,5 +1,6 @@
 using System.Text;
 using LearnEnglish.Api.Data;
+using LearnEnglish.Api.Hubs;
 using LearnEnglish.Api.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -53,6 +54,12 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // 2. Configure Dependency Injection
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IGameService, GameService>();
+builder.Services.AddSingleton<IEloRatingCalculator, EloRatingCalculator>();
+builder.Services.AddSingleton<IBattleSessionManager, BattleSessionManager>();
+builder.Services.AddSingleton<MatchmakingQueueService>();
+builder.Services.AddSingleton<IMatchmakingQueueService>(sp => sp.GetRequiredService<MatchmakingQueueService>());
+builder.Services.AddHostedService(sp => sp.GetRequiredService<MatchmakingQueueService>());
+builder.Services.AddSignalR();
 
 // 3. Configure JWT Authentication
 var jwtKey = builder.Configuration["Jwt:Key"] ?? "PaperclipLearnEnglishDefaultSecretKeyForJwtAuthentication2026!";
@@ -72,6 +79,20 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidAudience = jwtAudience,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
         };
+
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                var accessToken = context.Request.Query["access_token"];
+                var path = context.HttpContext.Request.Path;
+                if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hubs"))
+                {
+                    context.Token = accessToken;
+                }
+                return Task.CompletedTask;
+            }
+        };
     });
 
 builder.Services.AddAuthorization();
@@ -81,9 +102,10 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
     {
-        policy.AllowAnyOrigin()
+        policy.SetIsOriginAllowed(_ => true)
               .AllowAnyMethod()
-              .AllowAnyHeader();
+              .AllowAnyHeader()
+              .AllowCredentials();
     });
 });
 
@@ -165,5 +187,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<BattleHub>("/hubs/battle");
 
 app.Run();

@@ -6,6 +6,10 @@ import { SpeedFallingGame } from './components/SpeedFallingGame';
 import { SentenceScrambleGame } from './components/SentenceScrambleGame';
 import { SummaryModal } from './components/SummaryModal';
 import { LeaderboardModal } from './components/LeaderboardModal';
+import { BattleLeaderboardModal } from './components/BattleLeaderboardModal';
+import { Battle1v1Game } from './components/Battle1v1Game';
+import { MatchmakingRadar, MatchmakingPlayer } from './components/ui/MatchmakingRadar';
+import { MatchResultModal, MatchResultData } from './components/ui/MatchResultModal';
 import { 
   CompleteSessionRequest, 
   CompleteSessionResponse, 
@@ -16,14 +20,21 @@ import {
   SpeedFallingInitResponse, 
   TopicDto, 
   UserProfileDto, 
-  WordMatchInitResponse 
+  UserRankProfileDto,
+  WordMatchInitResponse,
+  MatchFoundPayload,
+  MatchResultPayload,
+  RankTier,
+  RankDivision
 } from './types/game';
 import { api } from './services/api';
+import { battleSignalR } from './services/battleSignalR';
 
-type ActiveView = 'lobby' | 'wordMatch' | 'speedFalling' | 'sentenceScramble';
+type ActiveView = 'lobby' | 'wordMatch' | 'speedFalling' | 'sentenceScramble' | 'battle';
 
 export function App() {
   const [profile, setProfile] = useState<UserProfileDto | null>(null);
+  const [myRank, setMyRank] = useState<UserRankProfileDto | null>(null);
   const [topics, setTopics] = useState<TopicDto[]>([]);
   const [activeView, setActiveView] = useState<ActiveView>('lobby');
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -34,10 +45,18 @@ export function App() {
   const [sentenceScrambleData, setSentenceScrambleData] = useState<SentenceScrambleInitResponse | null>(null);
   const [lastGameParams, setLastGameParams] = useState<{ type: GameType; topicId: string; diff: DifficultyLevel } | null>(null);
 
+  // 1v1 Battle state
+  const [matchmakingState, setMatchmakingState] = useState<'idle' | 'searching' | 'matched' | 'countdown'>('idle');
+  const [matchmakingQueueSeconds, setMatchmakingQueueSeconds] = useState<number>(0);
+  const [countdownValue, setCountdownValue] = useState<number>(3);
+  const [matchedData, setMatchedData] = useState<MatchFoundPayload | null>(null);
+  const [matchResult, setMatchResult] = useState<MatchResultPayload | null>(null);
+  const [showBattleLeaderboard, setShowBattleLeaderboard] = useState<boolean>(false);
+
   // Modals
   const [summaryResult, setSummaryResult] = useState<CompleteSessionResponse | null>(null);
-  const [showLeaderboard, setShowLeaderboard] = useState<boolean>(false);
-  const [leaderboardData, setLeaderboardData] = useState<LeaderboardResponse | null>(null);
+  const [showWeeklyLeaderboard, setShowWeeklyLeaderboard] = useState<boolean>(false);
+  const [weeklyLeaderboardData, setWeeklyLeaderboardData] = useState<LeaderboardResponse | null>(null);
 
   // Initialize data on mount
   useEffect(() => {
@@ -45,14 +64,18 @@ export function App() {
       try {
         setIsLoading(true);
         // Ensure guest session
-        await api.ensureGuestSession();
-        // Load profile & topics
-        const [prof, topList] = await Promise.all([
+        const auth = await api.ensureGuestSession();
+
+        // Load profile, rank, & topics
+        const [prof, rank, topList] = await Promise.all([
           api.getProfile().catch(() => null),
+          api.getMyRank().catch(() => null),
           api.getTopics().catch(() => [])
         ]);
 
         if (prof) setProfile(prof);
+        if (rank) setMyRank(rank);
+
         if (topList && topList.length > 0) {
           setTopics(topList);
         } else {
@@ -90,6 +113,15 @@ export function App() {
             }
           ]);
         }
+
+        // Initialize SignalR connection to BattleHub
+        if (auth.token) {
+          try {
+            await battleSignalR.connect(auth.token);
+          } catch (e) {
+            console.warn('SignalR initial connect error:', e);
+          }
+        }
       } catch (err) {
         console.warn('Backend connecting or offline mode:', err);
       } finally {
@@ -98,8 +130,115 @@ export function App() {
     };
 
     initApp();
+
+    return () => {
+      battleSignalR.disconnect();
+    };
   }, []);
 
+  // Subscribe to SignalR events for matchmaking & battle start
+  useEffect(() => {
+    const unsubQueue = battleSignalR.onQueueStatusUpdate((payload) => {
+      setMatchmakingQueueSeconds(payload.queueTimeSeconds);
+    });
+
+    const unsubMatchFound = battleSignalR.onMatchFound((payload) => {
+      setMatchedData(payload);
+      setMatchmakingState('matched');
+      setCountdownValue(3);
+
+      // 3-second countdown
+      let count = 3;
+      const countTimer = setInterval(() => {
+        count--;
+        setCountdownValue(count);
+        if (count <= 0) {
+          clearInterval(countTimer);
+        }
+      }, 1000);
+    });
+
+    const unsubBattleStarted = battleSignalR.onBattleStarted(() => {
+      setMatchmakingState('idle');
+      setActiveView('battle');
+    });
+
+    const unsubError = battleSignalR.onError((err) => {
+      console.error('SignalR Error:', err);
+      setMatchmakingState('idle');
+      alert(`Lỗi kết nối trận đấu: ${err}`);
+    });
+
+    return () => {
+      unsubQueue();
+      unsubMatchFound();
+      unsubBattleStarted();
+      unsubError();
+    };
+  }, []);
+
+  // 1v1 Battle Handlers
+  const handleStart1v1Battle = async (preferredTopicId?: string) => {
+    try {
+      const token = api.getToken();
+      if (!token) {
+        await api.ensureGuestSession();
+      }
+      if (!battleSignalR.isConnected()) {
+        const activeToken = api.getToken();
+        if (activeToken) await battleSignalR.connect(activeToken);
+      }
+
+      setMatchmakingQueueSeconds(0);
+      setMatchmakingState('searching');
+      await battleSignalR.joinMatchmakingQueue(preferredTopicId);
+    } catch (err) {
+      console.error('Failed to join matchmaking queue:', err);
+      setMatchmakingState('idle');
+      alert('Không thể kết nối vào hàng chờ tìm trận. Vui lòng thử lại.');
+    }
+  };
+
+  const handleCancelMatchmaking = async () => {
+    try {
+      await battleSignalR.leaveMatchmakingQueue();
+    } catch (err) {
+      console.warn('Failed to leave matchmaking queue:', err);
+    } finally {
+      setMatchmakingState('idle');
+      setMatchedData(null);
+    }
+  };
+
+  const handleBattleMatchFinished = async (result: MatchResultPayload) => {
+    setMatchResult(result);
+
+    // Refresh profile and rank to reflect latest Trophy and XP
+    try {
+      const [updatedProfile, updatedRank] = await Promise.all([
+        api.getProfile().catch(() => null),
+        api.getMyRank().catch(() => null)
+      ]);
+      if (updatedProfile) setProfile(updatedProfile);
+      if (updatedRank) setMyRank(updatedRank);
+    } catch (err) {
+      console.warn('Failed to refresh profile after battle:', err);
+    }
+  };
+
+  const handleBattlePlayAgain = () => {
+    setMatchResult(null);
+    setMatchedData(null);
+    handleStart1v1Battle();
+  };
+
+  const handleBattleBackToLobby = () => {
+    setMatchResult(null);
+    setMatchedData(null);
+    setActiveView('lobby');
+  };
+
+  // Solo Mini-game Handlers
   const handleStartGame = async (gameType: GameType, topicId: string, difficulty: DifficultyLevel) => {
     setIsLoading(true);
     setLastGameParams({ type: gameType, topicId, diff: difficulty });
@@ -138,7 +277,6 @@ export function App() {
       }
     } catch (err) {
       console.error('Error completing session:', err);
-      // Fallback local summary
       setSummaryResult({
         sessionId: req.sessionId,
         score: req.score,
@@ -170,22 +308,63 @@ export function App() {
     setActiveView('lobby');
   };
 
-  const handleOpenLeaderboard = async () => {
-    setShowLeaderboard(true);
+  const handleOpenWeeklyLeaderboard = async () => {
+    setShowWeeklyLeaderboard(true);
     try {
       const lb = await api.getLeaderboard();
-      setLeaderboardData(lb);
+      setWeeklyLeaderboardData(lb);
     } catch (err) {
       console.warn('Leaderboard fetch error:', err);
     }
   };
+
+  // Convert for MatchmakingRadar
+  const currentRadarPlayer: MatchmakingPlayer = {
+    displayName: profile?.displayName || 'Bạn',
+    avatarUrl: profile?.avatarUrl || 'https://api.dicebear.com/7.x/bottts/svg?seed=me',
+    tier: (myRank?.tier as RankTier) || 'Bronze',
+    division: (myRank?.division as RankDivision) || 'III',
+    trophy: myRank?.trophy || 0,
+  };
+
+  const opponentRadarPlayer: MatchmakingPlayer | null = matchedData?.opponent
+    ? {
+        displayName: matchedData.opponent.displayName,
+        avatarUrl: matchedData.opponent.avatarUrl,
+        tier: (matchedData.opponent.tier as RankTier) || 'Bronze',
+        division: (matchedData.opponent.division as RankDivision) || 'III',
+        trophy: matchedData.opponent.currentTrophy,
+      }
+    : null;
+
+  // Convert for MatchResultModal
+  const matchResultModalData: MatchResultData | null = matchResult
+    ? {
+        isWinner: matchResult.isWinner,
+        isDraw: matchResult.isDraw,
+        finishReason: matchResult.finishReason as MatchResultData['finishReason'],
+        myFinalScore: matchResult.myFinalScore,
+        opponentFinalScore: matchResult.opponentFinalScore,
+        trophyChange: matchResult.trophyChange,
+        newTrophy: matchResult.newTrophy,
+        newTier: (matchResult.newTier as RankTier) || 'Bronze',
+        newDivision: (matchResult.newDivision as RankDivision) || 'III',
+        earnedXp: matchResult.earnedXp,
+        winStreak: matchResult.winStreak,
+        isPromotion: matchResult.isPromotion,
+        isDemoted: matchResult.isDemoted,
+      }
+    : null;
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-indigo-500 selection:text-white">
       {/* Top Navigation */}
       <Navbar 
         profile={profile} 
-        onOpenLeaderboard={handleOpenLeaderboard} 
+        myRank={myRank}
+        onOpenLeaderboard={handleOpenWeeklyLeaderboard}
+        onOpenBattleLeaderboard={() => setShowBattleLeaderboard(true)}
+        onStart1v1Battle={() => handleStart1v1Battle()}
         onReturnToLobby={handleBackToLobby} 
       />
 
@@ -194,11 +373,26 @@ export function App() {
         {activeView === 'lobby' && (
           <Lobby 
             topics={topics} 
+            myRank={myRank}
             onStartGame={handleStartGame} 
+            onStart1v1Battle={handleStart1v1Battle}
+            onOpenBattleLeaderboard={() => setShowBattleLeaderboard(true)}
             isLoading={isLoading} 
           />
         )}
 
+        {/* 1v1 Battle Mode Screen */}
+        {activeView === 'battle' && matchedData && (
+          <Battle1v1Game
+            matchPayload={matchedData}
+            profile={profile}
+            myRank={myRank}
+            onMatchFinished={handleBattleMatchFinished}
+            onExit={handleBattleBackToLobby}
+          />
+        )}
+
+        {/* Solo Games */}
         {activeView === 'wordMatch' && wordMatchData && (
           <WordMatchGame
             data={wordMatchData}
@@ -224,7 +418,28 @@ export function App() {
         )}
       </main>
 
-      {/* Post-game Summary Modal */}
+      {/* Matchmaking Radar Modal */}
+      {matchmakingState !== 'idle' && (
+        <MatchmakingRadar
+          player={currentRadarPlayer}
+          opponent={opponentRadarPlayer}
+          status={matchmakingState}
+          countdownValue={countdownValue}
+          elapsedSeconds={matchmakingQueueSeconds}
+          onCancel={handleCancelMatchmaking}
+        />
+      )}
+
+      {/* 1v1 Battle Result Modal */}
+      {matchResultModalData && (
+        <MatchResultModal
+          data={matchResultModalData}
+          onPlayAgain={handleBattlePlayAgain}
+          onBackToLobby={handleBattleBackToLobby}
+        />
+      )}
+
+      {/* Solo Mini-game Summary Modal */}
       {summaryResult && (
         <SummaryModal
           result={summaryResult}
@@ -233,11 +448,22 @@ export function App() {
         />
       )}
 
-      {/* Leaderboard Modal */}
-      {showLeaderboard && (
+      {/* Global & Season Battle Podium Leaderboard Modal */}
+      {showBattleLeaderboard && (
+        <BattleLeaderboardModal
+          onClose={() => setShowBattleLeaderboard(false)}
+          onPlayBattle={() => {
+            setShowBattleLeaderboard(false);
+            handleStart1v1Battle();
+          }}
+        />
+      )}
+
+      {/* Solo Weekly XP Leaderboard Modal */}
+      {showWeeklyLeaderboard && (
         <LeaderboardModal
-          data={leaderboardData}
-          onClose={() => setShowLeaderboard(false)}
+          data={weeklyLeaderboardData}
+          onClose={() => setShowWeeklyLeaderboard(false)}
         />
       )}
     </div>

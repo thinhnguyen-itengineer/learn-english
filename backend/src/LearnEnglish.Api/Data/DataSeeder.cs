@@ -9,7 +9,8 @@ public static class DataSeeder
     {
         if (await context.Topics.AnyAsync())
         {
-            return; // Already seeded
+            await SeedBattleDataAsync(context);
+            return;
         }
 
         // 1. Topic: Daily Routines
@@ -237,6 +238,93 @@ public static class DataSeeder
         };
 
         context.Users.AddRange(demoUsers);
+        await context.SaveChangesAsync();
+
+        // 4. Seed Season & Battle Leaderboard
+        await SeedBattleDataAsync(context);
+    }
+
+    public static async Task SeedBattleDataAsync(AppDbContext context)
+    {
+        if (await context.Seasons.AnyAsync())
+        {
+            return;
+        }
+
+        var activeSeason = new Season
+        {
+            Id = Guid.Parse("e3b0c442-98fc-1c14-9afb-4c8996fb9242"),
+            SeasonNumber = 1,
+            Name = "Mùa 1: Khởi Nguyên Chiến Binh",
+            StartAt = DateTime.UtcNow.AddDays(-10),
+            EndAt = DateTime.UtcNow.AddDays(18),
+            IsActive = true,
+            RewardsConfig = "{\"goldReward\": 1000, \"exclusiveBadge\": \"Season1Champion\"}",
+            CreatedAt = DateTime.UtcNow.AddDays(-10)
+        };
+
+        context.Seasons.Add(activeSeason);
+
+        // Seed more top ranked users if not existing
+        var rankedUsers = new List<(Guid id, string username, string name, string avatar, int trophy, RankTier tier, string div, int winStreak, int wins, int losses, int draws)>
+        {
+            (Guid.Parse("11111111-2222-3333-4444-555555555555"), "hoang_nam_pro", "Hoàng Nam Pro", "https://api.dicebear.com/7.x/bottts/svg?seed=nam", 5420, RankTier.Master, "I", 9, 128, 22, 5),
+            (Guid.Parse("66666666-7777-8888-9999-000000000000"), "minh_anh_lang", "Minh Anh Language", "https://api.dicebear.com/7.x/bottts/svg?seed=minhanh", 5210, RankTier.Master, "I", 4, 114, 28, 3),
+            (Guid.Parse("b1111111-1111-1111-1111-111111111111"), "alex_tran", "Alex Trần", "https://api.dicebear.com/7.x/bottts/svg?seed=alex", 4850, RankTier.Diamond, "I", 6, 98, 24, 4),
+            (Guid.Parse("b2222222-2222-2222-2222-222222222222"), "minh_vu", "Minh Vũ", "https://api.dicebear.com/7.x/bottts/svg?seed=minh", 4420, RankTier.Diamond, "II", 3, 85, 30, 2),
+            (Guid.Parse("b3333333-3333-3333-3333-333333333333"), "sarah_connor", "Sarah Nguyễn", "https://api.dicebear.com/7.x/bottts/svg?seed=sarah", 3890, RankTier.Platinum, "I", 2, 70, 25, 3),
+            (Guid.Parse("77777777-1111-2222-3333-444444444444"), "david_beck", "David Beckham VN", "https://api.dicebear.com/7.x/bottts/svg?seed=david", 3450, RankTier.Platinum, "II", 5, 62, 28, 1),
+            (Guid.Parse("88888888-2222-3333-4444-555555555555"), "emily_in_paris", "Emily Đặng", "https://api.dicebear.com/7.x/bottts/svg?seed=emily", 2850, RankTier.Gold, "I", 4, 55, 31, 2),
+            (Guid.Parse("99999999-3333-4444-5555-666666666666"), "brain_master", "Siêu Trí Tuệ", "https://api.dicebear.com/7.x/bottts/svg?seed=brain", 2420, RankTier.Gold, "II", 3, 48, 26, 4)
+        };
+
+        foreach (var r in rankedUsers)
+        {
+            var user = await context.Users.Include(u => u.Profile).Include(u => u.Rank).FirstOrDefaultAsync(u => u.Id == r.id);
+            if (user == null)
+            {
+                user = new User
+                {
+                    Id = r.id,
+                    Username = r.username,
+                    IsGuest = false,
+                    Profile = new UserProfile
+                    {
+                        UserId = r.id,
+                        DisplayName = r.name,
+                        AvatarUrl = r.avatar,
+                        TotalXp = r.wins * 30 + r.trophy,
+                        CurrentLevel = Math.Max(1, r.trophy / 400),
+                        CurrentStreak = r.winStreak,
+                        HighestStreak = r.winStreak + 3,
+                        LastActiveDate = DateOnly.FromDateTime(DateTime.UtcNow)
+                    }
+                };
+                context.Users.Add(user);
+            }
+
+            if (user.Rank == null)
+            {
+                user.Rank = new UserRank
+                {
+                    UserId = r.id,
+                    Trophy = r.trophy,
+                    HighestTrophy = r.trophy + 50,
+                    Tier = r.tier,
+                    Division = r.div,
+                    WinStreak = r.winStreak,
+                    HighestWinStreak = r.winStreak + 4,
+                    ProtectionGamesLeft = 0,
+                    TotalMatches = r.wins + r.losses + r.draws,
+                    Wins = r.wins,
+                    Losses = r.losses,
+                    Draws = r.draws,
+                    AbandonCount = 0,
+                    UpdatedAt = DateTime.UtcNow
+                };
+                context.UserRanks.Add(user.Rank);
+            }
+        }
 
         await context.SaveChangesAsync();
     }

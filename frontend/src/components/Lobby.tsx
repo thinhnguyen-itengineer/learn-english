@@ -1,17 +1,29 @@
 import React, { useState } from 'react';
 import { 
   Sun, Cpu, Compass, BookOpen, Layers, Zap, AlignLeft, 
-  Play, CheckCircle2, ChevronRight, Sparkles, Award
+  Play, CheckCircle2, Sparkles, Swords, Trophy, Flame, Shield, ArrowRight
 } from 'lucide-react';
-import { DifficultyLevel, GameType, TopicDto } from '../types/game';
+import { DifficultyLevel, GameType, TopicDto, UserRankProfileDto, RankTier, RankDivision } from '../types/game';
+import { RankBadge, TrophyBadge, StreakBadge, ShieldBadge } from './ui/RankBadge';
+import { Button } from './ui/Button';
 
 interface LobbyProps {
   topics: TopicDto[];
+  myRank: UserRankProfileDto | null;
   onStartGame: (gameType: GameType, topicId: string, difficulty: DifficultyLevel) => void;
+  onStart1v1Battle: (topicId?: string) => void;
+  onOpenBattleLeaderboard: () => void;
   isLoading: boolean;
 }
 
-export const Lobby: React.FC<LobbyProps> = ({ topics, onStartGame, isLoading }) => {
+export const Lobby: React.FC<LobbyProps> = ({ 
+  topics, 
+  myRank,
+  onStartGame, 
+  onStart1v1Battle,
+  onOpenBattleLeaderboard,
+  isLoading 
+}) => {
   const [selectedTopicId, setSelectedTopicId] = useState<string>(topics[0]?.id || '');
   const [selectedDifficulty, setSelectedDifficulty] = useState<DifficultyLevel>('Easy');
 
@@ -28,22 +40,89 @@ export const Lobby: React.FC<LobbyProps> = ({ topics, onStartGame, isLoading }) 
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8 space-y-10">
-      {/* Hero Banner */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-indigo-900/60 via-slate-900/80 to-slate-900 border border-indigo-500/20 p-6 sm:p-10 shadow-2xl">
-        <div className="relative z-10 max-w-2xl">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 text-xs font-semibold uppercase tracking-wider mb-4">
-            <Sparkles className="w-3.5 h-3.5" />
-            Nền tảng Học Tiếng Anh Gamified
+      {/* Hero Banner with 1v1 Battle Arena Highlight */}
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-indigo-950 via-slate-900 to-purple-950 border-2 border-indigo-500/30 p-6 sm:p-10 shadow-2xl">
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8">
+          <div className="max-w-xl">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 text-xs font-semibold uppercase tracking-wider mb-4">
+              <Sparkles className="w-3.5 h-3.5" />
+              Nền tảng Học Tiếng Anh Gamified
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight leading-tight">
+              Đấu Trường <span className="bg-gradient-to-r from-amber-400 via-rose-400 to-purple-400 bg-clip-text text-transparent">1v1 Realtime</span> & Mini-game
+            </h2>
+            <p className="mt-3 text-slate-300 text-sm sm:text-base leading-relaxed">
+              Thi đấu trực tiếp với đối thủ cùng trình độ qua Speed Word Match, leo Rank từ Đồng đến Cao Thủ và khẳng định vị thế trên Bảng Xếp Hạng!
+            </p>
+
+            <div className="mt-6 flex flex-wrap items-center gap-3">
+              <Button
+                variant="gold"
+                size="lg"
+                onClick={() => onStart1v1Battle(activeTopic?.id)}
+                leftIcon={<Swords className="w-5 h-5" />}
+              >
+                Tìm Trận Đấu 1v1 Ngay
+              </Button>
+
+              <Button
+                variant="secondary"
+                size="lg"
+                onClick={onOpenBattleLeaderboard}
+                leftIcon={<Trophy className="w-5 h-5 text-yellow-400" />}
+              >
+                Bảng Xếp Hạng Đấu Thủ
+              </Button>
+            </div>
           </div>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight leading-tight">
-            Nâng cao vốn từ & phản xạ qua <span className="bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent">3 Mini-game</span> tốc độ cao
-          </h2>
-          <p className="mt-3 text-slate-300 text-sm sm:text-base leading-relaxed">
-            Chọn chủ đề yêu thích, vượt qua các thử thách ghép từ, bắt chữ rơi và xếp câu để tích lũy XP thăng cấp bảng xếp hạng!
-          </p>
+
+          {/* User Rank Card Profile */}
+          {myRank && (
+            <div className="w-full md:w-72 bg-slate-900/90 border-2 border-slate-700/80 rounded-2xl p-5 shadow-xl flex flex-col items-center text-center shrink-0">
+              <span className="text-[11px] font-black uppercase tracking-wider text-slate-400 mb-2">
+                Hồ Sơ Xếp Hạng Cá Nhân
+              </span>
+
+              <div className="my-1">
+                <RankBadge
+                  tier={(myRank.tier as RankTier) || 'Bronze'}
+                  division={(myRank.division as RankDivision) || 'III'}
+                  size="lg"
+                />
+              </div>
+
+              <div className="mt-3">
+                <TrophyBadge trophy={myRank.trophy} size="md" />
+              </div>
+
+              <div className="w-full grid grid-cols-2 gap-2 mt-4 pt-4 border-t border-slate-800 text-xs">
+                <div className="bg-slate-800/60 rounded-xl p-2">
+                  <span className="text-slate-400 block text-[10px]">Tỷ lệ thắng</span>
+                  <span className="font-black text-emerald-400 font-mono text-sm">
+                    {myRank.winRate.toFixed(1)}%
+                  </span>
+                </div>
+                <div className="bg-slate-800/60 rounded-xl p-2">
+                  <span className="text-slate-400 block text-[10px]">Chuỗi thắng</span>
+                  <span className="font-black text-orange-400 font-mono text-sm flex items-center justify-center gap-1">
+                    <Flame className="w-3.5 h-3.5 fill-orange-400" />
+                    {myRank.winStreak}
+                  </span>
+                </div>
+              </div>
+
+              {myRank.protectionGamesLeft > 0 && (
+                <div className="mt-2 text-[10px] text-cyan-300 font-bold flex items-center gap-1">
+                  <Shield className="w-3 h-3 text-cyan-400" />
+                  Khiên bảo vệ: {myRank.protectionGamesLeft} trận
+                </div>
+              )}
+            </div>
+          )}
         </div>
+
         <div className="absolute right-0 bottom-0 translate-x-10 translate-y-10 opacity-20 pointer-events-none hidden md:block">
-          <div className="w-96 h-96 rounded-full bg-gradient-to-tr from-indigo-500 to-emerald-400 blur-3xl" />
+          <div className="w-96 h-96 rounded-full bg-gradient-to-tr from-indigo-500 via-rose-500 to-purple-400 blur-3xl" />
         </div>
       </div>
 
