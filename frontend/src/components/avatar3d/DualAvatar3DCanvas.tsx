@@ -39,40 +39,52 @@ function ChibiModelRenderer({
   const accRef = useRef<THREE.Group | null>(null);
 
   const baseBodyId =
-    config.baseBodyId || (gender === 'FEMALE' ? 'body_chibi_female_aoi' : 'body_chibi_male_ren');
+    config.baseBodyId || (gender === 'FEMALE' ? 'body_stickman_white' : 'body_stickman_black');
   const hairId =
-    config.hairId || (gender === 'FEMALE' ? 'hair_twin_tails_cherry_01' : 'hair_side_part_scholar_01');
+    config.hairId || (gender === 'FEMALE' ? 'face_waku_anime' : 'face_chad_smirk');
   const topId =
-    config.topId || (gender === 'FEMALE' ? 'top_chibi_female_sailor_01' : 'top_chibi_male_vest_gilet_01');
-  const bottomId =
-    config.bottomId || (gender === 'FEMALE' ? 'bottom_chibi_female_pleated_01' : 'bottom_chibi_male_slacks_01');
-  const shoesId =
-    config.shoesId || (gender === 'FEMALE' ? 'shoes_chibi_female_oxford_01' : 'shoes_chibi_male_sneaker_cyan_01');
+    config.topId || (gender === 'FEMALE' ? 'prop_champion_trophy' : 'prop_laser_sword');
+  const bottomId = config.bottomId || '';
+  const shoesId = config.shoesId || '';
   const accessoryId =
-    config.accessoryId || (gender === 'FEMALE' ? 'acc_chibi_female_star_clip_01' : 'acc_chibi_male_smart_glasses_01');
+    config.accessoryId || (gender === 'FEMALE' ? 'acc_wings_fairy_neon' : 'acc_wings_demon_dark');
 
   const maskedParts = config.maskedBodyParts || [];
   const hiddenSlots = config.hiddenSlots || [];
+  const accentColor = useAvatar3DStore((s) => s.accentColor) || '#00f2fe';
 
   // Mount BaseBody
   useEffect(() => {
     if (!avatarRootRef.current) return;
     if (bodyRef.current) disposeObject3D(bodyRef.current);
-    const mesh = buildBaseBodyMesh(gender, maskedParts, baseBodyId);
+    const isHolding =
+      animationState === 'HOLD_ITEM' ||
+      Boolean(
+        topId &&
+          (topId.startsWith('prop_') ||
+            topId.includes('hold') ||
+            topId.includes('trophy') ||
+            topId.includes('sword') ||
+            topId.includes('wand') ||
+            topId.includes('torch') ||
+            topId.includes('mic') ||
+            topId.includes('blaster'))
+      );
+    const mesh = buildBaseBodyMesh(gender, maskedParts, baseBodyId, topId, isHolding);
     bodyRef.current = mesh;
     avatarRootRef.current.add(mesh);
 
     return () => {
       if (bodyRef.current) disposeObject3D(bodyRef.current);
     };
-  }, [baseBodyId, gender, maskedParts]);
+  }, [baseBodyId, gender, maskedParts, topId, animationState]);
 
   // Mount Hair
   useEffect(() => {
     if (!avatarRootRef.current) return;
     if (hairRef.current) disposeObject3D(hairRef.current);
     if (!hiddenSlots.includes('Slot_Hair') && hairId) {
-      const mesh = buildHairMesh(hairId);
+      const mesh = buildHairMesh(hairId, accentColor);
       hairRef.current = mesh;
       avatarRootRef.current.add(mesh);
     }
@@ -80,14 +92,14 @@ function ChibiModelRenderer({
     return () => {
       if (hairRef.current) disposeObject3D(hairRef.current);
     };
-  }, [hairId, hiddenSlots]);
+  }, [hairId, hiddenSlots, accentColor]);
 
   // Mount Top
   useEffect(() => {
     if (!avatarRootRef.current) return;
     if (topRef.current) disposeObject3D(topRef.current);
     if (!hiddenSlots.includes('Slot_Top') && topId) {
-      const mesh = buildTopMesh(topId);
+      const mesh = buildTopMesh(topId, accentColor);
       topRef.current = mesh;
       avatarRootRef.current.add(mesh);
     }
@@ -95,7 +107,7 @@ function ChibiModelRenderer({
     return () => {
       if (topRef.current) disposeObject3D(topRef.current);
     };
-  }, [topId, hiddenSlots]);
+  }, [topId, hiddenSlots, accentColor]);
 
   // Mount Bottom
   useEffect(() => {
@@ -132,7 +144,7 @@ function ChibiModelRenderer({
     if (!avatarRootRef.current) return;
     if (accRef.current) disposeObject3D(accRef.current);
     if (!hiddenSlots.includes('Slot_Accessory') && accessoryId) {
-      const mesh = buildAccessoryMesh(accessoryId);
+      const mesh = buildAccessoryMesh(accessoryId, accentColor);
       accRef.current = mesh;
       avatarRootRef.current.add(mesh);
     }
@@ -140,7 +152,7 @@ function ChibiModelRenderer({
     return () => {
       if (accRef.current) disposeObject3D(accRef.current);
     };
-  }, [accessoryId, hiddenSlots]);
+  }, [accessoryId, hiddenSlots, accentColor]);
 
   // Animation frame loop with partner slight turn
   useFrame((state) => {

@@ -28,12 +28,21 @@ interface FittingRoom3DModalProps {
 
 const CATEGORIES: { label: string; value: Slot3D | 'ALL'; icon: string }[] = [
   { label: 'Tất cả', value: 'ALL', icon: '✨' },
-  { label: 'Thân', value: 'BASE_BODY', icon: '👤' },
-  { label: 'Tóc', value: 'HAIR', icon: '💇' },
-  { label: 'Áo', value: 'TOP', icon: '👕' },
-  { label: 'Quần/Váy', value: 'BOTTOM', icon: '👖' },
-  { label: 'Giày', value: 'SHOES', icon: '👟' },
-  { label: 'Phụ kiện', value: 'ACCESSORY', icon: '🎒' },
+  { label: 'Màu Da (Trắng & Đen)', value: 'BASE_BODY', icon: '👤' },
+  { label: 'Khuôn Mặt Biểu Cảm', value: 'HAIR', icon: '😜' },
+  { label: 'Đồ Cầm Tay (Mini Game)', value: 'TOP', icon: '✊' },
+  { label: 'Đôi Cánh Thần Thoại', value: 'ACCESSORY', icon: '🪽' },
+];
+
+const ACCENT_COLORS = [
+  { name: 'Cyan Neon', hex: '#00f2fe' },
+  { name: 'Vàng Kim (Gold)', hex: '#ffd700' },
+  { name: 'Đỏ Lửa (Crimson)', hex: '#ff4757' },
+  { name: 'Xanh Ngọc (Emerald)', hex: '#2ed573' },
+  { name: 'Tím Huyền Bí (Purple)', hex: '#a55eea' },
+  { name: 'Hồng Đào (Sakura)', hex: '#ff6b81' },
+  { name: 'Trắng Sáng (Diamond)', hex: '#ffffff' },
+  { name: 'Cam Năng Lượng (Solar)', hex: '#ff7f50' },
 ];
 
 const RARITIES: { label: string; value: string; color: string }[] = [
@@ -58,9 +67,14 @@ export const FittingRoom3DModal: React.FC<FittingRoom3DModalProps> = ({ isOpen, 
     activeGender,
     activeCharacter,
     matchingSets,
+    accentColor,
+    viewMode3D,
+    setAccentColor,
+    setViewMode3D,
     fetchActiveCharacter,
     switchCharacter,
     fetchMatchingSets,
+    previewMatchingSet,
     purchaseMatchingSet,
     fetchEquipped,
     fetchCatalog,
@@ -76,10 +90,11 @@ export const FittingRoom3DModal: React.FC<FittingRoom3DModalProps> = ({ isOpen, 
     triggerGamificationFeedback,
   } = useAvatar3DStore();
 
+  const [shopTab, setShopTab] = useState<'ITEMS' | 'BUNDLES'>('ITEMS');
   const [savingPresetSlot, setSavingPresetSlot] = useState<number | null>(null);
   const [presetNameInput, setPresetNameInput] = useState('');
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
-  const [selectedDuoSetId, setSelectedDuoSetId] = useState<string>('set_royal_academy_duo');
+  const [selectedDuoSetId, setSelectedDuoSetId] = useState<string>('set_derp_troll_master');
 
   useEffect(() => {
     if (isOpen) {
@@ -209,10 +224,10 @@ export const FittingRoom3DModal: React.FC<FittingRoom3DModalProps> = ({ isOpen, 
               </div>
               <div>
                 <h3 className="text-base sm:text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-sky-300 to-indigo-300">
-                  Phòng Thử Đồ 3D ZingSpeed Chibi
+                  Phòng Thử Đồ Người Que 3D (Stickman Studio)
                 </h3>
                 <p className="text-[11px] text-slate-400">
-                  Aoi (Nữ) & Ren (Nam) • Modular Wardrobe & Duo Sets
+                  Tùy biến Màu Da • Kiểu Mắt & Kính • Đôi Cánh Thần Thoại
                 </p>
               </div>
             </div>
@@ -255,12 +270,54 @@ export const FittingRoom3DModal: React.FC<FittingRoom3DModalProps> = ({ isOpen, 
                   <Avatar3DCanvas showControlsOverlay={true} />
                 )}
 
+                {/* 3D View Mode Switcher (Đứng Tĩnh / Chạy / Cầm Đồ) */}
+                <div className="absolute top-3 left-3 z-20 flex items-center gap-1 p-1 rounded-xl bg-slate-950/85 backdrop-blur-md border border-white/10 shadow-lg text-[11px] font-semibold">
+                  <button
+                    onClick={() => setViewMode3D('IDLE')}
+                    className={`px-2.5 py-1 rounded-lg flex items-center gap-1 transition-all ${
+                      viewMode3D === 'IDLE'
+                        ? 'bg-cyan-500 text-slate-950 font-bold shadow-md shadow-cyan-500/20'
+                        : 'text-slate-300 hover:text-white hover:bg-white/10'
+                    }`}
+                    title="Dáng đứng chuẩn cân đối cố định"
+                  >
+                    <span>🧍</span>
+                    <span>Đứng Tĩnh</span>
+                  </button>
+
+                  <button
+                    onClick={() => setViewMode3D('RUN')}
+                    className={`px-2.5 py-1 rounded-lg flex items-center gap-1 transition-all ${
+                      viewMode3D === 'RUN'
+                        ? 'bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 font-bold shadow-md shadow-orange-500/25'
+                        : 'text-slate-300 hover:text-white hover:bg-white/10'
+                    }`}
+                    title="Xem sải chân chạy và đánh tay tốc độ"
+                  >
+                    <span>🏃</span>
+                    <span>Xem Chạy</span>
+                  </button>
+
+                  <button
+                    onClick={() => setViewMode3D('HOLD_ITEM')}
+                    className={`px-2.5 py-1 rounded-lg flex items-center gap-1 transition-all ${
+                      viewMode3D === 'HOLD_ITEM'
+                        ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold shadow-md shadow-purple-500/25'
+                        : 'text-slate-300 hover:text-white hover:bg-white/10'
+                    }`}
+                    title="Xem tư thế nâng đồ vật cầm tay cho Mini Game"
+                  >
+                    <span>✊</span>
+                    <span>Cầm Đồ</span>
+                  </button>
+                </div>
+
                 {/* Instant Try-On Badge */}
                 {previewingItem && activeGender !== 'DUO' && (
                   <motion.div
                     initial={{ y: 20, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
-                    className="absolute top-4 left-4 z-20 flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-amber-500/90 to-orange-500/90 text-slate-950 text-xs font-bold shadow-lg shadow-orange-500/30 backdrop-blur-md"
+                    className="absolute top-14 left-3 z-20 flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-amber-500/90 to-orange-500/90 text-slate-950 text-xs font-bold shadow-lg shadow-orange-500/30 backdrop-blur-md"
                   >
                     <span className="animate-spin text-sm">✨</span>
                     <span>Đang thử: {previewingItem.name}</span>
@@ -283,6 +340,33 @@ export const FittingRoom3DModal: React.FC<FittingRoom3DModalProps> = ({ isOpen, 
                 >
                   <Volume2 className="w-4 h-4" />
                 </button>
+              </div>
+
+              {/* Accent Color Palette Bar (Màu Tỏa Sáng cho Vật Phẩm) */}
+              <div className="px-3 py-2 bg-slate-950/90 border-t border-slate-800 flex items-center justify-between gap-2 z-20">
+                <span className="text-[11px] text-slate-400 font-semibold flex items-center gap-1.5 whitespace-nowrap">
+                  <span>🎨</span> Màu Tỏa Sáng:
+                </span>
+                <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none py-0.5">
+                  {ACCENT_COLORS.map((c) => {
+                    const isSelected = accentColor.toLowerCase() === c.hex.toLowerCase();
+                    return (
+                      <button
+                        key={c.hex}
+                        onClick={() => setAccentColor(c.hex)}
+                        style={{ backgroundColor: c.hex }}
+                        className={`w-5 h-5 rounded-full transition-all shrink-0 relative flex items-center justify-center ${
+                          isSelected
+                            ? 'ring-2 ring-white scale-110 shadow-md shadow-white/30'
+                            : 'opacity-70 hover:opacity-100 hover:scale-105'
+                        }`}
+                        title={`${c.name} (${c.hex})`}
+                      >
+                        {isSelected && <span className="w-1.5 h-1.5 rounded-full bg-slate-950" />}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
 
               {/* Bottom Dock Action Bar */}
@@ -339,21 +423,41 @@ export const FittingRoom3DModal: React.FC<FittingRoom3DModalProps> = ({ isOpen, 
 
             {/* Right Column: Wardrobe Catalog OR Matching Sets (55%) */}
             <div className="lg:col-span-7 flex flex-col h-full overflow-hidden bg-slate-900/60">
-              {activeGender === 'DUO' ? (
-                /* DUO MODE: Matching Sets Showcase */
-                <div className="flex flex-col h-full overflow-hidden">
-                  <div className="p-4 border-b border-slate-800/80 bg-slate-900/40 flex items-center justify-between">
-                    <div>
-                      <h4 className="text-sm font-bold text-white flex items-center gap-2">
-                        <Users className="w-4 h-4 text-pink-400" />
-                        Bộ Đôi Thời Trang Đồng Điệu (Matching Sets)
-                      </h4>
-                      <p className="text-xs text-slate-400">
-                        Mua trọn bộ 1-Click tiết kiệm đến 20% Token cho cả Aoi & Ren
-                      </p>
-                    </div>
-                  </div>
+              {/* Top Mode Switcher Bar */}
+              <div className="p-3 border-b border-slate-800/80 bg-slate-900/50 flex items-center justify-between gap-2 flex-wrap">
+                <div className="flex items-center gap-1.5 bg-slate-950/80 p-1 rounded-xl border border-slate-800">
+                  <button
+                    onClick={() => setShopTab('ITEMS')}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                      shopTab === 'ITEMS' && activeGender !== 'DUO'
+                        ? 'bg-cyan-500 text-slate-950 shadow-md shadow-cyan-500/20'
+                        : 'text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    👕 Từng Món Lẻ
+                  </button>
+                  <button
+                    onClick={() => setShopTab('BUNDLES')}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
+                      shopTab === 'BUNDLES' || activeGender === 'DUO'
+                        ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-md shadow-purple-500/25'
+                        : 'text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    <span>🎁</span> Bán Trọn Bộ 5 Phong Cách
+                  </button>
+                </div>
 
+                <span className="text-[11px] text-slate-400 hidden sm:inline">
+                  {shopTab === 'BUNDLES' || activeGender === 'DUO'
+                    ? '1-Click Trọn Gói: Da + Mặt + Tướng Đứng + Cánh'
+                    : 'Tự do mix & match từng món'}
+                </span>
+              </div>
+
+              {shopTab === 'BUNDLES' || activeGender === 'DUO' ? (
+                /* BUNDLES / MATCHING SETS SHOWCASE */
+                <div className="flex flex-col h-full overflow-hidden">
                   <div className="flex-1 overflow-y-auto p-4 space-y-3.5">
                     {effectiveMatchingSets.map((set) => {
                       const isSelected = selectedDuoSetId === set.id;
@@ -361,7 +465,10 @@ export const FittingRoom3DModal: React.FC<FittingRoom3DModalProps> = ({ isOpen, 
                         <motion.div
                           key={set.id}
                           whileHover={{ y: -2 }}
-                          onClick={() => setSelectedDuoSetId(set.id)}
+                          onClick={() => {
+                            setSelectedDuoSetId(set.id);
+                            previewMatchingSet(set);
+                          }}
                           className={`p-4 rounded-2xl border transition-all cursor-pointer bg-slate-800/60 hover:bg-slate-800 ${
                             isSelected
                               ? 'border-indigo-400/80 shadow-lg shadow-indigo-500/15 ring-1 ring-indigo-400/40'
@@ -371,7 +478,7 @@ export const FittingRoom3DModal: React.FC<FittingRoom3DModalProps> = ({ isOpen, 
                           <div className="flex items-center justify-between mb-2">
                             <div className="flex items-center gap-2">
                               <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-400/30">
-                                {set.badgeText || 'Bộ Đôi'}
+                                {set.badgeText || 'Trọn Bộ'}
                               </span>
                               <span className="text-xs text-slate-400 font-mono">
                                 {set.theme}
@@ -390,27 +497,58 @@ export const FittingRoom3DModal: React.FC<FittingRoom3DModalProps> = ({ isOpen, 
                             {set.description}
                           </p>
 
-                          {/* Duo Outfits Details Pill */}
-                          <div className="grid grid-cols-2 gap-2 p-2.5 rounded-xl bg-slate-900/60 border border-slate-800/80 mb-3 text-[11px]">
-                            <div>
-                              <span className="font-bold text-pink-400 flex items-center gap-1 mb-1">
-                                <span>🌸</span> Aoi (Nữ):
-                              </span>
-                              <p className="text-slate-300 line-clamp-2">
-                                {set.femaleItems ? set.femaleItems.join(', ') : 'Trang phục Aoi'}
-                              </p>
+                          {/* 4 Items in Bundle Preview Pill */}
+                          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 p-2.5 rounded-xl bg-slate-900/60 border border-slate-800/80 mb-3 text-[11px]">
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-base">🎨</span>
+                              <div>
+                                <div className="text-[10px] text-slate-400 font-medium">Màu Da</div>
+                                <div className="text-slate-200 font-bold text-[11px] truncate">
+                                  {set.femaleItems?.[3] || 'Da Đặc Trưng'}
+                                </div>
+                              </div>
                             </div>
-                            <div>
-                              <span className="font-bold text-cyan-400 flex items-center gap-1 mb-1">
-                                <span>⚡</span> Ren (Nam):
-                              </span>
-                              <p className="text-slate-300 line-clamp-2">
-                                {set.maleItems ? set.maleItems.join(', ') : 'Trang phục Ren'}
-                              </p>
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-base">😜</span>
+                              <div>
+                                <div className="text-[10px] text-slate-400 font-medium">Biểu Cảm</div>
+                                <div className="text-slate-200 font-bold text-[11px] truncate">
+                                  {set.femaleItems?.[0] || 'Khuôn Mặt'}
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-base">🕺</span>
+                              <div>
+                                <div className="text-[10px] text-slate-400 font-medium">Tướng Đứng</div>
+                                <div className="text-slate-200 font-bold text-[11px] truncate">
+                                  {set.femaleItems?.[1] || 'Dáng Đứng'}
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-base">🪽</span>
+                              <div>
+                                <div className="text-[10px] text-slate-400 font-medium">Đôi Cánh</div>
+                                <div className="text-slate-200 font-bold text-[11px] truncate">
+                                  {set.femaleItems?.[2] || 'Cánh Thần Thoại'}
+                                </div>
+                              </div>
                             </div>
                           </div>
 
                           <div className="flex items-center justify-end gap-2">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                previewMatchingSet(set);
+                                speakVoiceGreeting(set.name);
+                              }}
+                              className="px-3 py-2 rounded-xl text-xs font-bold bg-slate-700/80 hover:bg-slate-600 text-cyan-300 border border-cyan-400/30 transition-all flex items-center gap-1.5"
+                            >
+                              <span>👁️</span> Ướm Thử Cả Bộ
+                            </button>
+
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -420,7 +558,7 @@ export const FittingRoom3DModal: React.FC<FittingRoom3DModalProps> = ({ isOpen, 
                               className="px-4 py-2 rounded-xl text-xs font-bold bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 hover:from-indigo-400 hover:to-pink-400 text-white shadow-md shadow-purple-500/20 transition-all flex items-center gap-1.5"
                             >
                               <ShoppingBag className="w-3.5 h-3.5" />
-                              Mua Bộ Đôi 1-Click ({set.tokenPriceTotal.toLocaleString()} 🪙)
+                              Mua Trọn Bộ 1-Click ({set.tokenPriceTotal.toLocaleString()} 🪙)
                             </button>
                           </div>
                         </motion.div>
@@ -576,18 +714,39 @@ export const FittingRoom3DModal: React.FC<FittingRoom3DModalProps> = ({ isOpen, 
                             )}
                           </div>
 
-                          {/* Item Visual Thumbnail Placeholder */}
+                          {/* Item Visual Thumbnail Placeholder with Expressive Humor Icons */}
                           <div className="h-24 rounded-xl bg-gradient-to-b from-slate-900 to-slate-950 border border-slate-700/50 flex flex-col items-center justify-center relative overflow-hidden mb-2">
                             <span className="text-3xl filter drop-shadow">
-                              {item.slot === 'BASE_BODY' && '👤'}
-                              {item.slot === 'HAIR' && '💇'}
-                              {item.slot === 'TOP' && '🧥'}
-                              {item.slot === 'BOTTOM' && '👖'}
-                              {item.slot === 'SHOES' && '👟'}
-                              {item.slot === 'ACCESSORY' && (item.id.includes('wings') ? '🪽' : '🎒')}
+                              {item.slot === 'BASE_BODY' && (
+                                item.id.includes('black') || item.id.includes('obsidian') ? '🖤' :
+                                item.id.includes('pearl') || item.id.includes('white') ? '🤍' : '👤'
+                              )}
+                              {item.slot === 'HAIR' && (
+                                item.id.includes('chad') || item.id.includes('smirk') ? '🗿' :
+                                item.id.includes('derp') || item.id.includes('troll') ? '🤪' :
+                                item.id.includes('rage') || item.id.includes('flame') ? '💢' :
+                                item.id.includes('crying') || item.id.includes('tear') ? '😭' :
+                                item.id.includes('cyber') || item.id.includes('matrix') ? '🕶️' :
+                                item.id.includes('waku') || item.id.includes('anime') ? '✨' : '😜'
+                              )}
+                              {item.slot === 'TOP' && (
+                                item.id.includes('trophy') || item.id.includes('cup') ? '🏆' :
+                                item.id.includes('sword') || item.id.includes('saber') ? '🗡️' :
+                                item.id.includes('wand') || item.id.includes('magic') ? '🪄' :
+                                item.id.includes('torch') || item.id.includes('flashlight') ? '🔦' :
+                                item.id.includes('mic') ? '🎤' :
+                                item.id.includes('blaster') || item.id.includes('gun') ? '🔫' : '✊'
+                              )}
+                              {item.slot === 'ACCESSORY' && (
+                                item.id.includes('angel') ? '🪽' :
+                                item.id.includes('demon') || item.id.includes('devil') ? '🦇' :
+                                item.id.includes('fairy') || item.id.includes('neon') ? '🦋' :
+                                item.id.includes('phoenix') || item.id.includes('fire') ? '🔥' :
+                                item.id.includes('plasma') || item.id.includes('cyber') || item.id.includes('mecha') ? '⚡' : '🪽'
+                              )}
                             </span>
                             <span className="text-[10px] text-slate-400 mt-1 font-mono">
-                              {item.polyCount} tris
+                              {item.slot === 'TOP' ? 'Đồ Cầm Tay' : item.slot === 'BASE_BODY' ? 'Màu Da' : `${item.polyCount} tris`}
                             </span>
                           </div>
 

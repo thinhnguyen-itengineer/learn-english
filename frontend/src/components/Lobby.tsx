@@ -50,6 +50,7 @@ interface LobbyProps {
   onStart1v1Battle: (topicId?: string) => void;
   onOpenBattleLeaderboard: () => void;
   onPlayTidGame: (gameCode: string) => void;
+  onStartSkyBlaster?: () => void;
   onRefreshProfile?: () => void;
   isLoading: boolean;
 }
@@ -72,6 +73,7 @@ const defaultSkillsData: SkillsOverviewResponse = {
       badgeTier: 'Gold',
       badgeLevel: 'Master Decoder',
       games: [
+        { id: 'sb_1', skillDomainCode: 'LISTENING', gameTypeCode: 'SKY_BLASTER', displayTitle: '💥 Sky Blaster (Đại Bác Rơi Chữ 1v1 - 15 Round)', difficultyTier: 'A1_A2', isPrimary: true, displayOrder: 0 },
         { id: '1', skillDomainCode: 'LISTENING', gameTypeCode: 'AUDIO_BLITZ', displayTitle: 'Audio Blitz (Nghe & Điền Chính Tả)', difficultyTier: 'A1_A2', isPrimary: true, displayOrder: 1 },
         { id: '2', skillDomainCode: 'LISTENING', gameTypeCode: 'DICTATION_DASH', displayTitle: 'Dictation Dash (Chép Chính Tả Biểu Mẫu)', difficultyTier: 'B1_B2', isPrimary: true, displayOrder: 2 },
         { id: '3', skillDomainCode: 'LISTENING', gameTypeCode: 'SPEED_AUDIO_MATCH', displayTitle: 'Speed Audio Match (Phản Xạ Âm Thanh Siêu Tốc)', difficultyTier: 'A1_A2', isPrimary: false, displayOrder: 3 },
@@ -170,6 +172,17 @@ interface GameMetadata {
 
 const allGamesMetadata: Record<string, GameMetadata> = {
   // Listening
+  SKY_BLASTER: {
+    code: 'SKY_BLASTER',
+    title: '💥 Sky Blaster: Đấu Trường Pháo Thủ 1v1 (15 Round)',
+    description: 'Nghe phát âm từ vựng tiếng Anh, đại bác khổng lồ bắn nổ 5 thùng hàng rơi từ trên không! Chạy nhặt thùng đúng và mang về căn cứ để ghi điểm.',
+    pedagogicalFocus: 'Kỹ năng nghe nhận diện từ vựng, phân biệt từ nhiễu & phản xạ 3D tốc độ cao',
+    difficultyTier: 'A1_A2',
+    difficultyStars: 3,
+    timeEstimate: '15 Round / trận',
+    isHot: true,
+    isNew: true
+  },
   AUDIO_BLITZ: {
     code: 'AUDIO_BLITZ',
     title: '1. Audio Blitz (Nghe & Điền Chính Tả)',
@@ -353,6 +366,7 @@ export const Lobby: React.FC<LobbyProps> = ({
   onStart1v1Battle,
   onOpenBattleLeaderboard,
   onPlayTidGame,
+  onStartSkyBlaster,
   onRefreshProfile,
   isLoading 
 }) => {
@@ -457,6 +471,10 @@ export const Lobby: React.FC<LobbyProps> = ({
 
     const normalized = gameCode.toUpperCase().replace(/-/g, '_');
     switch (normalized) {
+      case 'SKY_BLASTER':
+      case 'SKYBLASTER':
+        onStartSkyBlaster?.();
+        break;
       case 'WORD_MATCH':
       case 'WORDMATCH':
         onStartGame('WordMatch', defaultTopicId, difficulty);
@@ -556,6 +574,16 @@ export const Lobby: React.FC<LobbyProps> = ({
                 </p>
 
                 <div className="mt-5 flex flex-wrap items-center gap-3">
+                  <Button
+                    variant="primary"
+                    size="md"
+                    onClick={() => onStartSkyBlaster?.()}
+                    leftIcon={<span className="text-base">💥</span>}
+                    className="bg-gradient-to-r from-cyan-500 via-amber-400 to-pink-500 text-slate-950 font-black shadow-lg shadow-cyan-500/30 hover:scale-105 transition-all"
+                  >
+                    Đấu Pháo Thủ Sky Blaster (15 Round)
+                  </Button>
+
                   <Button
                     variant="gold"
                     size="md"

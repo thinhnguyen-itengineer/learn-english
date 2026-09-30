@@ -1,1213 +1,803 @@
 import * as THREE from 'three';
 
-// Stylized Vinyl Toy material builder
-export function createVinylMaterial(color: string | number, options: Partial<THREE.MeshStandardMaterialParameters> = {}): THREE.MeshStandardMaterial {
+/**
+ * Stylized Stickman Material Builder
+ */
+export function createStickmanMaterial(
+  color: string | number,
+  options: Partial<THREE.MeshStandardMaterialParameters> = {}
+): THREE.MeshStandardMaterial {
   return new THREE.MeshStandardMaterial({
     color,
-    roughness: 0.28,
-    metalness: 0.08,
+    roughness: 0.22,
+    metalness: 0.18,
     ...options,
   });
 }
 
+export const createVinylMaterial = createStickmanMaterial;
+
 /**
- * Builds 3D Chibi BaseBody Mesh
+ * Parses unique skin colors (Black & White monochrome)
  */
-export function buildBaseBodyMesh(gender: 'MALE' | 'FEMALE' | 'UNISEX', maskedParts: string[], bodyId?: string): THREE.Group {
+export function getSkinMaterial(bodyId?: string): { mat: THREE.MeshStandardMaterial; isWhite: boolean } {
+  const b = (bodyId || '').toLowerCase();
+  const isWhite = b.includes('white') || b.includes('pearl') || b.includes('light');
+
+  if (isWhite) {
+    return {
+      mat: createStickmanMaterial(0xf6f7fa, { roughness: 0.24, metalness: 0.08 }),
+      isWhite: true,
+    };
+  }
+
+  // Deep matte black / obsidian
+  return {
+    mat: createStickmanMaterial(0x161619, { roughness: 0.32, metalness: 0.15 }),
+    isWhite: false,
+  };
+}
+
+/**
+ * Builds Modern Minimalist 3D Stickman (100% Uniform Monochrome Color from Top to Bottom)
+ * Features a fixed balanced idle stance, with right-hand grip pose when holding a prop.
+ */
+export function buildBaseBodyMesh(
+  _gender: 'MALE' | 'FEMALE' | 'UNISEX' = 'UNISEX',
+  _maskedParts: string[] = [],
+  bodyId?: string,
+  topId?: string,
+  isHoldingItem: boolean = false
+): THREE.Group {
   const group = new THREE.Group();
   group.name = 'BaseBody_Group';
 
-  const isFemale = gender === 'FEMALE';
-  const isAoi = bodyId === 'body_chibi_female_aoi';
-  const isRen = bodyId === 'body_chibi_male_ren';
-  const isTan = bodyId === 'body_chibi_tan_athletic_01';
-  const isGolden = bodyId === 'body_chibi_golden_divine';
-  const isMecha = bodyId === 'body_chibi_mecha_01';
+  const { mat: bodyMat } = getSkinMaterial(bodyId);
 
-  let skinMat: THREE.MeshStandardMaterial;
-  if (isGolden) {
-    skinMat = createVinylMaterial(0xffd700, {
-      roughness: 0.2,
-      metalness: 0.6,
-      emissive: 0xffaa00,
-      emissiveIntensity: 0.25,
-    });
-  } else if (isMecha) {
-    skinMat = createVinylMaterial(0x353b48, {
-      roughness: 0.3,
-      metalness: 0.7,
-      emissive: 0x00cec9,
-      emissiveIntensity: 0.15,
-    });
-  } else if (isTan) {
-    skinMat = createVinylMaterial(0xcd853f, { roughness: 0.38 }); // Warm honey bronze
-  } else if (isAoi) {
-    skinMat = createVinylMaterial(0xffe4db, { roughness: 0.32 }); // Aoi soft porcelain anime skin
-  } else if (isRen) {
-    skinMat = createVinylMaterial(0xfde4ce, { roughness: 0.34 }); // Ren fair natural athletic skin
-  } else {
-    const skinColor = isFemale ? 0xffdfd0 : 0xf7d5bc;
-    skinMat = createVinylMaterial(skinColor, { roughness: 0.35 });
-  }
+  // 1. Sleek Spherical Head (Uniform Body Material)
+  const headGroup = new THREE.Group();
+  headGroup.name = 'Mat_Head';
+  headGroup.position.set(0, 0.78, 0);
 
-  // 1. Head (Chibi Head: big, rounded cute head)
-  const headGeo = new THREE.SphereGeometry(0.24, 32, 28);
-  headGeo.scale(1.05, 0.95, 1.0);
-  const headMesh = new THREE.Mesh(headGeo, skinMat);
-  headMesh.name = 'Mat_Head';
-  headMesh.position.set(0, 0.76, 0);
+  const headGeo = new THREE.SphereGeometry(0.185, 32, 32);
+  const headMesh = new THREE.Mesh(headGeo, bodyMat);
   headMesh.castShadow = true;
-  group.add(headMesh);
+  headGroup.add(headMesh);
+  group.add(headGroup);
 
-  // Ears
-  const earGeo = new THREE.SphereGeometry(0.045, 16, 16);
-  earGeo.scale(0.5, 1, 0.8);
-  const leftEar = new THREE.Mesh(earGeo, skinMat);
-  leftEar.position.set(0.23, 0.74, 0);
-  const rightEar = leftEar.clone();
-  rightEar.position.set(-0.23, 0.74, 0);
-  group.add(leftEar, rightEar);
+  // 2. Neck (Uniform Body Material)
+  const neckGeo = new THREE.CylinderGeometry(0.024, 0.024, 0.08, 16);
+  const neck = new THREE.Mesh(neckGeo, bodyMat);
+  neck.position.set(0, 0.65, 0);
+  group.add(neck);
 
-  // Eyes (Big expressive anime eyes)
-  const eyeColor = isGolden
-    ? 0xfff200
-    : isMecha
-    ? 0x00cec9
-    : isAoi || isFemale
-    ? 0x9b51e0 // Violet anime eyes for Aoi
-    : isRen
-    ? 0x0984e3 // Azure sapphire anime eyes for Ren
-    : 0x00b894;
-  const eyeWhiteMat = createVinylMaterial(0xffffff, { roughness: 0.1 });
-  const eyeIrisMat = createVinylMaterial(eyeColor, { roughness: 0.1, emissive: eyeColor, emissiveIntensity: 0.35 });
-  const pupilMat = createVinylMaterial(0x1a1a1a, { roughness: 0.05 });
-  const highlightMat = createVinylMaterial(0xffffff, { roughness: 0.0, emissive: 0xffffff, emissiveIntensity: 0.5 });
+  // 3. Torso (Uniform Body Material)
+  const torsoGroup = new THREE.Group();
+  torsoGroup.name = 'Mat_Torso';
 
-  const createEye = (isLeft: boolean) => {
-    const eyeGroup = new THREE.Group();
-    const xPos = isLeft ? 0.085 : -0.085;
+  const chestBarGeo = new THREE.CylinderGeometry(0.028, 0.028, 0.22, 16);
+  chestBarGeo.rotateZ(Math.PI / 2);
+  const chestBar = new THREE.Mesh(chestBarGeo, bodyMat);
+  chestBar.position.set(0, 0.55, 0);
 
-    // Eyeball base
-    const eyeWhiteGeo = new THREE.SphereGeometry(0.06, 20, 20);
-    eyeWhiteGeo.scale(1.0, 1.2, 0.4);
-    const eyeWhite = new THREE.Mesh(eyeWhiteGeo, eyeWhiteMat);
-    eyeWhite.position.set(xPos, 0.74, 0.2);
+  const spineGeo = new THREE.CylinderGeometry(0.022, 0.026, 0.18, 16);
+  const spine = new THREE.Mesh(spineGeo, bodyMat);
+  spine.position.set(0, 0.46, 0);
 
-    // Iris
-    const irisGeo = new THREE.SphereGeometry(0.042, 16, 16);
-    irisGeo.scale(1.0, 1.15, 0.2);
-    const iris = new THREE.Mesh(irisGeo, eyeIrisMat);
-    iris.position.set(xPos, 0.74, 0.222);
+  // Sleek minimalist chest core (Monochrome seamless)
+  const coreOuterGeo = new THREE.TorusGeometry(0.034, 0.006, 8, 24);
+  const coreOuter = new THREE.Mesh(coreOuterGeo, bodyMat);
+  coreOuter.position.set(0, 0.54, 0.028);
 
-    // Pupil
-    const pupilGeo = new THREE.SphereGeometry(0.022, 16, 16);
-    pupilGeo.scale(1.0, 1.1, 0.2);
-    const pupil = new THREE.Mesh(pupilGeo, pupilMat);
-    pupil.position.set(xPos, 0.74, 0.228);
+  const coreCrystalGeo = new THREE.OctahedronGeometry(0.02, 0);
+  const coreCrystal = new THREE.Mesh(coreCrystalGeo, bodyMat);
+  coreCrystal.position.set(0, 0.54, 0.028);
 
-    // Specular highlight star
-    const specGeo = new THREE.SphereGeometry(0.012, 12, 12);
-    const spec = new THREE.Mesh(specGeo, highlightMat);
-    spec.position.set(xPos + (isLeft ? 0.018 : -0.01), 0.76, 0.233);
+  // Pelvis Hips
+  const hipsGeo = new THREE.SphereGeometry(0.046, 20, 20);
+  hipsGeo.scale(1.2, 0.8, 0.9);
+  const hips = new THREE.Mesh(hipsGeo, bodyMat);
+  hips.position.set(0, 0.36, 0);
 
-    eyeGroup.add(eyeWhite, iris, pupil, spec);
-    return eyeGroup;
-  };
+  torsoGroup.add(chestBar, spine, coreOuter, coreCrystal, hips);
+  group.add(torsoGroup);
 
-  group.add(createEye(true));
-  group.add(createEye(false));
+  // Determine if character is holding an item (by mode or equipped handheld prop)
+  const holdsItem = isHoldingItem || Boolean(topId && (topId.startsWith('prop_') || topId.includes('hold')));
 
-  // Cheeks (Cute blushing cheeks)
-  const blushMat = createVinylMaterial(isGolden ? 0xffaa00 : 0xff8aa0, { roughness: 0.5, transparent: true, opacity: 0.6 });
-  const blushGeo = new THREE.CircleGeometry(0.035, 16);
-  const leftBlush = new THREE.Mesh(blushGeo, blushMat);
-  leftBlush.position.set(0.12, 0.68, 0.218);
-  leftBlush.rotation.y = 0.2;
-  const rightBlush = new THREE.Mesh(blushGeo, blushMat);
-  rightBlush.position.set(-0.12, 0.68, 0.218);
-  rightBlush.rotation.y = -0.2;
-  group.add(leftBlush, rightBlush);
+  // 4. Arms & Hands (Standardized Pivot Groups for Walking / Running / Holding)
+  for (const isLeft of [true, false]) {
+    const armGroup = new THREE.Group();
+    armGroup.name = isLeft ? 'LeftArmGroup' : 'RightArmGroup';
+    // Pivot at shoulder joint for natural swing
+    const sx = isLeft ? 0.12 : -0.12;
+    armGroup.position.set(sx, 0.55, 0);
 
-  // Sweet smile mouth
-  const mouthMat = createVinylMaterial(0xd63031, { roughness: 0.2 });
-  const mouthGeo = new THREE.TorusGeometry(0.03, 0.008, 12, 16, Math.PI * 0.9);
-  const mouth = new THREE.Mesh(mouthGeo, mouthMat);
-  mouth.rotation.set(0, 0, Math.PI);
-  mouth.position.set(0, 0.66, 0.23);
-  group.add(mouth);
+    const shoulderGeo = new THREE.SphereGeometry(0.03, 16, 16);
+    const shoulder = new THREE.Mesh(shoulderGeo, bodyMat);
 
-  // 2. Torso (Body)
-  if (!maskedParts.includes('Mat_Torso')) {
-    const torsoGeo = new THREE.CylinderGeometry(0.1, 0.12, 0.26, 24);
-    const torsoMesh = new THREE.Mesh(torsoGeo, skinMat);
-    torsoMesh.name = 'Mat_Torso';
-    torsoMesh.position.set(0, 0.45, 0);
-    torsoMesh.castShadow = true;
-    group.add(torsoMesh);
+    const upperArmGeo = new THREE.CylinderGeometry(0.015, 0.014, 0.16, 14);
+    const upperArm = new THREE.Mesh(upperArmGeo, bodyMat);
+
+    const elbowGeo = new THREE.SphereGeometry(0.022, 14, 14);
+    const elbow = new THREE.Mesh(elbowGeo, bodyMat);
+
+    const foreArmGeo = new THREE.CylinderGeometry(0.014, 0.013, 0.15, 14);
+    const foreArm = new THREE.Mesh(foreArmGeo, bodyMat);
+
+    const handGeo = new THREE.SphereGeometry(0.026, 16, 16);
+    handGeo.scale(0.85, 1.15, 0.7);
+    const hand = new THREE.Mesh(handGeo, bodyMat);
+
+    if (!isLeft && holdsItem) {
+      // Right Arm: Raised forward in grip pose to hold item for mini games!
+      upperArm.position.set(0, -0.06, 0.05);
+      upperArm.rotation.set(0.65, 0, -0.1);
+
+      elbow.position.set(0, -0.12, 0.12);
+
+      foreArm.position.set(0, -0.1, 0.19);
+      foreArm.rotation.set(-0.45, 0, -0.08);
+
+      hand.position.set(0, -0.09, 0.26);
+      hand.rotation.set(0.3, -0.2, 0);
+    } else {
+      // Natural relaxed arm posture
+      upperArm.position.set(isLeft ? 0.01 : -0.01, -0.08, 0);
+      upperArm.rotation.z = isLeft ? -0.1 : 0.1;
+
+      elbow.position.set(isLeft ? 0.02 : -0.02, -0.17, 0);
+
+      foreArm.position.set(isLeft ? 0.025 : -0.025, -0.25, 0.01);
+      foreArm.rotation.x = 0.05;
+
+      hand.position.set(isLeft ? 0.03 : -0.03, -0.34, 0.02);
+    }
+
+    armGroup.add(shoulder, upperArm, elbow, foreArm, hand);
+    group.add(armGroup);
   }
 
-  // 3. Arms & Hands
-  if (!maskedParts.includes('Mat_Arms')) {
-    const armGeo = new THREE.CylinderGeometry(0.032, 0.035, 0.22, 16);
-    const handGeo = new THREE.SphereGeometry(0.042, 16, 16);
+  // 5. Legs & Feet (Standardized Pivot Groups for Running / Idle)
+  for (const isLeft of [true, false]) {
+    const legGroup = new THREE.Group();
+    legGroup.name = isLeft ? 'LeftLegGroup' : 'RightLegGroup';
+    // Pivot at hip joint for natural leg swing
+    const lx = isLeft ? 0.065 : -0.065;
+    legGroup.position.set(lx, 0.35, 0);
 
-    const leftArm = new THREE.Mesh(armGeo, skinMat);
-    leftArm.position.set(0.14, 0.44, 0);
-    leftArm.rotation.z = -0.2;
+    const hipJointGeo = new THREE.SphereGeometry(0.03, 16, 16);
+    const hipJoint = new THREE.Mesh(hipJointGeo, bodyMat);
 
-    const leftHand = new THREE.Mesh(handGeo, skinMat);
-    leftHand.position.set(0.17, 0.32, 0.02);
+    const thighGeo = new THREE.CylinderGeometry(0.017, 0.015, 0.19, 14);
+    const thigh = new THREE.Mesh(thighGeo, bodyMat);
+    thigh.position.set(0, -0.1, 0);
 
-    const rightArm = new THREE.Mesh(armGeo, skinMat);
-    rightArm.position.set(-0.14, 0.44, 0);
-    rightArm.rotation.z = 0.2;
+    const kneeGeo = new THREE.SphereGeometry(0.024, 14, 14);
+    const knee = new THREE.Mesh(kneeGeo, bodyMat);
+    knee.position.set(0, -0.21, 0);
 
-    const rightHand = new THREE.Mesh(handGeo, skinMat);
-    rightHand.position.set(-0.17, 0.32, 0.02);
+    const calfGeo = new THREE.CylinderGeometry(0.015, 0.013, 0.18, 14);
+    const calf = new THREE.Mesh(calfGeo, bodyMat);
+    calf.position.set(0, -0.31, 0);
 
-    group.add(leftArm, leftHand, rightArm, rightHand);
-  }
+    const footGeo = new THREE.BoxGeometry(0.032, 0.022, 0.076);
+    const foot = new THREE.Mesh(footGeo, bodyMat);
+    foot.position.set(0, -0.41, 0.02);
 
-  // 4. Legs & Feet
-  if (!maskedParts.includes('Mat_Legs')) {
-    const legGeo = new THREE.CylinderGeometry(0.045, 0.04, 0.24, 16);
-    const leftLeg = new THREE.Mesh(legGeo, skinMat);
-    leftLeg.position.set(0.065, 0.22, 0);
-
-    const rightLeg = new THREE.Mesh(legGeo, skinMat);
-    rightLeg.position.set(-0.065, 0.22, 0);
-
-    group.add(leftLeg, rightLeg);
-  }
-
-  if (!maskedParts.includes('Mat_Feet')) {
-    const footGeo = new THREE.SphereGeometry(0.042, 16, 16);
-    footGeo.scale(0.8, 0.6, 1.4);
-    const leftFoot = new THREE.Mesh(footGeo, skinMat);
-    leftFoot.position.set(0.065, 0.04, 0.02);
-
-    const rightFoot = leftFoot.clone();
-    rightFoot.position.set(-0.065, 0.04, 0.02);
-
-    group.add(leftFoot, rightFoot);
+    legGroup.add(hipJoint, thigh, knee, calf, foot);
+    group.add(legGroup);
   }
 
   return group;
 }
 
 /**
- * Builds 3D Hair Mesh
+ * Builds Full Facial Expressions: Eyebrows, Eyes, Nose, Mouth, & Accents
  */
-export function buildHairMesh(hairId: string): THREE.Group {
+export function buildHairMesh(faceId: string, accentColor: string | number = 0x00f2fe): THREE.Group {
   const group = new THREE.Group();
-  group.name = `Hair_${hairId}`;
+  group.name = `Face_${faceId}`;
+  group.position.set(0, 0.78, 0); // Head origin
 
-  if (hairId === 'hair_zingspeed_spiky_grey' || hairId === 'hair_anime_spiky_layer_01') {
-    // Spiky racer / anime spiky layer hair with cyan streak
-    const isCyanLayer = hairId === 'hair_anime_spiky_layer_01';
-    const hairMat = createVinylMaterial(isCyanLayer ? 0x2d3436 : 0x576574, { roughness: 0.25 });
-    const streakMat = createVinylMaterial(isCyanLayer ? 0x00cec9 : 0xfeca57, {
-      roughness: 0.2,
-      emissive: isCyanLayer ? 0x00cec9 : 0xfeca57,
-      emissiveIntensity: 0.3,
-    });
+  const accentHex = new THREE.Color(accentColor);
 
-    const capGeo = new THREE.SphereGeometry(0.25, 24, 24, 0, Math.PI * 2, 0, Math.PI * 0.6);
-    const cap = new THREE.Mesh(capGeo, hairMat);
-    cap.position.set(0, 0.77, -0.02);
-    group.add(cap);
+  const cyanMat = new THREE.MeshStandardMaterial({
+    color: 0xffffff,
+    emissive: accentHex,
+    emissiveIntensity: 1.0,
+    roughness: 0.1,
+  });
 
-    for (let i = 0; i < 7; i++) {
-      const angle = (i / 7) * Math.PI - Math.PI / 2;
-      const spikeGeo = new THREE.ConeGeometry(0.05, 0.16, 6);
-      const isStreak = i === 2 || i === 3;
-      const spike = new THREE.Mesh(spikeGeo, isStreak ? streakMat : hairMat);
-      spike.position.set(Math.sin(angle) * 0.18, 0.95 + (i % 2) * 0.04, Math.cos(angle) * 0.12);
-      spike.rotation.set(-0.2, 0, -angle * 0.8);
-      group.add(spike);
+  const goldMat = new THREE.MeshStandardMaterial({
+    color: 0xffffff,
+    emissive: 0xfeca57,
+    emissiveIntensity: 1.0,
+    roughness: 0.1,
+  });
+
+  const pinkMat = new THREE.MeshStandardMaterial({
+    color: 0xffffff,
+    emissive: 0xff6b81,
+    emissiveIntensity: 1.0,
+    roughness: 0.1,
+  });
+
+  const redMat = new THREE.MeshStandardMaterial({
+    color: 0xff4757,
+    emissive: 0xff4757,
+    emissiveIntensity: 0.8,
+    roughness: 0.2,
+  });
+
+  const darkMat = new THREE.MeshStandardMaterial({
+    color: 0x111115,
+    roughness: 0.2,
+    metalness: 0.8,
+  });
+
+  const f = faceId.toLowerCase();
+
+  if (f.includes('chad') || f.includes('smirk') || f.includes('cool')) {
+    // ==========================================
+    // 1. GigaChad / The Rock Smirk & Pixel Shades
+    // ==========================================
+    // Eyebrows: Left raised high (The Rock), Right lowered
+    const leftBrowGeo = new THREE.BoxGeometry(0.045, 0.009, 0.01);
+    const leftBrow = new THREE.Mesh(leftBrowGeo, darkMat);
+    leftBrow.position.set(0.065, 0.075, 0.178);
+    leftBrow.rotation.z = 0.28; // Tilted high
+
+    const rightBrowGeo = new THREE.BoxGeometry(0.045, 0.009, 0.01);
+    const rightBrow = new THREE.Mesh(rightBrowGeo, darkMat);
+    rightBrow.position.set(-0.065, 0.038, 0.178);
+    rightBrow.rotation.z = 0.05; // Lowered skeptical
+
+    // Eyes: Cool squinting eyes
+    const eyeGeo = new THREE.BoxGeometry(0.045, 0.016, 0.01);
+    const leftEye = new THREE.Mesh(eyeGeo, cyanMat);
+    leftEye.position.set(0.065, 0.035, 0.18);
+    const rightEye = new THREE.Mesh(eyeGeo, cyanMat);
+    rightEye.position.set(-0.065, 0.018, 0.18);
+
+    // Cheeky Nose
+    const noseGeo = new THREE.ConeGeometry(0.015, 0.04, 4);
+    const nose = new THREE.Mesh(noseGeo, darkMat);
+    nose.position.set(0, 0, 0.195);
+    nose.rotation.x = Math.PI / 2;
+
+    // Cocky Smirk Mouth (crooked grin on the left)
+    const smirkGeo = new THREE.TorusGeometry(0.03, 0.007, 6, 16, Math.PI * 0.6);
+    const smirk = new THREE.Mesh(smirkGeo, darkMat);
+    smirk.position.set(0.02, -0.048, 0.18);
+    smirk.rotation.set(0, 0, -0.35);
+
+    // White tooth glint
+    const glintGeo = new THREE.OctahedronGeometry(0.008, 0);
+    const glint = new THREE.Mesh(glintGeo, goldMat);
+    glint.position.set(0.038, -0.042, 0.188);
+
+    group.add(leftBrow, rightBrow, leftEye, rightEye, nose, smirk, glint);
+  } else if (f.includes('derp') || f.includes('troll') || f.includes('funny')) {
+    // ==========================================
+    // 2. Derp Troll / Ngáo Ngơ Thè Lưỡi Hài Hước
+    // ==========================================
+    // Eyebrows: Wavy squiggly ziczac brows
+    for (const isLeft of [true, false]) {
+      const browGeo = new THREE.BoxGeometry(0.045, 0.008, 0.01);
+      const brow = new THREE.Mesh(browGeo, darkMat);
+      brow.position.set(isLeft ? 0.065 : -0.065, isLeft ? 0.065 : 0.04, 0.178);
+      brow.rotation.z = isLeft ? -0.35 : 0.35;
+      group.add(brow);
     }
-  } else if (hairId === 'hair_zingspeed_pink_twintails' || hairId === 'hair_twin_tails_cherry_01') {
-    // Sweet idol pink twintails / Sakura Pop twintails with star clips
-    const isSakura = hairId === 'hair_twin_tails_cherry_01';
-    const pinkMat = createVinylMaterial(isSakura ? 0xff9aa2 : 0xff7675, { roughness: 0.28 });
-    const starMat = createVinylMaterial(0xfdcb6e, { roughness: 0.15, emissive: 0xfdcb6e, emissiveIntensity: 0.3 });
 
-    const capGeo = new THREE.SphereGeometry(0.255, 24, 24, 0, Math.PI * 2, 0, Math.PI * 0.65);
-    const cap = new THREE.Mesh(capGeo, pinkMat);
-    cap.position.set(0, 0.77, -0.01);
-    group.add(cap);
+    // Derp Eyes: One huge looking up, one tiny looking down
+    const bigEyeGeo = new THREE.SphereGeometry(0.036, 16, 16);
+    const bigEye = new THREE.Mesh(bigEyeGeo, cyanMat);
+    bigEye.position.set(0.065, 0.02, 0.176);
 
-    // Front bangs
-    const bangGeo = new THREE.ConeGeometry(0.04, 0.12, 6);
-    for (let j = -2; j <= 2; j++) {
-      const bang = new THREE.Mesh(bangGeo, pinkMat);
-      bang.position.set(j * 0.05, 0.88, 0.19);
-      bang.rotation.set(Math.PI - 0.2, 0, j * 0.15);
-      group.add(bang);
+    const bigPupilGeo = new THREE.SphereGeometry(0.014, 12, 12);
+    const bigPupil = new THREE.Mesh(bigPupilGeo, darkMat);
+    bigPupil.position.set(0.055, 0.032, 0.206); // looking up-left
+
+    const smallEyeGeo = new THREE.SphereGeometry(0.022, 16, 16);
+    const smallEye = new THREE.Mesh(smallEyeGeo, cyanMat);
+    smallEye.position.set(-0.065, 0.01, 0.176);
+
+    const smallPupilGeo = new THREE.SphereGeometry(0.01, 12, 12);
+    const smallPupil = new THREE.Mesh(smallPupilGeo, darkMat);
+    smallPupil.position.set(-0.055, 0.002, 0.194); // looking down-right
+
+    // Pointy Pinocchio funny nose
+    const noseGeo = new THREE.ConeGeometry(0.018, 0.07, 6);
+    const nose = new THREE.Mesh(noseGeo, redMat);
+    nose.position.set(0, -0.01, 0.21);
+    nose.rotation.x = Math.PI / 2;
+
+    // Floppy pink tongue out
+    const mouthGeo = new THREE.BoxGeometry(0.04, 0.015, 0.01);
+    const mouth = new THREE.Mesh(mouthGeo, darkMat);
+    mouth.position.set(0.01, -0.055, 0.18);
+
+    const tongueGeo = new THREE.SphereGeometry(0.022, 14, 14);
+    tongueGeo.scale(0.8, 1.4, 0.4);
+    const tongue = new THREE.Mesh(tongueGeo, pinkMat);
+    tongue.position.set(0.025, -0.075, 0.186);
+
+    group.add(bigEye, bigPupil, smallEye, smallPupil, nose, mouth, tongue);
+  } else if (f.includes('rage') || f.includes('flame') || f.includes('angry')) {
+    // ==========================================
+    // 3. Rage Flame / Chiến Binh Nộ Khí Bốc Lửa
+    // ==========================================
+    // Angry V-shaped sharp eyebrows
+    for (const isLeft of [true, false]) {
+      const browGeo = new THREE.BoxGeometry(0.05, 0.01, 0.01);
+      const brow = new THREE.Mesh(browGeo, redMat);
+      brow.position.set(isLeft ? 0.062 : -0.062, 0.05, 0.18);
+      brow.rotation.z = isLeft ? 0.35 : -0.35;
+      group.add(brow);
     }
 
-    const ahogeCurve = new THREE.QuadraticBezierCurve3(
-      new THREE.Vector3(0, 0.98, 0),
-      new THREE.Vector3(0.06, 1.12, 0.05),
-      new THREE.Vector3(0.12, 1.08, 0.02)
-    );
-    const ahogeGeo = new THREE.TubeGeometry(ahogeCurve, 12, 0.012, 8, false);
-    const ahoge = new THREE.Mesh(ahogeGeo, pinkMat);
-    group.add(ahoge);
+    // Glowing Flame Eyes
+    for (const isLeft of [true, false]) {
+      const flameGeo = new THREE.ConeGeometry(0.028, 0.085, 4);
+      const flame = new THREE.Mesh(flameGeo, goldMat);
+      flame.position.set(isLeft ? 0.065 : -0.065, 0.025, 0.18);
+      flame.rotation.set(-0.25, 0, isLeft ? -0.35 : 0.35);
+      group.add(flame);
+    }
 
-    const createTwintail = (isLeft: boolean) => {
-      const tailGroup = new THREE.Group();
-      const x = isLeft ? 0.22 : -0.22;
-      tailGroup.position.set(x, 0.82, -0.06);
+    // Gritted Teeth Bar
+    const teethGeo = new THREE.BoxGeometry(0.065, 0.02, 0.012);
+    const teeth = new THREE.Mesh(teethGeo, cyanMat);
+    teeth.position.set(0, -0.05, 0.18);
 
-      const starGeo = new THREE.OctahedronGeometry(0.04, 0);
-      const star = new THREE.Mesh(starGeo, starMat);
-      star.position.set(0, 0, 0.04);
-      tailGroup.add(star);
+    // Glowing Rage Cross Mark (💢) on forehead
+    const cross1 = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.008, 0.005), redMat);
+    const cross2 = new THREE.Mesh(new THREE.BoxGeometry(0.008, 0.03, 0.005), redMat);
+    const rageMark = new THREE.Group();
+    rageMark.add(cross1, cross2);
+    rageMark.position.set(0.09, 0.1, 0.15);
+    rageMark.rotation.set(0.2, 0.3, 0.2);
 
-      const tailCurve = new THREE.QuadraticBezierCurve3(
+    group.add(teeth, rageMark);
+  } else if (f.includes('cry') || f.includes('tear') || f.includes('sad')) {
+    // ==========================================
+    // 4. Crying River / Khóc Dòng Sông Hài Hước
+    // ==========================================
+    // Droopy sad brows
+    for (const isLeft of [true, false]) {
+      const browGeo = new THREE.BoxGeometry(0.045, 0.008, 0.01);
+      const brow = new THREE.Mesh(browGeo, darkMat);
+      brow.position.set(isLeft ? 0.065 : -0.065, 0.05, 0.178);
+      brow.rotation.z = isLeft ? 0.35 : -0.35;
+      group.add(brow);
+    }
+
+    // Squeezed shut crying eyes (> <)
+    for (const isLeft of [true, false]) {
+      const eyeGeo = new THREE.TorusGeometry(0.025, 0.006, 6, 12, Math.PI);
+      const eye = new THREE.Mesh(eyeGeo, darkMat);
+      eye.position.set(isLeft ? 0.065 : -0.065, 0.02, 0.18);
+      eye.rotation.z = isLeft ? -Math.PI / 2 : Math.PI / 2;
+      group.add(eye);
+    }
+
+    // Two Waterfall Tear Streams (2 dòng thác nước mắt neon)
+    for (const isLeft of [true, false]) {
+      const tearGeo = new THREE.CylinderGeometry(0.012, 0.018, 0.12, 12);
+      const tear = new THREE.Mesh(tearGeo, cyanMat);
+      tear.position.set(isLeft ? 0.065 : -0.065, -0.04, 0.182);
+      group.add(tear);
+    }
+
+    // Gaping open bawling mouth (D)
+    const mouthGeo = new THREE.TorusGeometry(0.028, 0.008, 8, 16, Math.PI);
+    const mouth = new THREE.Mesh(mouthGeo, darkMat);
+    mouth.position.set(0, -0.06, 0.18);
+    mouth.rotation.z = Math.PI;
+
+    group.add(mouth);
+  } else if (f.includes('waku') || f.includes('sparkle') || f.includes('anime')) {
+    // ==========================================
+    // 5. Waku Waku Moe / Anime Cute Siêu Cấp
+    // ==========================================
+    // Happy high brows
+    for (const isLeft of [true, false]) {
+      const browGeo = new THREE.TorusGeometry(0.038, 0.005, 6, 14, Math.PI * 0.6);
+      const brow = new THREE.Mesh(browGeo, darkMat);
+      brow.position.set(isLeft ? 0.065 : -0.065, 0.065, 0.178);
+      brow.rotation.set(0.1, 0, isLeft ? -0.1 : Math.PI + 0.1);
+      group.add(brow);
+    }
+
+    // Big Sparkling Anime Eyes
+    for (const isLeft of [true, false]) {
+      const eyeGeo = new THREE.SphereGeometry(0.038, 18, 18);
+      eyeGeo.scale(1.0, 1.25, 0.3);
+      const eye = new THREE.Mesh(eyeGeo, cyanMat);
+      eye.position.set(isLeft ? 0.065 : -0.065, 0.015, 0.178);
+
+      const starGeo = new THREE.OctahedronGeometry(0.014, 0);
+      const star = new THREE.Mesh(starGeo, goldMat);
+      star.position.set(isLeft ? 0.078 : -0.052, 0.028, 0.192);
+
+      const twinkleGeo = new THREE.SphereGeometry(0.006, 10, 10);
+      const twinkle = new THREE.Mesh(twinkleGeo, goldMat);
+      twinkle.position.set(isLeft ? 0.052 : -0.078, 0.002, 0.19);
+
+      group.add(eye, star, twinkle);
+    }
+
+    // Cat mouth (:3)
+    const mouthLeft = new THREE.Mesh(new THREE.TorusGeometry(0.014, 0.004, 6, 12, Math.PI), pinkMat);
+    mouthLeft.position.set(0.015, -0.045, 0.182);
+    mouthLeft.rotation.z = Math.PI;
+
+    const mouthRight = new THREE.Mesh(new THREE.TorusGeometry(0.014, 0.004, 6, 12, Math.PI), pinkMat);
+    mouthRight.position.set(-0.015, -0.045, 0.182);
+    mouthRight.rotation.z = Math.PI;
+
+    // Big Cute Blushing Cheeks
+    for (const isLeft of [true, false]) {
+      const blushGeo = new THREE.CircleGeometry(0.028, 16);
+      const blush = new THREE.Mesh(blushGeo, pinkMat);
+      blush.position.set(isLeft ? 0.11 : -0.11, -0.02, 0.168);
+      blush.rotation.y = isLeft ? 0.4 : -0.4;
+      group.add(blush);
+    }
+
+    group.add(mouthLeft, mouthRight);
+  } else {
+    // ==========================================
+    // 6. Cyber Matrix Visor
+    // ==========================================
+    const visorGeo = new THREE.CylinderGeometry(0.189, 0.189, 0.045, 32, 1, true, -Math.PI / 3, (Math.PI * 2) / 3);
+    const visor = new THREE.Mesh(visorGeo, cyanMat);
+    visor.position.set(0, 0.015, 0);
+
+    const frameGeo = new THREE.CylinderGeometry(0.191, 0.191, 0.052, 32, 1, true, -Math.PI / 3 - 0.05, 0.1);
+    const frameLeft = new THREE.Mesh(frameGeo, darkMat);
+    frameLeft.position.set(0, 0.015, 0);
+    const frameRight = frameLeft.clone();
+    frameRight.rotation.y = (Math.PI * 2) / 3;
+
+    group.add(visor, frameLeft, frameRight);
+  }
+
+  return group;
+}
+
+/**
+ * Builds Grand Glowing Wings (Accessories)
+ */
+export function buildAccessoryMesh(accId?: string | null, accentColor: string | number = 0x00f2fe): THREE.Group {
+  const group = new THREE.Group();
+  if (!accId) return group;
+
+  group.name = `Wings_${accId}`;
+
+  const id = accId.toLowerCase();
+  const accentHex = new THREE.Color(accentColor);
+
+  const accentWingMat = new THREE.MeshStandardMaterial({
+    color: 0xffffff,
+    emissive: accentHex,
+    emissiveIntensity: 1.1,
+    roughness: 0.1,
+  });
+
+  const secondaryWingMat = new THREE.MeshStandardMaterial({
+    color: 0xffffff,
+    emissive: 0xffffff,
+    emissiveIntensity: 0.6,
+    roughness: 0.1,
+  });
+
+  if (id.includes('angel') || id.includes('star_choker')) {
+    // Celestial Angel Wings
+    for (const isLeft of [true, false]) {
+      const wingG = new THREE.Group();
+      wingG.name = isLeft ? 'LeftPhotonWing' : 'RightPhotonWing';
+      wingG.position.set(isLeft ? 0.08 : -0.08, 0.56, -0.06);
+
+      for (let i = 0; i < 6; i++) {
+        const fGeo = new THREE.ConeGeometry(0.038, 0.28 + i * 0.06, 5);
+        fGeo.scale(1, 1, 0.25);
+        const fMesh = new THREE.Mesh(fGeo, i % 2 === 0 ? secondaryWingMat : accentWingMat);
+        fMesh.position.set(isLeft ? i * 0.055 + 0.04 : -i * 0.055 - 0.04, i * 0.05, -i * 0.03);
+        fMesh.rotation.set(-0.2, isLeft ? 0.4 : -0.4, isLeft ? -0.45 - i * 0.12 : 0.45 + i * 0.12);
+        wingG.add(fMesh);
+      }
+      group.add(wingG);
+    }
+  } else if (id.includes('devil') || id.includes('demon') || id.includes('bat') || id.includes('void')) {
+    // Shadow Demon Wings
+    const boneMat = new THREE.MeshStandardMaterial({ color: 0x0a0a10, roughness: 0.2, metalness: 0.8 });
+
+    for (const isLeft of [true, false]) {
+      const wingG = new THREE.Group();
+      wingG.name = isLeft ? 'LeftPhotonWing' : 'RightPhotonWing';
+      wingG.position.set(isLeft ? 0.08 : -0.08, 0.56, -0.06);
+
+      const strutCurve = new THREE.QuadraticBezierCurve3(
         new THREE.Vector3(0, 0, 0),
-        new THREE.Vector3(isLeft ? 0.08 : -0.08, -0.22, 0.04),
-        new THREE.Vector3(isLeft ? 0.03 : -0.03, -0.42, 0.01)
+        new THREE.Vector3(isLeft ? 0.18 : -0.18, 0.22, -0.05),
+        new THREE.Vector3(isLeft ? 0.38 : -0.38, 0.14, -0.12)
       );
-      const tailGeo = new THREE.TubeGeometry(tailCurve, 16, 0.038, 10, false);
-      const tail = new THREE.Mesh(tailGeo, pinkMat);
-      tailGroup.add(tail);
+      const strutGeo = new THREE.TubeGeometry(strutCurve, 12, 0.016, 8, false);
+      const strut = new THREE.Mesh(strutGeo, boneMat);
+      wingG.add(strut);
 
-      return tailGroup;
-    };
-
-    group.add(createTwintail(true), createTwintail(false));
-  } else if (hairId === 'hair_anime_bob_blonde' || hairId === 'hair_short_bob_scholar_01') {
-    // Anime Blonde Bob or Scholar Dark Bob
-    const isScholar = hairId === 'hair_short_bob_scholar_01';
-    const bobMat = createVinylMaterial(isScholar ? 0x2c3e50 : 0xffeaa7, { roughness: 0.3 });
-    const capGeo = new THREE.SphereGeometry(0.255, 24, 24, 0, Math.PI * 2, 0, Math.PI * 0.7);
-    const cap = new THREE.Mesh(capGeo, bobMat);
-    cap.position.set(0, 0.77, 0);
-    group.add(cap);
-
-    // Bob sides
-    for (const isLeft of [true, false]) {
-      const bobGeo = new THREE.CylinderGeometry(0.05, 0.03, 0.18, 12);
-      const bob = new THREE.Mesh(bobGeo, bobMat);
-      bob.position.set(isLeft ? 0.2 : -0.2, 0.72, 0.06);
-      bob.rotation.z = isLeft ? -0.15 : 0.15;
-      group.add(bob);
+      for (let i = 0; i < 4; i++) {
+        const memGeo = new THREE.ConeGeometry(0.065, 0.26, 4);
+        memGeo.scale(1, 1, 0.15);
+        const mem = new THREE.Mesh(memGeo, accentWingMat);
+        mem.position.set(isLeft ? 0.12 + i * 0.09 : -0.12 - i * 0.09, -0.02 - i * 0.04, -0.08);
+        mem.rotation.set(-0.15, isLeft ? 0.3 : -0.3, isLeft ? -0.6 - i * 0.2 : 0.6 + i * 0.2);
+        wingG.add(mem);
+      }
+      group.add(wingG);
     }
-  } else if (hairId === 'hair_kpop_curtain_brown' || hairId === 'hair_side_part_scholar_01') {
-    // K-Pop Curtain Brown or Scholar 7/3 Side Part (Ren)
-    const isRenScholar = hairId === 'hair_side_part_scholar_01';
-    const hairColor = isRenScholar ? 0x1e272e : 0x6d4c41;
-    const brownMat = createVinylMaterial(hairColor, { roughness: 0.32 });
-    const capGeo = new THREE.SphereGeometry(0.252, 24, 24, 0, Math.PI * 2, 0, Math.PI * 0.62);
-    const cap = new THREE.Mesh(capGeo, brownMat);
-    cap.position.set(0, 0.77, -0.02);
-    group.add(cap);
-
-    // Curtain waves
-    for (const isLeft of [true, false]) {
-      const waveCurve = new THREE.QuadraticBezierCurve3(
-        new THREE.Vector3(isLeft ? 0.03 : -0.03, 0.94, 0.2),
-        new THREE.Vector3(isLeft ? 0.14 : -0.14, 0.88, 0.18),
-        new THREE.Vector3(isLeft ? 0.18 : -0.18, 0.78, 0.12)
-      );
-      const waveGeo = new THREE.TubeGeometry(waveCurve, 12, 0.025, 8, false);
-      const wave = new THREE.Mesh(waveGeo, brownMat);
-      group.add(wave);
-    }
-  } else if (hairId === 'hair_magical_ponytail_purple') {
-    // Magical Ponytail Purple
-    const purpleMat = createVinylMaterial(0x9b59b6, { roughness: 0.25, emissive: 0x8e44ad, emissiveIntensity: 0.2 });
-    const ribbonMat = createVinylMaterial(0xff7675, { roughness: 0.2 });
-
-    const capGeo = new THREE.SphereGeometry(0.255, 24, 24, 0, Math.PI * 2, 0, Math.PI * 0.65);
-    const cap = new THREE.Mesh(capGeo, purpleMat);
-    cap.position.set(0, 0.77, -0.01);
-    group.add(cap);
-
-    // High ponytail base
-    const ponyCurve = new THREE.QuadraticBezierCurve3(
-      new THREE.Vector3(0, 0.95, -0.18),
-      new THREE.Vector3(0, 1.05, -0.32),
-      new THREE.Vector3(0, 0.68, -0.38)
-    );
-    const ponyGeo = new THREE.TubeGeometry(ponyCurve, 16, 0.045, 10, false);
-    const pony = new THREE.Mesh(ponyGeo, purpleMat);
-
-    // Ribbon bow
-    const bowGeo = new THREE.TorusGeometry(0.04, 0.012, 8, 16);
-    const bow = new THREE.Mesh(bowGeo, ribbonMat);
-    bow.position.set(0, 0.95, -0.18);
-
-    group.add(pony, bow);
-  } else {
-    // Cyber neon dreadlocks (default/neon)
-    const dreadMat = createVinylMaterial(0x0984e3, { roughness: 0.2, emissive: 0x00cec9, emissiveIntensity: 0.35 });
-    const capGeo = new THREE.SphereGeometry(0.25, 24, 24, 0, Math.PI * 2, 0, Math.PI * 0.6);
-    const cap = new THREE.Mesh(capGeo, dreadMat);
-    cap.position.set(0, 0.77, -0.02);
-    group.add(cap);
-
-    for (let k = 0; k < 6; k++) {
-      const angle = (k / 6) * Math.PI * 1.2 - Math.PI * 0.6;
-      const dreadCurve = new THREE.QuadraticBezierCurve3(
-        new THREE.Vector3(Math.sin(angle) * 0.18, 0.88, Math.cos(angle) * 0.12 - 0.05),
-        new THREE.Vector3(Math.sin(angle) * 0.26, 0.68, Math.cos(angle) * 0.18 - 0.1),
-        new THREE.Vector3(Math.sin(angle) * 0.2, 0.52, Math.cos(angle) * 0.15 - 0.12)
-      );
-      const dreadGeo = new THREE.TubeGeometry(dreadCurve, 12, 0.022, 8, false);
-      const dread = new THREE.Mesh(dreadGeo, dreadMat);
-      group.add(dread);
-    }
-  }
-
-  return group;
-}
-
-/**
- * Builds 3D Top Mesh
- */
-export function buildTopMesh(topId: string): THREE.Group {
-  const group = new THREE.Group();
-  group.name = `Top_${topId}`;
-
-  if (topId === 'top_zingspeed_black_hoodie') {
-    const hoodieMat = createVinylMaterial(0x1e272e, { roughness: 0.35 });
-    const yellowMat = createVinylMaterial(0xffd32a, { roughness: 0.2, emissive: 0xffa801, emissiveIntensity: 0.25 });
-
-    const torsoGeo = new THREE.CylinderGeometry(0.125, 0.14, 0.28, 24);
-    const torso = new THREE.Mesh(torsoGeo, hoodieMat);
-    torso.position.set(0, 0.44, 0);
-
-    const pocketGeo = new THREE.BoxGeometry(0.14, 0.08, 0.05);
-    const pocket = new THREE.Mesh(pocketGeo, hoodieMat);
-    pocket.position.set(0, 0.38, 0.115);
-
-    const boltGeo = new THREE.ConeGeometry(0.025, 0.12, 4);
-    boltGeo.scale(1, 1, 0.3);
-    const bolt = new THREE.Mesh(boltGeo, yellowMat);
-    bolt.position.set(0, 0.48, 0.13);
-    bolt.rotation.z = 0.4;
-
-    const createSleeve = (isLeft: boolean) => {
-      const g = new THREE.Group();
-      const x = isLeft ? 0.14 : -0.14;
-      g.position.set(x, 0.44, 0);
-      g.rotation.z = isLeft ? -0.2 : 0.2;
-
-      const sleeveGeo = new THREE.CylinderGeometry(0.045, 0.042, 0.22, 16);
-      const sleeve = new THREE.Mesh(sleeveGeo, hoodieMat);
-      const cuffGeo = new THREE.CylinderGeometry(0.044, 0.044, 0.03, 16);
-      const cuff = new THREE.Mesh(cuffGeo, yellowMat);
-      cuff.position.set(0, -0.1, 0);
-
-      g.add(sleeve, cuff);
-      return g;
-    };
-
-    group.add(torso, pocket, bolt, createSleeve(true), createSleeve(false));
-  } else if (topId === 'top_chibi_female_sailor_01') {
-    // Aoi Sailor uniform with crisp white collar and red ruby bow
-    const navyMat = createVinylMaterial(0x192a56, { roughness: 0.3 });
-    const whiteMat = createVinylMaterial(0xffffff, { roughness: 0.25 });
-    const rubyMat = createVinylMaterial(0xe74c3c, { roughness: 0.2, emissive: 0xc0392b, emissiveIntensity: 0.25 });
-
-    const torsoGeo = new THREE.CylinderGeometry(0.12, 0.138, 0.26, 24);
-    const torso = new THREE.Mesh(torsoGeo, whiteMat);
-    torso.position.set(0, 0.45, 0);
-
-    // Sailor collar
-    const collarGeo = new THREE.BoxGeometry(0.18, 0.04, 0.16);
-    const collar = new THREE.Mesh(collarGeo, navyMat);
-    collar.position.set(0, 0.54, 0);
-
-    // Red ribbon bow
-    const bowGeo = new THREE.TorusGeometry(0.035, 0.012, 8, 16);
-    const bow = new THREE.Mesh(bowGeo, rubyMat);
-    bow.position.set(0, 0.51, 0.12);
-
-    group.add(torso, collar, bow);
-  } else if (topId === 'top_chibi_male_vest_gilet_01') {
-    // Ren Navy wool gilet vest over white shirt
-    const navyMat = createVinylMaterial(0x192a56, { roughness: 0.35 });
-    const shirtMat = createVinylMaterial(0xf5f6fa, { roughness: 0.25 });
-    const goldMat = createVinylMaterial(0xf1c40f, { roughness: 0.2, metalness: 0.6 });
-
-    const shirtGeo = new THREE.CylinderGeometry(0.125, 0.14, 0.28, 24);
-    const shirt = new THREE.Mesh(shirtGeo, shirtMat);
-    shirt.position.set(0, 0.44, 0);
-
-    // Gilet vest outer
-    const vestGeo = new THREE.CylinderGeometry(0.128, 0.142, 0.25, 24);
-    const vest = new THREE.Mesh(vestGeo, navyMat);
-    vest.position.set(0, 0.43, 0);
-
-    // Gold academy crest
-    const crestGeo = new THREE.CircleGeometry(0.018, 12);
-    const crest = new THREE.Mesh(crestGeo, goldMat);
-    crest.position.set(0.065, 0.48, 0.128);
-
-    group.add(shirt, vest, crest);
-  } else if (topId === 'top_chibi_male_cyber_jacket_01') {
-    // Ren Cyber Electric Jacket
-    const darkMat = createVinylMaterial(0x1e272e, { roughness: 0.2, metalness: 0.4 });
-    const cyanNeonMat = createVinylMaterial(0x00cec9, { roughness: 0.1, emissive: 0x00cec9, emissiveIntensity: 0.8 });
-
-    const jacketGeo = new THREE.CylinderGeometry(0.13, 0.145, 0.28, 24);
-    const jacket = new THREE.Mesh(jacketGeo, darkMat);
-    jacket.position.set(0, 0.44, 0);
-
-    // Neon circuit lines
-    for (let c = -1; c <= 1; c += 2) {
-      const stripeGeo = new THREE.BoxGeometry(0.012, 0.22, 0.015);
-      const stripe = new THREE.Mesh(stripeGeo, cyanNeonMat);
-      stripe.position.set(c * 0.08, 0.44, 0.12);
-      group.add(stripe);
-    }
-    group.add(jacket);
-  } else if (topId === 'top_golden_dragon_robe_01') {
-    // Emperor Golden Dragon Robe (Legendary)
-    const goldRobeMat = createVinylMaterial(0xffd700, {
-      roughness: 0.2,
-      metalness: 0.5,
-      emissive: 0xffaa00,
-      emissiveIntensity: 0.35,
+  } else if (id.includes('fairy') || id.includes('butterfly') || id.includes('cat_paw') || id.includes('neon')) {
+    // Ethereal Fairy Butterfly Wings
+    const fairyMat = new THREE.MeshStandardMaterial({
+      color: 0xffffff,
+      emissive: accentHex,
+      emissiveIntensity: 0.9,
+      transparent: true,
+      opacity: 0.82,
+      roughness: 0.1,
     });
-    const dragonRedMat = createVinylMaterial(0xc0392b, { roughness: 0.25 });
 
-    const robeGeo = new THREE.CylinderGeometry(0.13, 0.155, 0.32, 24);
-    const robe = new THREE.Mesh(robeGeo, goldRobeMat);
-    robe.position.set(0, 0.42, 0);
+    for (const isLeft of [true, false]) {
+      const wingG = new THREE.Group();
+      wingG.name = isLeft ? 'LeftPhotonWing' : 'RightPhotonWing';
+      wingG.position.set(isLeft ? 0.08 : -0.08, 0.54, -0.06);
 
-    const sashGeo = new THREE.TorusGeometry(0.132, 0.015, 8, 24);
-    const sash = new THREE.Mesh(sashGeo, dragonRedMat);
-    sash.position.set(0, 0.42, 0);
-    sash.rotation.x = Math.PI / 2;
+      const upGeo = new THREE.SphereGeometry(0.14, 16, 16);
+      upGeo.scale(1.2, 1.45, 0.08);
+      const upWing = new THREE.Mesh(upGeo, fairyMat);
+      upWing.position.set(isLeft ? 0.16 : -0.16, 0.12, 0);
+      upWing.rotation.set(-0.15, isLeft ? 0.4 : -0.4, isLeft ? -0.3 : 0.3);
 
-    group.add(robe, sash);
-  } else if (topId === 'top_zingspeed_white_hoodie' || topId === 'top_chibi_female_hoodie_pink_01') {
-    const isBunnyPink = topId === 'top_chibi_female_hoodie_pink_01';
-    const whiteMat = createVinylMaterial(isBunnyPink ? 0xffc0cb : 0xf5f6fa, { roughness: 0.3 });
-    const pinkMat = createVinylMaterial(0xff9ff3, { roughness: 0.25 });
+      const downGeo = new THREE.SphereGeometry(0.09, 16, 16);
+      downGeo.scale(1.0, 1.35, 0.08);
+      const downWing = new THREE.Mesh(downGeo, fairyMat);
+      downWing.position.set(isLeft ? 0.13 : -0.13, -0.08, 0);
+      downWing.rotation.set(-0.15, isLeft ? 0.3 : -0.3, isLeft ? -0.1 : 0.1);
 
-    const torsoGeo = new THREE.CylinderGeometry(0.13, 0.145, 0.28, 24);
-    const torso = new THREE.Mesh(torsoGeo, whiteMat);
-    torso.position.set(0, 0.44, 0);
-
-    const hoodBackGeo = new THREE.SphereGeometry(0.1, 16, 16);
-    hoodBackGeo.scale(1.2, 0.6, 0.8);
-    const hoodBack = new THREE.Mesh(hoodBackGeo, pinkMat);
-    hoodBack.position.set(0, 0.54, -0.1);
-
-    group.add(torso, hoodBack);
-  } else if (topId === 'top_oxford_scholar_blazer' || topId === 'top_school_blazer_oxford_01') {
-    // Oxford Scholar Blazer (Navy with red tie and gold button accents)
-    const navyMat = createVinylMaterial(0x192a56, { roughness: 0.3 });
-    const shirtMat = createVinylMaterial(0xffffff, { roughness: 0.2 });
-    const tieMat = createVinylMaterial(0xc0392b, { roughness: 0.2 });
-    const goldMat = createVinylMaterial(0xf1c40f, { roughness: 0.1, metalness: 0.7 });
-
-    const blazerGeo = new THREE.CylinderGeometry(0.125, 0.14, 0.28, 24);
-    const blazer = new THREE.Mesh(blazerGeo, navyMat);
-    blazer.position.set(0, 0.44, 0);
-
-    // Shirt collar
-    const collarGeo = new THREE.BoxGeometry(0.08, 0.08, 0.04);
-    const collar = new THREE.Mesh(collarGeo, shirtMat);
-    collar.position.set(0, 0.54, 0.11);
-
-    // Tie
-    const tieGeo = new THREE.ConeGeometry(0.025, 0.12, 3);
-    const tie = new THREE.Mesh(tieGeo, tieMat);
-    tie.position.set(0, 0.48, 0.125);
-    tie.rotation.x = Math.PI;
-
-    // Gold crest
-    const crestGeo = new THREE.CircleGeometry(0.02, 12);
-    const crest = new THREE.Mesh(crestGeo, goldMat);
-    crest.position.set(0.07, 0.48, 0.125);
-
-    group.add(blazer, collar, tie, crest);
-  } else if (topId === 'top_angel_silk_tunic') {
-    // Celestial silk tunic with golden celestial trim
-    const silkMat = createVinylMaterial(0xf5f6fa, { roughness: 0.18, metalness: 0.1 });
-    const trimMat = createVinylMaterial(0xfbc531, { roughness: 0.15, metalness: 0.6, emissive: 0xfbc531, emissiveIntensity: 0.3 });
-
-    const tunicGeo = new THREE.CylinderGeometry(0.12, 0.15, 0.3, 24);
-    const tunic = new THREE.Mesh(tunicGeo, silkMat);
-    tunic.position.set(0, 0.43, 0);
-
-    const trimGeo = new THREE.TorusGeometry(0.122, 0.01, 8, 24);
-    const trim = new THREE.Mesh(trimGeo, trimMat);
-    trim.position.set(0, 0.52, 0);
-    trim.rotation.x = Math.PI / 2;
-
-    group.add(tunic, trim);
-  } else if (topId === 'top_princess_lolita_dress') {
-    // Lolita Dress with cute lace ribbons
-    const dressMat = createVinylMaterial(0xff9ff3, { roughness: 0.25 });
-    const laceMat = createVinylMaterial(0xffffff, { roughness: 0.3 });
-
-    const topGeo = new THREE.CylinderGeometry(0.115, 0.13, 0.26, 24);
-    const top = new THREE.Mesh(topGeo, dressMat);
-    top.position.set(0, 0.45, 0);
-
-    const bowGeo = new THREE.TorusGeometry(0.035, 0.012, 8, 16);
-    const bow = new THREE.Mesh(bowGeo, laceMat);
-    bow.position.set(0, 0.52, 0.12);
-
-    group.add(top, bow);
-  } else if (topId === 'top_teddy_bear_hoodie') {
-    // Cute teddy bear hoodie
-    const bearMat = createVinylMaterial(0x8d6e63, { roughness: 0.4 });
-    const innerEarMat = createVinylMaterial(0xffccbc, { roughness: 0.3 });
-
-    const torsoGeo = new THREE.CylinderGeometry(0.13, 0.145, 0.28, 24);
-    const torso = new THREE.Mesh(torsoGeo, bearMat);
-    torso.position.set(0, 0.44, 0);
-
-    // Front paw pouch
-    const pouchGeo = new THREE.BoxGeometry(0.12, 0.08, 0.04);
-    const pouch = new THREE.Mesh(pouchGeo, innerEarMat);
-    pouch.position.set(0, 0.38, 0.12);
-
-    group.add(torso, pouch);
-  } else if (topId === 'top_archmage_lexicon_robe') {
-    // Archmage Lexicon Robe
-    const robeMat = createVinylMaterial(0x341f97, { roughness: 0.25 });
-    const starGoldMat = createVinylMaterial(0xf1c40f, { roughness: 0.1, metalness: 0.7, emissive: 0xf1c40f, emissiveIntensity: 0.3 });
-
-    const robeGeo = new THREE.CylinderGeometry(0.125, 0.15, 0.3, 24);
-    const robe = new THREE.Mesh(robeGeo, robeMat);
-    robe.position.set(0, 0.43, 0);
-
-    const runeGeo = new THREE.OctahedronGeometry(0.025, 0);
-    const rune = new THREE.Mesh(runeGeo, starGoldMat);
-    rune.position.set(0, 0.5, 0.13);
-
-    group.add(robe, rune);
+      wingG.add(upWing, downWing);
+      group.add(wingG);
+    }
   } else {
-    // Cyber racing jacket
-    const darkMat = createVinylMaterial(0x2d3436, { roughness: 0.2, metalness: 0.3 });
-    const cyanNeonMat = createVinylMaterial(0x00cec9, { roughness: 0.1, emissive: 0x00cec9, emissiveIntensity: 0.6 });
+    // Mecha Plasma / Phoenix Energy Wings
+    for (const isLeft of [true, false]) {
+      const wingG = new THREE.Group();
+      wingG.name = isLeft ? 'LeftPhotonWing' : 'RightPhotonWing';
+      wingG.position.set(isLeft ? 0.08 : -0.08, 0.55, -0.06);
 
-    const jacketGeo = new THREE.CylinderGeometry(0.13, 0.14, 0.27, 24);
-    const jacket = new THREE.Mesh(jacketGeo, darkMat);
-    jacket.position.set(0, 0.44, 0);
-
-    const stripeGeo = new THREE.BoxGeometry(0.015, 0.25, 0.02);
-    const stripe = new THREE.Mesh(stripeGeo, cyanNeonMat);
-    stripe.position.set(0.06, 0.44, 0.12);
-
-    group.add(jacket, stripe);
+      for (let i = 0; i < 5; i++) {
+        const bladeGeo = new THREE.ConeGeometry(0.042, 0.3 + i * 0.07, 4);
+        bladeGeo.scale(1, 1, 0.2);
+        const blade = new THREE.Mesh(bladeGeo, i % 2 === 0 ? accentWingMat : secondaryWingMat);
+        blade.position.set(isLeft ? i * 0.07 + 0.04 : -i * 0.07 - 0.04, i * 0.06, -i * 0.04);
+        blade.rotation.set(-0.25, isLeft ? 0.4 : -0.4, isLeft ? -0.5 - i * 0.14 : 0.5 + i * 0.14);
+        wingG.add(blade);
+      }
+      group.add(wingG);
+    }
   }
 
   return group;
 }
 
 /**
- * Builds 3D Bottom Mesh
+ * Builds Handheld Props for Mini Games (Vật Phẩm Cầm Tay Mini Game)
+ * Firmly placed in the stickman's right hand grip position.
  */
-export function buildBottomMesh(bottomId: string): THREE.Group {
+export function buildTopMesh(topId?: string, accentColor: string | number = 0x00f2fe): THREE.Group {
   const group = new THREE.Group();
-  group.name = `Bottom_${bottomId}`;
+  if (!topId || topId === '' || topId === 'none') return group;
 
-  if (bottomId === 'bot_zingspeed_cargo_shorts' || bottomId === 'bottom_cargo_shorts_01') {
-    const shortsMat = createVinylMaterial(0x2d3436, { roughness: 0.4 });
-    const orangeMat = createVinylMaterial(0xff7675, { roughness: 0.3, emissive: 0xff7675, emissiveIntensity: 0.2 });
+  group.name = `HandheldProp_${topId}`;
+  // Attached to right hand position
+  group.position.set(-0.12, 0.44, 0.24);
 
-    const waistGeo = new THREE.CylinderGeometry(0.128, 0.125, 0.08, 24);
-    const waist = new THREE.Mesh(waistGeo, shortsMat);
-    waist.position.set(0, 0.31, 0);
+  const t = topId.toLowerCase();
+  const accentHex = new THREE.Color(accentColor);
 
-    const createLegShort = (isLeft: boolean) => {
-      const g = new THREE.Group();
-      const x = isLeft ? 0.065 : -0.065;
-      g.position.set(x, 0.24, 0);
+  const accentMat = new THREE.MeshStandardMaterial({
+    color: 0xffffff,
+    emissive: accentHex,
+    emissiveIntensity: 1.0,
+    roughness: 0.15,
+  });
 
-      const legGeo = new THREE.CylinderGeometry(0.06, 0.065, 0.12, 16);
-      const leg = new THREE.Mesh(legGeo, shortsMat);
+  const goldMat = new THREE.MeshStandardMaterial({
+    color: 0xffd700,
+    emissive: 0x885500,
+    emissiveIntensity: 0.25,
+    roughness: 0.18,
+    metalness: 0.85,
+  });
 
-      const pocketGeo = new THREE.BoxGeometry(0.03, 0.06, 0.04);
-      const pocket = new THREE.Mesh(pocketGeo, shortsMat);
-      pocket.position.set(isLeft ? 0.055 : -0.055, 0, 0);
+  const darkMetalMat = new THREE.MeshStandardMaterial({
+    color: 0x1e2025,
+    roughness: 0.25,
+    metalness: 0.8,
+  });
 
-      const stripeGeo = new THREE.BoxGeometry(0.01, 0.1, 0.01);
-      const stripe = new THREE.Mesh(stripeGeo, orangeMat);
-      stripe.position.set(isLeft ? 0.06 : -0.06, 0, 0.03);
+  if (t.includes('trophy') || t.includes('cup')) {
+    // ==========================================
+    // 1. Golden Champion Trophy (Cúp Vàng Vô Địch 🏆)
+    // ==========================================
+    const prop = new THREE.Group();
+    const baseGeo = new THREE.CylinderGeometry(0.024, 0.034, 0.025, 16);
+    const base = new THREE.Mesh(baseGeo, darkMetalMat);
+    base.position.set(0, -0.04, 0);
 
-      g.add(leg, pocket, stripe);
-      return g;
-    };
+    const stemGeo = new THREE.CylinderGeometry(0.01, 0.014, 0.03, 14);
+    const stem = new THREE.Mesh(stemGeo, goldMat);
+    stem.position.set(0, -0.015, 0);
 
-    group.add(waist, createLegShort(true), createLegShort(false));
-  } else if (
-    bottomId === 'bot_zingspeed_pleated_skirt' ||
-    bottomId === 'bot_school_uniform_skirt' ||
-    bottomId === 'bottom_chibi_female_pleated_01'
-  ) {
-    // Pleated Skirt (Aoi red plaid or academy navy)
-    const isAoiPlaid = bottomId === 'bottom_chibi_female_pleated_01';
-    const skirtColor = isAoiPlaid ? 0xc0392b : bottomId === 'bot_school_uniform_skirt' ? 0x353b48 : 0x0984e3;
-    const skirtMat = createVinylMaterial(skirtColor, { roughness: 0.35 });
-    const whiteLineMat = createVinylMaterial(0xffffff, { roughness: 0.2 });
+    const bowlGeo = new THREE.CylinderGeometry(0.045, 0.02, 0.07, 18);
+    const bowl = new THREE.Mesh(bowlGeo, goldMat);
+    bowl.position.set(0, 0.035, 0);
 
-    const skirtGeo = new THREE.ConeGeometry(0.18, 0.14, 24, 1, true);
-    const skirt = new THREE.Mesh(skirtGeo, skirtMat);
-    skirt.position.set(0, 0.25, 0);
+    for (const isLeft of [true, false]) {
+      const handleGeo = new THREE.TorusGeometry(0.024, 0.005, 6, 14, Math.PI * 0.9);
+      const handle = new THREE.Mesh(handleGeo, goldMat);
+      handle.position.set(isLeft ? 0.045 : -0.045, 0.04, 0);
+      handle.rotation.z = isLeft ? -Math.PI / 2 : Math.PI / 2;
+      prop.add(handle);
+    }
 
-    const ringGeo = new THREE.TorusGeometry(0.17, 0.005, 8, 24);
-    const ring = new THREE.Mesh(ringGeo, whiteLineMat);
-    ring.position.set(0, 0.185, 0);
+    const starGeo = new THREE.OctahedronGeometry(0.014, 0);
+    const star = new THREE.Mesh(starGeo, accentMat);
+    star.position.set(0, 0.04, 0.035);
+
+    prop.add(base, stem, bowl, star);
+    prop.scale.set(1.1, 1.1, 1.1);
+    group.add(prop);
+  } else if (t.includes('sword') || t.includes('saber') || t.includes('blade')) {
+    // ==========================================
+    // 2. Cyber Laser Saber (Kiếm Laser Năng Lượng 🗡️)
+    // ==========================================
+    const prop = new THREE.Group();
+    const hiltGeo = new THREE.CylinderGeometry(0.012, 0.013, 0.12, 14);
+    const hilt = new THREE.Mesh(hiltGeo, darkMetalMat);
+    hilt.position.set(0, -0.02, 0);
+
+    const guardGeo = new THREE.CylinderGeometry(0.022, 0.016, 0.02, 16);
+    const guard = new THREE.Mesh(guardGeo, goldMat);
+    guard.position.set(0, 0.04, 0);
+
+    const bladeGeo = new THREE.CylinderGeometry(0.011, 0.013, 0.42, 16);
+    const blade = new THREE.Mesh(bladeGeo, accentMat);
+    blade.position.set(0, 0.25, 0);
+
+    const tipGeo = new THREE.ConeGeometry(0.011, 0.04, 16);
+    const tip = new THREE.Mesh(tipGeo, accentMat);
+    tip.position.set(0, 0.48, 0);
+
+    prop.add(hilt, guard, blade, tip);
+    prop.rotation.set(0.35, 0, -0.2);
+    group.add(prop);
+  } else if (t.includes('wand') || t.includes('staff')) {
+    // ==========================================
+    // 3. Celestial Star Wand (Gậy Phép Tinh Tú 🪄)
+    // ==========================================
+    const prop = new THREE.Group();
+    const shaftGeo = new THREE.CylinderGeometry(0.008, 0.011, 0.36, 12);
+    const shaft = new THREE.Mesh(shaftGeo, darkMetalMat);
+    shaft.position.set(0, 0.08, 0);
+
+    const mountGeo = new THREE.SphereGeometry(0.018, 12, 12);
+    const mount = new THREE.Mesh(mountGeo, goldMat);
+    mount.position.set(0, 0.26, 0);
+
+    const ringGeo = new THREE.TorusGeometry(0.032, 0.004, 6, 16);
+    const ring = new THREE.Mesh(ringGeo, accentMat);
+    ring.position.set(0, 0.26, 0);
+    ring.rotation.x = Math.PI / 4;
+
+    const gemGeo = new THREE.IcosahedronGeometry(0.024, 0);
+    const gem = new THREE.Mesh(gemGeo, accentMat);
+    gem.position.set(0, 0.26, 0);
+
+    prop.add(shaft, mount, ring, gem);
+    prop.rotation.set(0.28, 0, -0.15);
+    group.add(prop);
+  } else if (t.includes('torch') || t.includes('flashlight')) {
+    // ==========================================
+    // 4. Explorer Flashlight (Đèn Pin Khám Phá 🔦)
+    // ==========================================
+    const prop = new THREE.Group();
+    const bodyGeo = new THREE.CylinderGeometry(0.015, 0.016, 0.14, 16);
+    const torchBody = new THREE.Mesh(bodyGeo, darkMetalMat);
+    torchBody.rotation.x = Math.PI / 2;
+
+    const bezelGeo = new THREE.ConeGeometry(0.026, 0.035, 16);
+    const bezel = new THREE.Mesh(bezelGeo, goldMat);
+    bezel.position.set(0, 0, 0.08);
+    bezel.rotation.x = -Math.PI / 2;
+
+    const lensGeo = new THREE.CircleGeometry(0.024, 16);
+    const lens = new THREE.Mesh(lensGeo, accentMat);
+    lens.position.set(0, 0, 0.098);
+
+    const beamGeo = new THREE.ConeGeometry(0.16, 0.5, 16, 1, true);
+    const beamMat = new THREE.MeshBasicMaterial({
+      color: accentHex,
+      transparent: true,
+      opacity: 0.28,
+      side: THREE.DoubleSide,
+    });
+    const beam = new THREE.Mesh(beamGeo, beamMat);
+    beam.position.set(0, 0, 0.35);
+    beam.rotation.x = -Math.PI / 2;
+
+    prop.add(torchBody, bezel, lens, beam);
+    prop.rotation.set(0.1, 0, 0);
+    group.add(prop);
+  } else if (t.includes('mic') || t.includes('idol')) {
+    // ==========================================
+    // 5. Golden Idol Microphone (Micro Idol Siêu Sao 🎤)
+    // ==========================================
+    const prop = new THREE.Group();
+    const handleGeo = new THREE.CylinderGeometry(0.011, 0.014, 0.13, 14);
+    const handle = new THREE.Mesh(handleGeo, darkMetalMat);
+    handle.position.set(0, -0.02, 0);
+
+    const ringGeo = new THREE.TorusGeometry(0.016, 0.004, 6, 16);
+    const ring = new THREE.Mesh(ringGeo, accentMat);
+    ring.position.set(0, 0.045, 0);
     ring.rotation.x = Math.PI / 2;
 
-    group.add(skirt, ring);
-  } else if (bottomId === 'bottom_chibi_female_denim_01') {
-    // Denim overall shorts
-    const denimMat = createVinylMaterial(0x2980b9, { roughness: 0.45 });
-    const buttonMat = createVinylMaterial(0xf39c12, { roughness: 0.2, metalness: 0.7 });
+    const micHeadGeo = new THREE.SphereGeometry(0.028, 16, 16);
+    const micHead = new THREE.Mesh(micHeadGeo, goldMat);
+    micHead.position.set(0, 0.075, 0);
 
-    const waistGeo = new THREE.CylinderGeometry(0.125, 0.122, 0.1, 24);
-    const waist = new THREE.Mesh(waistGeo, denimMat);
-    waist.position.set(0, 0.3, 0);
+    prop.add(handle, ring, micHead);
+    prop.rotation.set(0.45, 0, -0.2);
+    group.add(prop);
+  } else if (t.includes('blaster') || t.includes('gun') || t.includes('laser')) {
+    // ==========================================
+    // 6. Laser Energy Blaster (Súng Bắn Tia Laser 🔫)
+    // ==========================================
+    const prop = new THREE.Group();
+    const gripGeo = new THREE.BoxGeometry(0.02, 0.07, 0.025);
+    const grip = new THREE.Mesh(gripGeo, darkMetalMat);
+    grip.position.set(0, -0.02, -0.02);
+    grip.rotation.x = -0.3;
 
-    for (let c = -1; c <= 1; c += 2) {
-      const legGeo = new THREE.CylinderGeometry(0.06, 0.062, 0.1, 16);
-      const leg = new THREE.Mesh(legGeo, denimMat);
-      leg.position.set(c * 0.065, 0.23, 0);
+    const barrelGeo = new THREE.BoxGeometry(0.03, 0.036, 0.16);
+    const barrel = new THREE.Mesh(barrelGeo, darkMetalMat);
+    barrel.position.set(0, 0.02, 0.04);
 
-      const btnGeo = new THREE.SphereGeometry(0.01, 8, 8);
-      const btn = new THREE.Mesh(btnGeo, buttonMat);
-      btn.position.set(c * 0.05, 0.33, 0.11);
-      group.add(leg, btn);
-    }
-    group.add(waist);
-  } else if (bottomId === 'bottom_hologram_tech_skirt_01') {
-    // Hologram Tech Skirt
-    const holoMat = createVinylMaterial(0x00cec9, {
-      roughness: 0.15,
-      metalness: 0.3,
-      emissive: 0x9b59b6,
-      emissiveIntensity: 0.4,
-    });
-    const skirtGeo = new THREE.ConeGeometry(0.19, 0.15, 24, 1, true);
-    const skirt = new THREE.Mesh(skirtGeo, holoMat);
-    skirt.position.set(0, 0.25, 0);
-    group.add(skirt);
-  } else if (bottomId === 'bot_streetwear_cargo_pants' || bottomId === 'bottom_chibi_male_slacks_01') {
-    // Streetwear cargo pants or Ren charcoal slacks
-    const isSlacks = bottomId === 'bottom_chibi_male_slacks_01';
-    const pantsMat = createVinylMaterial(isSlacks ? 0x2d3436 : 0x57606f, { roughness: 0.4 });
-    const createPantsLeg = (isLeft: boolean) => {
-      const g = new THREE.Group();
-      const x = isLeft ? 0.065 : -0.065;
-      g.position.set(x, 0.2, 0);
+    const cellGeo = new THREE.CylinderGeometry(0.014, 0.014, 0.06, 12);
+    cellGeo.rotateZ(Math.PI / 2);
+    const cell = new THREE.Mesh(cellGeo, accentMat);
+    cell.position.set(0, 0.04, 0.02);
 
-      const legGeo = new THREE.CylinderGeometry(0.06, 0.05, 0.22, 16);
-      const leg = new THREE.Mesh(legGeo, pantsMat);
+    const nozzleGeo = new THREE.CylinderGeometry(0.012, 0.01, 0.03, 12);
+    nozzleGeo.rotateX(Math.PI / 2);
+    const nozzle = new THREE.Mesh(nozzleGeo, accentMat);
+    nozzle.position.set(0, 0.02, 0.13);
 
-      const pocketGeo = new THREE.BoxGeometry(0.035, 0.07, 0.05);
-      const pocket = new THREE.Mesh(pocketGeo, pantsMat);
-      pocket.position.set(isLeft ? 0.055 : -0.055, 0, 0);
-
-      g.add(leg, pocket);
-      return g;
-    };
-
-    group.add(createPantsLeg(true), createPantsLeg(false));
-  } else if (bottomId === 'bot_lolita_frill_skirt') {
-    // Ruffled Lolita Frill Skirt
-    const frillMat = createVinylMaterial(0xff9ff3, { roughness: 0.3 });
-    const laceMat = createVinylMaterial(0xffffff, { roughness: 0.2 });
-
-    const tier1Geo = new THREE.ConeGeometry(0.16, 0.1, 24, 1, true);
-    const tier1 = new THREE.Mesh(tier1Geo, frillMat);
-    tier1.position.set(0, 0.28, 0);
-
-    const tier2Geo = new THREE.ConeGeometry(0.2, 0.12, 24, 1, true);
-    const tier2 = new THREE.Mesh(tier2Geo, laceMat);
-    tier2.position.set(0, 0.22, 0);
-
-    group.add(tier1, tier2);
-  } else {
-    // Cyber neon joggers
-    const darkMat = createVinylMaterial(0x1e272e, { roughness: 0.3 });
-    const neonCyanMat = createVinylMaterial(0x00cec9, { roughness: 0.1, emissive: 0x00cec9, emissiveIntensity: 0.6 });
-
-    const waistGeo = new THREE.CylinderGeometry(0.125, 0.125, 0.06, 24);
-    const waist = new THREE.Mesh(waistGeo, darkMat);
-    waist.position.set(0, 0.31, 0);
-
-    const createJoggerLeg = (isLeft: boolean) => {
-      const g = new THREE.Group();
-      const x = isLeft ? 0.065 : -0.065;
-      g.position.set(x, 0.2, 0);
-
-      const legGeo = new THREE.CylinderGeometry(0.055, 0.045, 0.22, 16);
-      const leg = new THREE.Mesh(legGeo, darkMat);
-
-      const neonGeo = new THREE.BoxGeometry(0.008, 0.2, 0.01);
-      const neon = new THREE.Mesh(neonGeo, neonCyanMat);
-      neon.position.set(isLeft ? 0.05 : -0.05, 0, 0);
-
-      g.add(leg, neon);
-      return g;
-    };
-
-    group.add(waist, createJoggerLeg(true), createJoggerLeg(false));
+    prop.add(grip, barrel, cell, nozzle);
+    prop.rotation.set(0.1, 0, 0);
+    group.add(prop);
   }
 
   return group;
 }
 
-/**
- * Builds 3D Shoes Mesh
- */
-export function buildShoesMesh(shoesId: string): THREE.Group {
-  const group = new THREE.Group();
-  group.name = `Shoes_${shoesId}`;
-
-  if (shoesId === 'foot_zingspeed_combat_boots' || shoesId === 'shoes_high_boots_cyber_01') {
-    const leatherMat = createVinylMaterial(0x1e272e, { roughness: 0.3 });
-    const yellowMat = createVinylMaterial(0xfeca57, { roughness: 0.2 });
-
-    const createBoot = (isLeft: boolean) => {
-      const g = new THREE.Group();
-      const x = isLeft ? 0.065 : -0.065;
-      g.position.set(x, 0.06, 0.01);
-
-      const shaftGeo = new THREE.CylinderGeometry(0.048, 0.046, 0.12, 16);
-      const shaft = new THREE.Mesh(shaftGeo, leatherMat);
-
-      const footGeo = new THREE.BoxGeometry(0.075, 0.06, 0.15);
-      const foot = new THREE.Mesh(footGeo, leatherMat);
-      foot.position.set(0, -0.04, 0.02);
-
-      const soleGeo = new THREE.BoxGeometry(0.082, 0.02, 0.16);
-      const sole = new THREE.Mesh(soleGeo, yellowMat);
-      sole.position.set(0, -0.065, 0.02);
-
-      g.add(shaft, foot, sole);
-      return g;
-    };
-
-    group.add(createBoot(true), createBoot(false));
-  } else if (shoesId === 'foot_school_loafers' || shoesId === 'shoes_chibi_female_oxford_01') {
-    const isOxford = shoesId === 'shoes_chibi_female_oxford_01';
-    const brownLeatherMat = createVinylMaterial(isOxford ? 0x111111 : 0x4a2810, { roughness: 0.22 });
-    const sockMat = createVinylMaterial(0xffffff, { roughness: 0.4 });
-
-    const createLoafer = (isLeft: boolean) => {
-      const g = new THREE.Group();
-      const x = isLeft ? 0.065 : -0.065;
-      g.position.set(x, 0.05, 0.01);
-
-      const sockGeo = new THREE.CylinderGeometry(0.045, 0.044, 0.08, 16);
-      const sock = new THREE.Mesh(sockGeo, sockMat);
-      sock.position.set(0, 0.02, 0);
-
-      const shoeGeo = new THREE.BoxGeometry(0.072, 0.05, 0.14);
-      const shoe = new THREE.Mesh(shoeGeo, brownLeatherMat);
-      shoe.position.set(0, -0.03, 0.02);
-
-      g.add(sock, shoe);
-      return g;
-    };
-
-    group.add(createLoafer(true), createLoafer(false));
-  } else if (
-    shoesId === 'foot_cyber_neon_sneakers' ||
-    shoesId === 'foot_zingspeed_pastel_sneakers' ||
-    shoesId === 'shoes_chibi_male_sneaker_cyan_01' ||
-    shoesId === 'shoes_runner_sneakers_01'
-  ) {
-    const isNeon =
-      shoesId === 'foot_cyber_neon_sneakers' ||
-      shoesId === 'shoes_chibi_male_sneaker_cyan_01' ||
-      shoesId === 'shoes_runner_sneakers_01';
-    const mainMat = createVinylMaterial(isNeon ? 0x1e272e : 0xff9ff3, { roughness: 0.3 });
-    const soleMat = createVinylMaterial(isNeon ? 0x00cec9 : 0xffffff, {
-      roughness: 0.2,
-      emissive: isNeon ? 0x00cec9 : 0x000000,
-      emissiveIntensity: isNeon ? 0.5 : 0,
-    });
-
-    const createSneaker = (isLeft: boolean) => {
-      const g = new THREE.Group();
-      const x = isLeft ? 0.065 : -0.065;
-      g.position.set(x, 0.05, 0.02);
-
-      const upperGeo = new THREE.SphereGeometry(0.05, 16, 16);
-      upperGeo.scale(0.85, 0.8, 1.4);
-      const upper = new THREE.Mesh(upperGeo, mainMat);
-
-      const soleGeo = new THREE.BoxGeometry(0.08, 0.035, 0.16);
-      const sole = new THREE.Mesh(soleGeo, soleMat);
-      sole.position.set(0, -0.03, 0);
-
-      g.add(upper, sole);
-      return g;
-    };
-
-    group.add(createSneaker(true), createSneaker(false));
-  } else {
-    // Maglev hover skates
-    const cyanThrusterMat = createVinylMaterial(0x00cec9, { roughness: 0.1, emissive: 0x00cec9, emissiveIntensity: 0.7 });
-    const frameMat = createVinylMaterial(0x2d3436, { roughness: 0.2 });
-
-    const createSkate = (isLeft: boolean) => {
-      const g = new THREE.Group();
-      const x = isLeft ? 0.065 : -0.065;
-      g.position.set(x, 0.05, 0);
-
-      const frameGeo = new THREE.BoxGeometry(0.08, 0.04, 0.18);
-      const frame = new THREE.Mesh(frameGeo, frameMat);
-
-      const ringGeo = new THREE.TorusGeometry(0.03, 0.008, 8, 16);
-      const frontRing = new THREE.Mesh(ringGeo, cyanThrusterMat);
-      frontRing.position.set(0, -0.03, 0.05);
-      frontRing.rotation.x = Math.PI / 2;
-
-      const backRing = frontRing.clone();
-      backRing.position.set(0, -0.03, -0.05);
-
-      g.add(frame, frontRing, backRing);
-      return g;
-    };
-
-    group.add(createSkate(true), createSkate(false));
-  }
-
-  return group;
+export function buildBottomMesh(_bottomId: string): THREE.Group {
+  return new THREE.Group();
 }
 
-/**
- * Builds 3D Accessory Mesh (Accessories, 3D Wings, Headwear)
- */
-export function buildAccessoryMesh(accId: string): THREE.Group {
-  const group = new THREE.Group();
-  group.name = `Accessory_${accId}`;
-
-  if (accId === 'acc_cat_paw_sling_bag') {
-    const bagMat = createVinylMaterial(0xffffff, { roughness: 0.3 });
-    const pinkPawMat = createVinylMaterial(0xff9ff3, { roughness: 0.2, emissive: 0xff9ff3, emissiveIntensity: 0.2 });
-    const strapMat = createVinylMaterial(0x576574, { roughness: 0.4 });
-
-    const pouchGeo = new THREE.SphereGeometry(0.065, 20, 20);
-    pouchGeo.scale(1.1, 1.0, 0.6);
-    const pouch = new THREE.Mesh(pouchGeo, bagMat);
-    pouch.position.set(0.12, 0.38, 0.12);
-
-    const centerPadGeo = new THREE.SphereGeometry(0.024, 16, 16);
-    centerPadGeo.scale(1.1, 0.9, 0.3);
-    const centerPad = new THREE.Mesh(centerPadGeo, pinkPawMat);
-    centerPad.position.set(0.12, 0.37, 0.155);
-
-    for (let i = -1; i <= 1; i++) {
-      const toeGeo = new THREE.SphereGeometry(0.012, 12, 12);
-      toeGeo.scale(1, 1, 0.3);
-      const toe = new THREE.Mesh(toeGeo, pinkPawMat);
-      toe.position.set(0.12 + i * 0.024, 0.41, 0.155);
-      group.add(toe);
-    }
-
-    const strapCurve = new THREE.QuadraticBezierCurve3(
-      new THREE.Vector3(-0.12, 0.52, -0.06),
-      new THREE.Vector3(0.02, 0.45, 0.12),
-      new THREE.Vector3(0.12, 0.38, 0.12)
-    );
-    const strapGeo = new THREE.TubeGeometry(strapCurve, 16, 0.008, 8, false);
-    const strap = new THREE.Mesh(strapGeo, strapMat);
-
-    group.add(pouch, centerPad, strap);
-  } else if (accId === 'acc_star_choker') {
-    const chokerMat = createVinylMaterial(0x1e272e, { roughness: 0.3 });
-    const goldStarMat = createVinylMaterial(0xfeca57, { roughness: 0.1, emissive: 0xfeca57, emissiveIntensity: 0.4 });
-
-    const bandGeo = new THREE.TorusGeometry(0.075, 0.007, 8, 24);
-    const band = new THREE.Mesh(bandGeo, chokerMat);
-    band.position.set(0, 0.58, 0);
-    band.rotation.x = Math.PI / 2;
-
-    const starGeo = new THREE.OctahedronGeometry(0.022, 0);
-    const star = new THREE.Mesh(starGeo, goldStarMat);
-    star.position.set(0, 0.58, 0.082);
-
-    group.add(band, star);
-  } else if (accId === 'acc_angel_celestial_wings') {
-    // 3D Celestial Angel Wings
-    const featherWhiteMat = createVinylMaterial(0xffffff, { roughness: 0.2, emissive: 0xffffff, emissiveIntensity: 0.25 });
-    const featherGoldMat = createVinylMaterial(0xfeca57, { roughness: 0.15, emissive: 0xfeca57, emissiveIntensity: 0.4 });
-
-    const createWing = (isLeft: boolean) => {
-      const g = new THREE.Group();
-      g.position.set(isLeft ? 0.08 : -0.08, 0.52, -0.1);
-
-      // Feather layers
-      for (let i = 0; i < 5; i++) {
-        const fGeo = new THREE.ConeGeometry(0.04, 0.24 + i * 0.06, 6);
-        fGeo.scale(1, 1, 0.3);
-        const fMesh = new THREE.Mesh(fGeo, i % 2 === 0 ? featherWhiteMat : featherGoldMat);
-        fMesh.position.set(isLeft ? i * 0.05 + 0.04 : -i * 0.05 - 0.04, i * 0.05 + 0.02, -i * 0.04);
-        fMesh.rotation.set(-0.2, isLeft ? 0.4 : -0.4, isLeft ? -0.4 - i * 0.12 : 0.4 + i * 0.12);
-        g.add(fMesh);
-      }
-      return g;
-    };
-
-    group.add(createWing(true), createWing(false));
-  } else if (accId === 'acc_devil_bat_wings') {
-    // 3D Demonic Shadow Bat Wings
-    const batMat = createVinylMaterial(0x2d132c, { roughness: 0.25, emissive: 0x801336, emissiveIntensity: 0.3 });
-    const boneMat = createVinylMaterial(0x1a1a1a, { roughness: 0.1 });
-
-    const createBatWing = (isLeft: boolean) => {
-      const g = new THREE.Group();
-      g.position.set(isLeft ? 0.08 : -0.08, 0.54, -0.1);
-
-      // Curved bone strut
-      const boneCurve = new THREE.QuadraticBezierCurve3(
-        new THREE.Vector3(0, 0, 0),
-        new THREE.Vector3(isLeft ? 0.15 : -0.15, 0.18, -0.05),
-        new THREE.Vector3(isLeft ? 0.32 : -0.32, 0.12, -0.12)
-      );
-      const boneGeo = new THREE.TubeGeometry(boneCurve, 12, 0.015, 8, false);
-      const bone = new THREE.Mesh(boneGeo, boneMat);
-
-      // Wing membrane
-      for (let i = 0; i < 3; i++) {
-        const memGeo = new THREE.ConeGeometry(0.06, 0.22, 4);
-        memGeo.scale(1, 1, 0.15);
-        const mem = new THREE.Mesh(memGeo, batMat);
-        mem.position.set(isLeft ? 0.1 + i * 0.08 : -0.1 - i * 0.08, -0.02 - i * 0.04, -0.08);
-        mem.rotation.set(-0.1, isLeft ? 0.3 : -0.3, isLeft ? -0.6 - i * 0.2 : 0.6 + i * 0.2);
-        g.add(mem);
-      }
-
-      g.add(bone);
-      return g;
-    };
-
-    group.add(createBatWing(true), createBatWing(false));
-  } else if (accId === 'acc_fairy_butterfly_wings') {
-    // 3D Ethereal Fairy Butterfly Wings
-    const fairyMat = createVinylMaterial(0x74b9ff, {
-      roughness: 0.1,
-      transparent: true,
-      opacity: 0.8,
-      emissive: 0xa29bfe,
-      emissiveIntensity: 0.5,
-    });
-
-    const createFairyWing = (isLeft: boolean) => {
-      const g = new THREE.Group();
-      g.position.set(isLeft ? 0.08 : -0.08, 0.52, -0.1);
-
-      // Upper petal
-      const upGeo = new THREE.SphereGeometry(0.12, 16, 16);
-      upGeo.scale(1.2, 1.4, 0.1);
-      const upWing = new THREE.Mesh(upGeo, fairyMat);
-      upWing.position.set(isLeft ? 0.14 : -0.14, 0.1, 0);
-      upWing.rotation.set(-0.1, isLeft ? 0.4 : -0.4, isLeft ? -0.3 : 0.3);
-
-      // Lower petal
-      const downGeo = new THREE.SphereGeometry(0.08, 16, 16);
-      downGeo.scale(1.0, 1.3, 0.1);
-      const downWing = new THREE.Mesh(downGeo, fairyMat);
-      downWing.position.set(isLeft ? 0.12 : -0.12, -0.08, 0);
-      downWing.rotation.set(-0.1, isLeft ? 0.3 : -0.3, isLeft ? -0.1 : 0.1);
-
-      g.add(upWing, downWing);
-      return g;
-    };
-
-    group.add(createFairyWing(true), createFairyWing(false));
-  } else if (accId === 'acc_phoenix_fire_wings') {
-    // 3D Blazing Phoenix Flame Wings
-    const flameOrangeMat = createVinylMaterial(0xe17055, { roughness: 0.15, emissive: 0xd63031, emissiveIntensity: 0.7 });
-    const flameGoldMat = createVinylMaterial(0xfdcb6e, { roughness: 0.1, emissive: 0xf39c12, emissiveIntensity: 0.8 });
-
-    const createFlameWing = (isLeft: boolean) => {
-      const g = new THREE.Group();
-      g.position.set(isLeft ? 0.08 : -0.08, 0.52, -0.1);
-
-      for (let i = 0; i < 4; i++) {
-        const bladeGeo = new THREE.ConeGeometry(0.045, 0.28 + i * 0.06, 5);
-        bladeGeo.scale(1, 1, 0.25);
-        const blade = new THREE.Mesh(bladeGeo, i % 2 === 0 ? flameOrangeMat : flameGoldMat);
-        blade.position.set(isLeft ? i * 0.06 + 0.04 : -i * 0.06 - 0.04, i * 0.06, -i * 0.05);
-        blade.rotation.set(-0.25, isLeft ? 0.4 : -0.4, isLeft ? -0.5 - i * 0.15 : 0.5 + i * 0.15);
-        g.add(blade);
-      }
-      return g;
-    };
-
-    group.add(createFlameWing(true), createFlameWing(false));
-  } else if (accId === 'acc_chibi_female_star_clip_01') {
-    // Aoi Gold Star Hair Clip
-    const goldMat = createVinylMaterial(0xfdcb6e, { roughness: 0.15, emissive: 0xfdcb6e, emissiveIntensity: 0.4 });
-    const clipMat = createVinylMaterial(0xff7675, { roughness: 0.3 });
-
-    const starGeo = new THREE.OctahedronGeometry(0.045, 0);
-    const star = new THREE.Mesh(starGeo, goldMat);
-    star.position.set(0.19, 0.88, 0.12);
-
-    const pinGeo = new THREE.BoxGeometry(0.01, 0.04, 0.005);
-    const pin = new THREE.Mesh(pinGeo, clipMat);
-    pin.position.set(0.18, 0.88, 0.11);
-    pin.rotation.z = -0.4;
-
-    group.add(star, pin);
-  } else if (accId === 'acc_chibi_male_cyber_headset_01') {
-    // Ren Studio Bluetooth Headset
-    const darkMat = createVinylMaterial(0x1e272e, { roughness: 0.25 });
-    const silverMat = createVinylMaterial(0xdcdde1, { roughness: 0.2, metalness: 0.8 });
-    const cyanLightMat = createVinylMaterial(0x00cec9, { roughness: 0.1, emissive: 0x00cec9, emissiveIntensity: 0.6 });
-
-    // Headband
-    const bandGeo = new THREE.TorusGeometry(0.24, 0.012, 8, 24, Math.PI);
-    const band = new THREE.Mesh(bandGeo, darkMat);
-    band.position.set(0, 0.77, 0);
-    band.rotation.x = -Math.PI / 2;
-
-    // Ear cups
-    for (const isLeft of [true, false]) {
-      const cupGeo = new THREE.CylinderGeometry(0.055, 0.055, 0.03, 16);
-      const cup = new THREE.Mesh(cupGeo, darkMat);
-      cup.position.set(isLeft ? 0.24 : -0.24, 0.74, 0);
-      cup.rotation.z = Math.PI / 2;
-
-      const ringGeo = new THREE.TorusGeometry(0.04, 0.005, 8, 16);
-      const ring = new THREE.Mesh(ringGeo, cyanLightMat);
-      ring.position.set(isLeft ? 0.256 : -0.256, 0.74, 0);
-      ring.rotation.y = Math.PI / 2;
-
-      group.add(cup, ring);
-    }
-    group.add(band);
-  } else if (accId === 'acc_cat_ears_headband' || accId === 'acc_chibi_female_cat_headphones_01') {
-    // Neko Cat Ears Headband / RGB Cat Headphones
-    const isRGB = accId === 'acc_chibi_female_cat_headphones_01';
-    const bandMat = createVinylMaterial(isRGB ? 0x2d3436 : 0x1e272e, { roughness: 0.3 });
-    const earOuterMat = createVinylMaterial(isRGB ? 0xff7675 : 0xffffff, { roughness: 0.4 });
-    const earInnerMat = createVinylMaterial(isRGB ? 0x00cec9 : 0xff7675, {
-      roughness: 0.3,
-      emissive: isRGB ? 0x00cec9 : 0x000000,
-      emissiveIntensity: isRGB ? 0.6 : 0,
-    });
-
-    const bandGeo = new THREE.TorusGeometry(0.24, 0.008, 8, 24, Math.PI);
-    const band = new THREE.Mesh(bandGeo, bandMat);
-    band.position.set(0, 0.76, 0);
-    band.rotation.x = -Math.PI / 2;
-
-    const createEar = (isLeft: boolean) => {
-      const g = new THREE.Group();
-      const x = isLeft ? 0.14 : -0.14;
-      g.position.set(x, 0.98, 0);
-      g.rotation.z = isLeft ? -0.25 : 0.25;
-
-      const outerGeo = new THREE.ConeGeometry(0.045, 0.1, 4);
-      outerGeo.scale(1, 1, 0.6);
-      const outer = new THREE.Mesh(outerGeo, earOuterMat);
-
-      const innerGeo = new THREE.ConeGeometry(0.03, 0.07, 4);
-      innerGeo.scale(1, 1, 0.4);
-      const inner = new THREE.Mesh(innerGeo, earInnerMat);
-      inner.position.set(0, -0.01, 0.015);
-
-      g.add(outer, inner);
-      return g;
-    };
-
-    group.add(band, createEar(true), createEar(false));
-  } else if (accId === 'acc_angel_halo') {
-    // Holy Golden Halo
-    const haloMat = createVinylMaterial(0xfeca57, { roughness: 0.05, metalness: 0.8, emissive: 0xffd32a, emissiveIntensity: 0.75 });
-    const haloGeo = new THREE.TorusGeometry(0.12, 0.012, 12, 32);
-    const halo = new THREE.Mesh(haloGeo, haloMat);
-    halo.position.set(0, 1.08, -0.04);
-    halo.rotation.x = Math.PI / 2 - 0.2;
-    group.add(halo);
-  } else if (accId === 'acc_cyber_visor' || accId === 'acc_chibi_male_smart_glasses_01') {
-    // Holo Cyber Visor / AR Smart Glasses
-    const visorMat = createVinylMaterial(0x00cec9, {
-      roughness: 0.05,
-      transparent: true,
-      opacity: 0.85,
-      emissive: 0x00cec9,
-      emissiveIntensity: 0.7,
-    });
-    const frameMat = createVinylMaterial(0x2d3436, { roughness: 0.2 });
-
-    const visorCurve = new THREE.QuadraticBezierCurve3(
-      new THREE.Vector3(-0.18, 0.74, 0.14),
-      new THREE.Vector3(0, 0.74, 0.26),
-      new THREE.Vector3(0.18, 0.74, 0.14)
-    );
-    const visorGeo = new THREE.TubeGeometry(visorCurve, 20, 0.018, 8, false);
-    const visor = new THREE.Mesh(visorGeo, visorMat);
-
-    const frameGeo = new THREE.BoxGeometry(0.02, 0.04, 0.04);
-    const leftFrame = new THREE.Mesh(frameGeo, frameMat);
-    leftFrame.position.set(0.18, 0.74, 0.14);
-    const rightFrame = leftFrame.clone();
-    rightFrame.position.set(-0.18, 0.74, 0.14);
-
-    group.add(visor, leftFrame, rightFrame);
-  } else if (accId === 'acc_wizard_hat') {
-    // Arcane Wizard Hat
-    const velvetMat = createVinylMaterial(0x341f97, { roughness: 0.4 });
-    const goldMat = createVinylMaterial(0xf1c40f, { roughness: 0.1, metalness: 0.8, emissive: 0xf1c40f, emissiveIntensity: 0.4 });
-
-    // Hat brim
-    const brimGeo = new THREE.CylinderGeometry(0.3, 0.3, 0.02, 32);
-    const brim = new THREE.Mesh(brimGeo, velvetMat);
-    brim.position.set(0, 0.94, -0.02);
-    brim.rotation.x = -0.15;
-
-    // Cone crown
-    const coneGeo = new THREE.ConeGeometry(0.18, 0.32, 24);
-    const cone = new THREE.Mesh(coneGeo, velvetMat);
-    cone.position.set(0, 1.08, -0.06);
-    cone.rotation.x = -0.3;
-
-    // Star buckle
-    const starGeo = new THREE.OctahedronGeometry(0.03, 0);
-    const star = new THREE.Mesh(starGeo, goldMat);
-    star.position.set(0, 0.98, 0.12);
-
-    group.add(brim, cone, star);
-  } else {
-    // Cyber photon wings (default accessory)
-    const wingMat = createVinylMaterial(0x00cec9, {
-      roughness: 0.1,
-      transparent: true,
-      opacity: 0.85,
-      emissive: 0x00cec9,
-      emissiveIntensity: 0.6,
-    });
-
-    const createWing = (isLeft: boolean) => {
-      const g = new THREE.Group();
-      g.name = isLeft ? 'LeftPhotonWing' : 'RightPhotonWing';
-      const x = isLeft ? 0.08 : -0.08;
-      g.position.set(x, 0.52, -0.08);
-
-      for (let i = 0; i < 4; i++) {
-        const featherGeo = new THREE.BoxGeometry(0.015, 0.06 + i * 0.04, 0.2 + i * 0.08);
-        const feather = new THREE.Mesh(featherGeo, wingMat);
-        feather.position.set(isLeft ? i * 0.04 : -i * 0.04, i * 0.04, -i * 0.06);
-        feather.rotation.set(-0.2, isLeft ? 0.3 : -0.3, isLeft ? -0.2 : 0.2);
-        g.add(feather);
-      }
-
-      return g;
-    };
-
-    group.add(createWing(true), createWing(false));
-  }
-
-  return group;
+export function buildShoesMesh(_shoesId: string): THREE.Group {
+  return new THREE.Group();
 }

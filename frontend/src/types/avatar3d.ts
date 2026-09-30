@@ -6,6 +6,8 @@ export type Gender3D = 'MALE' | 'FEMALE' | 'UNISEX';
 
 export type AnimationState3D =
   | 'IDLE'
+  | 'RUN'
+  | 'HOLD_ITEM'
   | 'THINKING'
   | 'CORRECT'
   | 'STREAK'
@@ -137,6 +139,10 @@ export interface MatchingOutfitSet {
   maleItemIds?: string[];
   femalePreviewNames?: string[];
   malePreviewNames?: string[];
+  baseBodyId?: string;
+  hairId?: string;
+  topId?: string;
+  accessoryId?: string;
   isOwned?: boolean;
   canAfford?: boolean;
 }

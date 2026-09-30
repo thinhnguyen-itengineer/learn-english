@@ -14,6 +14,7 @@ import { Battle1v1Game } from './components/Battle1v1Game';
 import { MatchmakingRadar, MatchmakingPlayer } from './components/ui/MatchmakingRadar';
 import { MatchResultModal, MatchResultData } from './components/ui/MatchResultModal';
 import { TidMiniGameModal } from './components/TidMiniGameModal';
+import { SkyBlasterGame } from './components/SkyBlasterGame';
 import { ProfileModal } from './components/avatar/ProfileModal';
 import { FittingRoom3DModal } from './components/avatar3d/FittingRoom3DModal';
 import { useAvatar3DStore } from './services/useAvatar3DStore';
@@ -41,7 +42,7 @@ import {
 import { api } from './services/api';
 import { battleSignalR } from './services/battleSignalR';
 
-type ActiveView = 'lobby' | 'wordMatch' | 'speedFalling' | 'sentenceScramble' | 'audioBlitz' | 'clozeMaster' | 'grammarDetective' | 'battle';
+type ActiveView = 'lobby' | 'wordMatch' | 'speedFalling' | 'sentenceScramble' | 'audioBlitz' | 'clozeMaster' | 'grammarDetective' | 'battle' | 'skyBlaster';
 
 export function App() {
   const [profile, setProfile] = useState<UserProfileDto | null>(null);
@@ -411,17 +412,19 @@ export function App() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-indigo-500 selection:text-white">
-      {/* Top Navigation */}
-      <Navbar 
-        profile={profile} 
-        myRank={myRank}
-        onOpenLeaderboard={handleOpenWeeklyLeaderboard}
-        onOpenBattleLeaderboard={() => setShowBattleLeaderboard(true)}
-        onStart1v1Battle={() => handleStart1v1Battle()}
-        onReturnToLobby={handleBackToLobby}
-        onOpenProfile={() => setShowProfileModal(true)}
-        onOpenFittingRoom3D={() => setShowFittingRoom3DModal(true)}
-      />
+      {/* Top Navigation (Only shown in lobby and non-fullscreen views) */}
+      {activeView !== 'battle' && activeView !== 'skyBlaster' && (
+        <Navbar 
+          profile={profile} 
+          myRank={myRank}
+          onOpenLeaderboard={handleOpenWeeklyLeaderboard}
+          onOpenBattleLeaderboard={() => setShowBattleLeaderboard(true)}
+          onStart1v1Battle={() => handleStart1v1Battle()}
+          onReturnToLobby={handleBackToLobby}
+          onOpenProfile={() => setShowProfileModal(true)}
+          onOpenFittingRoom3D={() => setShowFittingRoom3DModal(true)}
+        />
+      )}
 
       {/* Main View Router */}
       <main className="flex-1 pb-16">
@@ -433,6 +436,7 @@ export function App() {
             onStart1v1Battle={handleStart1v1Battle}
             onOpenBattleLeaderboard={() => setShowBattleLeaderboard(true)}
             onPlayTidGame={(gameCode) => setActiveTidGame(gameCode)}
+            onStartSkyBlaster={() => setActiveView('skyBlaster')}
             onRefreshProfile={refreshProfileAndRank}
             isLoading={isLoading} 
           />
@@ -446,6 +450,16 @@ export function App() {
             myRank={myRank}
             onMatchFinished={handleBattleMatchFinished}
             onExit={handleBattleBackToLobby}
+          />
+        )}
+
+        {/* Sky Blaster: Listening 1v1 Arena Mode Screen */}
+        {activeView === 'skyBlaster' && (
+          <SkyBlasterGame
+            onExit={() => {
+              setActiveView('lobby');
+              refreshProfileAndRank();
+            }}
           />
         )}
 
