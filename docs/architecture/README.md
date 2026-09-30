@@ -19,7 +19,7 @@ Chào mừng đến với thư viện kiến trúc hệ thống của dự án *
    - **Tên:** Kiến Trúc Hệ Thống: Bảng Xếp Hạng & Đấu Đối Kháng Trực Tiếp 1v1 (System Architecture: Leaderboard & 1v1 Battle).
    - **Phạm vi:** SignalR BattleHub WebSocket protocol, In-Memory Matchmaking Queue, Elo Rating Engine, Bot Simulation Runner, PostgreSQL Schema cho Realtime PvP.
 
-3. **[avatar-and-shop-architecture.md](./avatar-and-shop-architecture.md) (Mới - PHU-22):**
+3. **[avatar-and-shop-architecture.md](./avatar-and-shop-architecture.md) (PHU-22):**
    - **Tên:** Thiết Kế Kiến Trúc Kỹ Thuật: Hệ Thống Hồ Sơ Cá Nhân Hóa (Avatar Customization), Cửa Hàng Vật Phẩm Game Hóa & Kinh Tế Token (System Architecture: Modular 2D Avatar, Gamified Item Shop & Token Economy).
    - **Phạm vi:**
      - **Trụ cột 1: Modular 2D Layered Avatar Engine:** Hệ tọa độ 500x600 px, 11 tầng Z-Index (từ Handheld, Eyewear, Headwear, Tops, Bottoms, Footwear đến Base Body & Pedestal Aura), cơ chế đổi màu động qua CSS Variables (`--avatar-skin-color`, `--avatar-hair-color`). Component `ModularAvatar.tsx` hỗ trợ Full-body, Thumbnail 40px và Idle Breathing animation.
@@ -28,9 +28,20 @@ Chào mừng đến với thư viện kiến trúc hệ thống của dự án *
      - **Trụ cột 4: Quản Lý Tủ Đồ & Bộ Phối Yêu Thích (Presets):** Tủ đồ cá nhân, trang bị/tháo bỏ vật phẩm, lưu và chuyển đổi tức thì giữa 3 bộ Outfit Presets.
    - **Thành phần kỹ thuật:** CSDL PostgreSQL (6 bảng DDL), Entity Framework Core 8 Entities & Migrations, 5 Bộ RESTful Controllers (`Profile`, `Avatar`, `Shop`, `Inventory`, `Tokens`), Hợp đồng API contracts đầy đủ.
 
+4. **[3d-chibi-avatar-and-modular-wardrobe-architecture.md](./3d-chibi-avatar-and-modular-wardrobe-architecture.md) (Mới - PHU-29):**
+   - **Tên:** Thiết Kế Kiến Trúc Kỹ Thuật: Hệ Thống Nhân Vật 3D Chibi & Tủ Đồ Module Thời Gian Thực (Three.js / WebGL & .NET 8 API).
+   - **Phạm vi:**
+     - **Trụ cột 1: Canvas 3D & WebGL Viewport:** React 19 + React Three Fiber + Drei, PerspectiveCamera (FOV 35°), Studio 3-point lighting, ContactShadows, OrbitControls giới hạn góc xoay [-15°, +45°] và zoom cự ly [1.2m, 3.0m].
+     - **Trụ cột 2: SkinnedMesh Re-parenting Pipeline:** Master Humanoid Rig 42 bones, thuật toán gắn động mesh trang phục độc lập vào bộ xương gốc thời gian thực (< 100ms với asset đã cache).
+     - **Trụ cột 3: Auto Mesh Culling & Chống Xuyên Thấu:** Cơ chế `hide_slots_when_equipped` kết hợp mặt nạ da cơ thể `masked_body_parts` (ẩn các sub-mesh che phủ trên BaseBody) triệt tiêu 100% lỗi clipping polygon.
+     - **Trụ cột 4: Quản Lý Bộ Nhớ WebGL:** Chu trình thu gom tài nguyên 4 bước (`geometry.dispose()`, `material.dispose()`, `texture.dispose()`, `scene.remove()`) loại bỏ hiện tượng rò rỉ RAM/VRAM trên thiết bị di động.
+     - **Trụ cột 5: Máy Trạng Thái Hoạt Họa 8 Bước:** Phản hồi học tập tức thì (Idle, Thinking, Correct, Streak Fire, Confused, Try-on Sparkle, Victory Chibi Dance, Defeat Pout).
+   - **Thành phần kỹ thuật:** CSDL PostgreSQL (3 bảng DDL: `avatar_items_3d`, `user_avatar_equips_3d`, `avatar_presets_3d`), 2 Controllers .NET 8 (`Avatar3DController`, `Shop3DController`), Hợp đồng RESTful API 8 endpoints đầy đủ.
+
 ---
 
 ## 2. Tiêu Chuẩn & Quy Định Kỹ Thuật Dành Cho Subordinates
 
-- **UI/UX Designer (`c74ffe18-11a2-47b9-a7f4-a3600b2f07c0`):** Tuân thủ tuyệt đối Tailwind token tokens layer trong `docs/design/design-system.md` và các wireframe ASCII trong tài liệu kiến trúc.
-- **Senior Fullstack Engineer (`e78be358-35da-419c-bf21-24a27e284561`):** Triển khai đúng các hợp đồng API RESTful, thực thi migrations EF Core khớp với DDL, triển khai đầy đủ các Hosted Services và đảm bảo `dotnet build` cùng `npm run build` không có lỗi.
+- **UI/UX Designer (`c74ffe18-11a2-47b9-a7f4-a3600b2f07c0`):** Tuân thủ tuyệt đối Tailwind token layer trong `docs/design/design-system.md` và các wireframe trong tài liệu kiến trúc.
+- **Senior Fullstack Engineer (`e78be358-35da-419c-bf21-24a27e284561`):** Triển khai đúng các hợp đồng API RESTful, thực thi migrations EF Core khớp với DDL, triển khai đầy đủ các Canvas Three.js R3F components và đảm bảo `dotnet build` cùng `npm run build` không có lỗi.
+
