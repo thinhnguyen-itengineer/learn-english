@@ -13,13 +13,15 @@ interface FittingRoomModalProps {
 
 const CATEGORIES: { key: string; label: string; icon: string }[] = [
   { key: 'all', label: 'Tất cả', icon: '✨' },
+  { key: 'bundle', label: 'Nguyên Set', icon: '🎁' },
+  { key: 'ticket', label: 'Vé IELTS / TOEIC', icon: '🎟️' },
+  { key: 'wings', label: 'Cánh', icon: '🪽' },
   { key: 'tops', label: 'Áo ngoài', icon: '👕' },
   { key: 'bottoms', label: 'Quần / Váy', icon: '👖' },
   { key: 'footwear', label: 'Giày dép', icon: '👟' },
   { key: 'headwear', label: 'Mũ nón', icon: '🎩' },
   { key: 'eyewear', label: 'Kính mắt', icon: '👓' },
   { key: 'handheld', label: 'Cầm tay', icon: '📖' },
-  { key: 'wings', label: 'Cánh', icon: '🪽' },
   { key: 'aura_background', label: 'Hào quang', icon: '🔥' },
   { key: 'consumable', label: 'Vật phẩm', icon: '🧪' }
 ];
@@ -84,6 +86,17 @@ export const FittingRoomModal: React.FC<FittingRoomModalProps> = ({
       else if (slot === 'handheld' || cat === 'handheld') next.handheldId = item.itemCode;
       else if (slot === 'wings' || cat === 'wings') next.wingsId = item.itemCode;
       else if (slot === 'pedestal_aura' || cat === 'aura_background') next.auraBackgroundId = item.itemCode;
+      else if (cat === 'bundle') {
+        const bundleMap: Record<string, Partial<AvatarConfigDto>> = {
+          set_cyberpunk_master: { topsId: 'top_cyber_jacket', bottomsId: 'bot_cargo_joggers', eyewearId: 'eye_vr_visor', wingsId: 'wings_cyber_neon', auraBackgroundId: 'aura_floating_books' },
+          set_royal_scholar: { topsId: 'top_oxford_blazer', bottomsId: 'bot_classic_chinos', headwearId: 'head_graduation_cap', handheldId: 'hand_quill_pen', wingsId: 'wings_angel_celestial' },
+          set_phoenix_warlord: { topsId: 'top_wizard_robe', bottomsId: 'bot_wizard_skirt', headwearId: 'head_olympus_crown', wingsId: 'wings_phoenix_flame', auraBackgroundId: 'aura_golden_triumph' },
+          set_detective_holmes: { topsId: 'top_detective_trench', bottomsId: 'bot_suit_pants', headwearId: 'head_detective_hat', eyewearId: 'eye_steampunk_goggles', handheldId: 'hand_quill_pen' },
+          set_celestial_angel: { topsId: 'top_scholastic_hoodie', headwearId: 'head_olympus_crown', handheldId: 'hand_golden_mic', wingsId: 'wings_angel_celestial' }
+        };
+        const parts = bundleMap[item.itemCode];
+        if (parts) Object.assign(next, parts);
+      }
     });
     return next;
   }, [activeConfig, tryingOnItems]);

@@ -150,7 +150,7 @@ public class TokenLedgerService : ITokenLedgerService
                 throw new InvalidOperationException($"Cần đạt Level {item.RequiredLevel} để mua vật phẩm này (Level hiện tại: {profile.CurrentLevel}).");
             }
 
-            if (item.Category != "consumable")
+            if (item.Category != "consumable" && item.Category != "ticket")
             {
                 var alreadyOwned = await _context.UserInventories.AnyAsync(x => x.UserId == userId && x.ItemId == item.Id);
                 if (alreadyOwned)
@@ -192,6 +192,33 @@ public class TokenLedgerService : ITokenLedgerService
                 AcquiredAt = DateTime.UtcNow
             };
             _context.UserInventories.Add(inventoryItem);
+
+            // If purchasing a bundle/set, auto-grant all constituent items into inventory
+            if (item.Category == "bundle")
+            {
+                var constituentCodes = GetBundleConstituentCodes(item.ItemCode);
+                var subItems = await _context.ShopItems
+                    .Where(x => constituentCodes.Contains(x.ItemCode))
+                    .ToListAsync();
+
+                foreach (var sub in subItems)
+                {
+                    var hasSub = await _context.UserInventories.AnyAsync(x => x.UserId == userId && x.ItemId == sub.Id);
+                    if (!hasSub)
+                    {
+                        _context.UserInventories.Add(new UserInventory
+                        {
+                            Id = Guid.NewGuid(),
+                            UserId = userId,
+                            ItemId = sub.Id,
+                            TokenSpent = 0,
+                            IsEquipped = autoEquip,
+                            AcquiredFrom = $"bundle_{item.ItemCode}",
+                            AcquiredAt = DateTime.UtcNow
+                        });
+                    }
+                }
+            }
 
             if (autoEquip)
             {
@@ -418,16 +445,51 @@ public class TokenLedgerService : ITokenLedgerService
         var slot = item.LayerSlot.ToLowerInvariant();
         var cat = item.Category.ToLowerInvariant();
 
-        if (slot == "tops" || cat == "tops") config.TopsId = item.ItemCode;
-        else if (slot == "bottoms" || cat == "bottoms") config.BottomsId = item.ItemCode;
-        else if (slot == "footwear" || cat == "footwear") config.FootwearId = item.ItemCode;
-        else if (slot == "headwear" || cat == "headwear") config.HeadwearId = item.ItemCode;
-        else if (slot == "eyewear" || cat == "eyewear") config.EyewearId = item.ItemCode;
-        else if (slot == "neckwear" || cat == "neckwear") config.NeckwearId = item.ItemCode;
-        else if (slot == "handheld" || cat == "handheld") config.HandheldId = item.ItemCode;
-        else if (slot == "pedestal_aura" || cat == "aura_background") config.AuraBackgroundId = item.ItemCode;
-        else if (slot == "wings" || cat == "wings") config.WingsId = item.ItemCode;
+        if (cat == "bundle")
+        {
+            var codes = GetBundleConstituentCodes(item.ItemCode);
+            var subItems = await _context.ShopItems.Where(x => codes.Contains(x.ItemCode)).ToListAsync();
+            foreach (var sub in subItems)
+            {
+                var s = sub.LayerSlot.ToLowerInvariant();
+                var c = sub.Category.ToLowerInvariant();
+                if (s == "tops" || c == "tops") config.TopsId = sub.ItemCode;
+                else if (s == "bottoms" || c == "bottoms") config.BottomsId = sub.ItemCode;
+                else if (s == "footwear" || c == "footwear") config.FootwearId = sub.ItemCode;
+                else if (s == "headwear" || c == "headwear") config.HeadwearId = sub.ItemCode;
+                else if (s == "eyewear" || c == "eyewear") config.EyewearId = sub.ItemCode;
+                else if (s == "neckwear" || c == "neckwear") config.NeckwearId = sub.ItemCode;
+                else if (s == "handheld" || c == "handheld") config.HandheldId = sub.ItemCode;
+                else if (s == "pedestal_aura" || c == "aura_background") config.AuraBackgroundId = sub.ItemCode;
+                else if (s == "wings" || c == "wings") config.WingsId = sub.ItemCode;
+            }
+        }
+        else
+        {
+            if (slot == "tops" || cat == "tops") config.TopsId = item.ItemCode;
+            else if (slot == "bottoms" || cat == "bottoms") config.BottomsId = item.ItemCode;
+            else if (slot == "footwear" || cat == "footwear") config.FootwearId = item.ItemCode;
+            else if (slot == "headwear" || cat == "headwear") config.HeadwearId = item.ItemCode;
+            else if (slot == "eyewear" || cat == "eyewear") config.EyewearId = item.ItemCode;
+            else if (slot == "neckwear" || cat == "neckwear") config.NeckwearId = item.ItemCode;
+            else if (slot == "handheld" || cat == "handheld") config.HandheldId = item.ItemCode;
+            else if (slot == "pedestal_aura" || cat == "aura_background") config.AuraBackgroundId = item.ItemCode;
+            else if (slot == "wings" || cat == "wings") config.WingsId = item.ItemCode;
+        }
 
         config.UpdatedAt = DateTime.UtcNow;
+    }
+
+    public static List<string> GetBundleConstituentCodes(string bundleCode)
+    {
+        return bundleCode switch
+        {
+            "set_cyberpunk_master" => new List<string> { "top_cyber_jacket", "bot_cargo_joggers", "eye_vr_visor", "wings_cyber_neon", "aura_floating_books" },
+            "set_royal_scholar" => new List<string> { "top_oxford_blazer", "bot_classic_chinos", "head_graduation_cap", "hand_quill_pen", "wings_angel_celestial" },
+            "set_phoenix_warlord" => new List<string> { "top_wizard_robe", "bot_wizard_skirt", "head_olympus_crown", "wings_phoenix_flame", "aura_golden_triumph" },
+            "set_detective_holmes" => new List<string> { "top_detective_trench", "bot_suit_pants", "head_detective_hat", "eye_steampunk_goggles", "hand_quill_pen" },
+            "set_celestial_angel" => new List<string> { "top_scholastic_hoodie", "head_olympus_crown", "hand_golden_mic", "wings_angel_celestial" },
+            _ => new List<string>()
+        };
     }
 }

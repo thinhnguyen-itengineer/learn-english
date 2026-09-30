@@ -1,10 +1,13 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { AvatarConfigDto } from '../../types/avatarAndShop';
+import { Sparkles, Volume2 } from 'lucide-react';
 
 interface ModularAvatarProps {
   config: AvatarConfigDto;
   size?: number | string;
   animateBreath?: boolean;
+  enable4D?: boolean;
+  showControls?: boolean;
   mode?: 'full' | 'bust' | 'head';
   className?: string;
   onClick?: () => void;
@@ -14,10 +17,80 @@ export const ModularAvatar: React.FC<ModularAvatarProps> = ({
   config,
   size = '100%',
   animateBreath = false,
+  enable4D = true,
+  showControls = true,
   mode = 'full',
   className = '',
   onClick
 }) => {
+  const [tilt, setTilt] = useState({ x: 0, y: 0 });
+  const [isBlinking, setIsBlinking] = useState(false);
+  const [is4DMode, setIs4DMode] = useState(enable4D);
+  const [speech, setSpeech] = useState<string | null>(null);
+  const [isCheering, setIsCheering] = useState(false);
+
+  // Eyelid procedural blink cycle every 3.2s
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIsBlinking(true);
+      setTimeout(() => setIsBlinking(false), 160);
+    }, 3200);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Clear speech bubble after 4s
+  useEffect(() => {
+    if (speech) {
+      const timer = setTimeout(() => setSpeech(null), 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [speech]);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!is4DMode) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width - 0.5) * 2;
+    const y = ((e.clientY - rect.top) / rect.height - 0.5) * 2;
+    setTilt({ x: x * 10, y: -y * 10 });
+  };
+
+  const handleMouseLeave = () => {
+    setTilt({ x: 0, y: 0 });
+  };
+
+  const QUOTES = [
+    "Ready for your IELTS practice? Let's aim for Band 8.5!",
+    "Looking sharp today! That outfit is legendary! ✨",
+    "Keep that learning streak alive, champion!",
+    "TOEIC 990 is within reach! 15 minutes of focus!",
+    "Wings of Knowledge activated! Fly high and learn fast! 🪽"
+  ];
+
+  const speakQuote = (text: string) => {
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      try {
+        window.speechSynthesis.cancel();
+        const cleanText = text.replace(/[^\w\s\.\?!,']/g, '');
+        const utterance = new SpeechSynthesisUtterance(cleanText);
+        utterance.lang = 'en-US';
+        utterance.rate = 1.0;
+        utterance.pitch = 1.05;
+        window.speechSynthesis.speak(utterance);
+      } catch {
+        // Fallback safely if browser blocks audio
+      }
+    }
+  };
+
+  const handleAvatarClick = () => {
+    setIsCheering(true);
+    setTimeout(() => setIsCheering(false), 600);
+    const quote = QUOTES[Math.floor(Math.random() * QUOTES.length)];
+    setSpeech(quote);
+    speakQuote(quote);
+    if (onClick) onClick();
+  };
+
   const skin = config.skinColor || '#E8B898';
   const hair = config.hairColor || '#1C1917';
 
@@ -38,22 +111,85 @@ export const ModularAvatar: React.FC<ModularAvatarProps> = ({
 
   return (
     <div
-      onClick={onClick}
-      className={`relative inline-flex items-center justify-center select-none ${className}`}
+      onClick={handleAvatarClick}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      className={`relative inline-flex items-center justify-center select-none cursor-pointer group ${className}`}
       style={{
         width: typeof size === 'number' ? `${size}px` : size,
         aspectRatio: mode === 'full' ? '500 / 600' : '1 / 1',
-        maxWidth: '100%'
+        maxWidth: '100%',
+        perspective: '900px'
       }}
     >
+      {/* 5D Interactive Voice Speech Bubble */}
+      {speech && (
+        <div className="absolute -top-12 left-1/2 -translate-x-1/2 z-50 px-3.5 py-1.5 rounded-2xl bg-slate-900/95 text-white border-2 border-amber-400 text-xs font-bold shadow-2xl animate-bounce flex items-center gap-2 max-w-[280px] pointer-events-none">
+          <Volume2 className="w-3.5 h-3.5 text-amber-400 shrink-0 animate-pulse" />
+          <span className="line-clamp-2">{speech}</span>
+        </div>
+      )}
+
+      {/* 4D/5D Mode Indicator & Switcher */}
+      {showControls && mode === 'full' && (
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            setIs4DMode(!is4DMode);
+          }}
+          className={`absolute top-2 right-2 z-40 px-2.5 py-1 rounded-full text-[10px] font-black flex items-center gap-1 border transition-all ${
+            is4DMode
+              ? 'bg-gradient-to-r from-cyan-500/20 to-purple-500/20 text-cyan-300 border-cyan-400 shadow-[0_0_12px_rgba(6,182,212,0.4)]'
+              : 'bg-slate-800 text-slate-400 border-slate-700'
+          }`}
+          title="Bật/Tắt chế độ nhân vật 4D/5D đa chiều sống động"
+        >
+          <Sparkles className={`w-3 h-3 ${is4DMode ? 'text-cyan-400 animate-spin' : ''}`} />
+          <span>{is4DMode ? '✨ 4D/5D Live' : '2D Static'}</span>
+        </button>
+      )}
+
       <svg
         viewBox={viewBox}
-        className={`w-full h-full overflow-visible transition-transform duration-300 ${
+        className={`w-full h-full overflow-visible transition-transform duration-200 ${
           animateBreath ? 'animate-[pulse_4s_ease-in-out_infinite]' : ''
         }`}
+        style={{
+          transform: is4DMode
+            ? `rotateX(${tilt.y}deg) rotateY(${tilt.x}deg) ${isCheering ? 'scale(1.04)' : 'scale(1)'}`
+            : undefined,
+          transformStyle: 'preserve-3d'
+        }}
         xmlns="http://www.w3.org/2000/svg"
       >
         <defs>
+          <style>{`
+            @keyframes flutterLeft {
+              0%, 100% { transform: rotate(0deg); }
+              50% { transform: rotate(-5deg) translateY(-3px); }
+            }
+            @keyframes flutterRight {
+              0%, 100% { transform: rotate(0deg); }
+              50% { transform: rotate(5deg) translateY(-3px); }
+            }
+            @keyframes floatParticles {
+              0% { transform: translateY(0px) scale(0.9); opacity: 0.3; }
+              50% { transform: translateY(-12px) scale(1.1); opacity: 0.9; }
+              100% { transform: translateY(-24px) scale(0.9); opacity: 0.3; }
+            }
+            .wing-flap-left {
+              animation: flutterLeft 3.2s ease-in-out infinite;
+              transform-origin: 220px 240px;
+            }
+            .wing-flap-right {
+              animation: flutterRight 3.2s ease-in-out infinite;
+              transform-origin: 280px 240px;
+            }
+            .particle-orbit {
+              animation: floatParticles 4s ease-in-out infinite;
+            }
+          `}</style>
           {/* Gradients */}
           <radialGradient id="triumph-glow" cx="50%" cy="50%" r="50%">
             <stop offset="0%" stopColor="#F59E0B" stopOpacity="0.8" />
@@ -179,7 +315,7 @@ export const ModularAvatar: React.FC<ModularAvatarProps> = ({
             {config.wingsId === 'wings_angel_celestial' && (
               <g id="wings-angel" fill="url(#angel-wings-grad)" stroke="#D97706" strokeWidth="2" filter="url(#shadow-drop)">
                 {/* Left Wing */}
-                <g>
+                <g className={is4DMode ? 'wing-flap-left' : undefined}>
                   <path d="M 210 240 C 180 180, 110 120, 80 130 C 65 170, 70 230, 110 290 C 130 320, 170 340, 205 270 Z" />
                   <path d="M 205 245 C 160 200, 110 170, 95 210 C 90 240, 115 280, 145 310 C 175 320, 195 290, 205 260 Z" fill="#FFFBEB" stroke="#F59E0B" strokeWidth="1.5" />
                   <path d="M 205 240 C 175 220, 135 215, 125 245 C 120 270, 145 290, 175 295 Z" fill="#FFFFFF" stroke="#FBBF24" strokeWidth="1" />
@@ -187,7 +323,7 @@ export const ModularAvatar: React.FC<ModularAvatarProps> = ({
                   <circle cx="72" cy="190" r="4" fill="#FDE68A" />
                 </g>
                 {/* Right Wing */}
-                <g>
+                <g className={is4DMode ? 'wing-flap-right' : undefined}>
                   <path d="M 290 240 C 320 180, 390 120, 420 130 C 435 170, 430 230, 390 290 C 370 320, 330 340, 295 270 Z" />
                   <path d="M 295 245 C 340 200, 390 170, 405 210 C 410 240, 385 280, 355 310 C 325 320, 305 290, 295 260 Z" fill="#FFFBEB" stroke="#F59E0B" strokeWidth="1.5" />
                   <path d="M 295 240 C 325 220, 365 215, 375 245 C 380 270, 355 290, 325 295 Z" fill="#FFFFFF" stroke="#FBBF24" strokeWidth="1" />
@@ -201,7 +337,7 @@ export const ModularAvatar: React.FC<ModularAvatarProps> = ({
             {config.wingsId === 'wings_cyber_neon' && (
               <g id="wings-cyber">
                 {/* Left Cyber Blades */}
-                <g>
+                <g className={is4DMode ? 'wing-flap-left' : undefined}>
                   <polygon points="210,230 110,130 90,145 180,240" fill="#0F172A" stroke="#06B6D4" strokeWidth="2.5" />
                   <line x1="110" y1="130" x2="200" y2="230" stroke="#22D3EE" strokeWidth="2" className="animate-pulse" />
                   <polygon points="205,245 75,210 65,228 175,260" fill="#1E1B4B" stroke="#3B82F6" strokeWidth="2.5" />
@@ -213,7 +349,7 @@ export const ModularAvatar: React.FC<ModularAvatarProps> = ({
                   <circle cx="98" cy="305" r="4" fill="#E879F9" />
                 </g>
                 {/* Right Cyber Blades */}
-                <g>
+                <g className={is4DMode ? 'wing-flap-right' : undefined}>
                   <polygon points="290,230 390,130 410,145 320,240" fill="#0F172A" stroke="#06B6D4" strokeWidth="2.5" />
                   <line x1="390" y1="130" x2="300" y2="230" stroke="#22D3EE" strokeWidth="2" className="animate-pulse" />
                   <polygon points="295,245 425,210 435,228 325,260" fill="#1E1B4B" stroke="#3B82F6" strokeWidth="2.5" />
@@ -233,7 +369,7 @@ export const ModularAvatar: React.FC<ModularAvatarProps> = ({
             {config.wingsId === 'wings_phoenix_flame' && (
               <g id="wings-phoenix" fill="url(#phoenix-wings-grad)" stroke="#7F1D1D" strokeWidth="1.5" filter="url(#shadow-drop)">
                 {/* Left Flame Wing */}
-                <g>
+                <g className={is4DMode ? 'wing-flap-left' : undefined}>
                   <path d="M 210 230 Q 150 140 85 125 Q 120 170 115 205 Q 170 215 205 245 Z" />
                   <path d="M 205 240 Q 130 200 65 210 Q 100 240 100 270 Q 160 265 200 260 Z" fill="#F97316" />
                   <path d="M 200 255 Q 140 260 90 295 Q 130 310 145 330 Q 180 295 205 270 Z" fill="#FB923C" />
@@ -243,7 +379,7 @@ export const ModularAvatar: React.FC<ModularAvatarProps> = ({
                   <circle cx="82" cy="285" r="3" fill="#F97316" className="animate-bounce" />
                 </g>
                 {/* Right Flame Wing */}
-                <g>
+                <g className={is4DMode ? 'wing-flap-right' : undefined}>
                   <path d="M 290 230 Q 350 140 415 125 Q 380 170 385 205 Q 330 215 295 245 Z" />
                   <path d="M 295 240 Q 370 200 435 210 Q 400 240 400 270 Q 340 265 300 260 Z" fill="#F97316" />
                   <path d="M 300 255 Q 360 260 410 295 Q 370 310 355 330 Q 320 295 295 270 Z" fill="#FB923C" />
@@ -320,7 +456,13 @@ export const ModularAvatar: React.FC<ModularAvatarProps> = ({
           )}
 
           {/* Eyes */}
-          {config.eyeExpression === 'playful_wink' ? (
+          {isBlinking && is4DMode ? (
+            <g>
+              {/* Natural Procedural Blink - curved closed eyelids */}
+              <path d="M 216 143 Q 224 149 232 143" stroke="#1F2937" strokeWidth="3" strokeLinecap="round" fill="none" />
+              <path d="M 268 143 Q 276 149 284 143" stroke="#1F2937" strokeWidth="3" strokeLinecap="round" fill="none" />
+            </g>
+          ) : config.eyeExpression === 'playful_wink' ? (
             <g>
               {/* Left Eye: Open & Happy */}
               <circle cx="225" cy="142" r="8" fill="#1F2937" />

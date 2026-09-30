@@ -204,6 +204,60 @@ const DEFAULT_ITEMS: ShopItem[] = [
     rarity: 'legendary',
     tokenPrice: 3500,
   },
+  {
+    id: '20',
+    itemCode: 'set_cyberpunk_master',
+    name: 'Nguyên Set Cơ Khí Cyber Neon',
+    description: 'Trọn bộ tương lai cao cấp: Áo Bomber Cyber + Quần Túi Hộp + Kính VR Cyber + Cánh Cơ Khí Cyber Neon + Hào Quang Ma Trận.',
+    category: 'bundle',
+    rarity: 'legendary',
+    tokenPrice: 3200,
+  },
+  {
+    id: '21',
+    itemCode: 'set_royal_scholar',
+    name: 'Nguyên Set Đại Học Giả Hoàng Gia',
+    description: 'Trọn bộ học thuật vinh danh: Áo Vest Học Giả Oxford + Quần Kaki Chinos + Mũ Cử Nhân + Bút Lông Vũ Cổ Điển + Đôi Cánh Thiên Thần Tri Thức.',
+    category: 'bundle',
+    rarity: 'legendary',
+    tokenPrice: 3500,
+  },
+  {
+    id: '22',
+    itemCode: 'set_phoenix_warlord',
+    name: 'Nguyên Set Chiến Vương Phượng Hoàng',
+    description: 'Trọn bộ rực lửa thần thoại: Áo Choàng Đại Pháp Sư + Quần Pháp Sư + Vương Miện Quán Quân + Đôi Cánh Phượng Hoàng Lửa + Hào Quang Lửa Vàng.',
+    category: 'bundle',
+    rarity: 'legendary',
+    tokenPrice: 5800,
+  },
+  {
+    id: '23',
+    itemCode: 'ticket_ielts_mock_master',
+    name: 'Vé Thi Thử IELTS 4 Kỹ Năng Chuẩn Quốc Tế',
+    description: 'Mở khóa phòng thi IELTS tiêu chuẩn 4 kỹ năng với chấm điểm tự động và AI feedback chi tiết từng tiêu chí band điểm 1.0 - 9.0.',
+    category: 'ticket',
+    rarity: 'epic',
+    tokenPrice: 450,
+  },
+  {
+    id: '24',
+    itemCode: 'ticket_toeic_champion_exam',
+    name: 'Vé Đấu Trường TOEIC 990 Điểm',
+    description: 'Vé mở khóa phòng thi Full Test 200 câu TOEIC chuẩn format ETS với áp lực bấm giờ thời gian thực và phân tích bẫy ngữ pháp.',
+    category: 'ticket',
+    rarity: 'rare',
+    tokenPrice: 300,
+  },
+  {
+    id: '25',
+    itemCode: 'ticket_ielts_speaking_vip',
+    name: 'Vé Luyện Nói 1-1 IELTS VIP Với Giám Khảo AI',
+    description: 'Mở khóa 30 phút luyện nói chuyên sâu phòng thi 1v1 với giám khảo AI theo format Part 1-2-3 và nhận báo cáo phát âm Phoneme chi tiết.',
+    category: 'ticket',
+    rarity: 'legendary',
+    tokenPrice: 750,
+  }
 ];
 
 export const ShopModal: React.FC<ShopModalProps> = ({
@@ -237,13 +291,15 @@ export const ShopModal: React.FC<ShopModalProps> = ({
   // Categories
   const categories = [
     { id: 'all', label: 'Tất Cả' },
+    { id: 'bundle', label: '🎁 Nguyên Set' },
+    { id: 'ticket', label: '🎟️ Vé IELTS & TOEIC' },
+    { id: 'wings', label: '🪽 Cánh' },
     { id: 'tops', label: 'Áo' },
     { id: 'bottoms', label: 'Quần & Váy' },
     { id: 'footwear', label: 'Giày Dép' },
     { id: 'headwear', label: 'Mũ Nón' },
     { id: 'eyewear', label: 'Kính Mắt' },
     { id: 'neckwear', label: 'Phụ Kiện' },
-    { id: 'wings', label: 'Cánh' },
     { id: 'companion', label: 'Thú Cưng' },
     { id: 'aura', label: 'Hào Quang' },
     { id: 'preset_slot', label: 'Slot Preset' },
@@ -301,8 +357,20 @@ export const ShopModal: React.FC<ShopModalProps> = ({
       if (item.category === 'headwear') nextPreset.headwearId = item.itemCode;
       if (item.category === 'eyewear') nextPreset.eyewearId = item.itemCode;
       if (item.category === 'neckwear') nextPreset.neckwearId = item.itemCode;
+      if (item.category === 'wings') nextPreset.wingsId = item.itemCode;
       if (item.category === 'companion') nextPreset.companionId = item.itemCode;
       if (item.category === 'aura') nextPreset.auraId = item.itemCode;
+      if (item.category === 'bundle') {
+        const bundleMap: Record<string, Partial<AvatarPresetConfig>> = {
+          set_cyberpunk_master: { topsId: 'top_cyber_jacket', bottomsId: 'bot_cargo_joggers', eyewearId: 'eye_vr_visor', wingsId: 'wings_cyber_neon', auraId: 'aura_floating_books' },
+          set_royal_scholar: { topsId: 'top_oxford_blazer', bottomsId: 'bot_classic_chinos', headwearId: 'head_graduation_cap', wingsId: 'wings_angel_celestial' },
+          set_phoenix_warlord: { topsId: 'top_wizard_robe', bottomsId: 'bot_wizard_skirt', headwearId: 'head_olympus_crown', wingsId: 'wings_phoenix_flame', auraId: 'aura_golden_triumph' },
+          set_detective_holmes: { topsId: 'top_detective_trench', bottomsId: 'bot_suit_pants', headwearId: 'head_detective_hat', eyewearId: 'eye_steampunk_goggles' },
+          set_celestial_angel: { topsId: 'top_scholastic_hoodie', headwearId: 'head_olympus_crown', wingsId: 'wings_angel_celestial' }
+        };
+        const parts = bundleMap[item.itemCode];
+        if (parts) Object.assign(nextPreset, parts);
+      }
     }
 
     setTriedItemCodes(newTried);

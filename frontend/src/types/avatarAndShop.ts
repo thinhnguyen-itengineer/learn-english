@@ -9,6 +9,8 @@ export type ItemCategory =
   | 'neckwear' 
   | 'handheld' 
   | 'wings'
+  | 'bundle'
+  | 'ticket'
   | 'aura_background' 
   | 'consumable';
 

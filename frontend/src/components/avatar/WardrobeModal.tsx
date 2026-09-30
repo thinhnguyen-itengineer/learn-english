@@ -232,7 +232,7 @@ export const WardrobeModal: React.FC<WardrobeModalProps> = ({
               <div className="space-y-4">
                 {/* Category filters */}
                 <div className="flex gap-1.5 overflow-x-auto pb-1 text-xs">
-                  {['all', 'tops', 'bottoms', 'footwear', 'headwear', 'eyewear', 'handheld', 'wings', 'aura_background'].map(cat => (
+                  {['all', 'bundle', 'ticket', 'wings', 'tops', 'bottoms', 'footwear', 'headwear', 'eyewear', 'handheld', 'aura_background'].map(cat => (
                     <button
                       key={cat}
                       onClick={() => setInvCategory(cat)}
@@ -243,13 +243,15 @@ export const WardrobeModal: React.FC<WardrobeModalProps> = ({
                       }`}
                     >
                       {cat === 'all' && 'Tất cả'}
+                      {cat === 'bundle' && '🎁 Nguyên Set'}
+                      {cat === 'ticket' && '🎟️ Vé thi'}
+                      {cat === 'wings' && '🪽 Cánh'}
                       {cat === 'tops' && 'Áo'}
                       {cat === 'bottoms' && 'Quần'}
                       {cat === 'footwear' && 'Giày'}
                       {cat === 'headwear' && 'Nón'}
                       {cat === 'eyewear' && 'Kính'}
                       {cat === 'handheld' && 'Cầm tay'}
-                      {cat === 'wings' && 'Cánh'}
                       {cat === 'aura_background' && 'Hào quang'}
                     </button>
                   ))}
@@ -283,6 +285,9 @@ export const WardrobeModal: React.FC<WardrobeModalProps> = ({
 
                         <div className="py-2 text-center">
                           <span className="text-2xl block mb-1">
+                            {item.category === 'bundle' && '🎁'}
+                            {item.category === 'ticket' && '🎟️'}
+                            {item.category === 'wings' && '🪽'}
                             {item.category === 'tops' && '👔'}
                             {item.category === 'bottoms' && '👖'}
                             {item.category === 'footwear' && '👟'}
@@ -295,7 +300,14 @@ export const WardrobeModal: React.FC<WardrobeModalProps> = ({
                         </div>
 
                         <div className="pt-2 border-t border-slate-100">
-                          {item.isEquipped ? (
+                          {item.category === 'ticket' ? (
+                            <button
+                              onClick={() => showToast(`🎟️ Đã kích hoạt ${item.nameVi}! Phòng thi chứng chỉ đã sẵn sàng.`)}
+                              className="w-full py-1.5 rounded-lg text-[11px] font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 transition-colors"
+                            >
+                              Kích hoạt vé
+                            </button>
+                          ) : item.isEquipped ? (
                             <button
                               onClick={() => handleUnequip(item)}
                               className="w-full py-1.5 rounded-lg text-[11px] font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 transition-colors"
@@ -307,7 +319,7 @@ export const WardrobeModal: React.FC<WardrobeModalProps> = ({
                               onClick={() => handleEquip(item)}
                               className="w-full py-1.5 rounded-lg text-[11px] font-semibold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 transition-colors"
                             >
-                              Mặc vào
+                              {item.category === 'bundle' ? 'Mặc nguyên set' : 'Mặc vào'}
                             </button>
                           )}
                         </div>

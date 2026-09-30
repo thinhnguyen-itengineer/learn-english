@@ -484,6 +484,174 @@ export const FALLBACK_SHOP_ITEMS: ShopItemDto[] = [
     isLimitedEdition: false,
     assetSvgKey: 'assets/icons/potion_xp.svg',
     zIndex: 0
+  },
+
+  // ==========================================
+  // Full Outfit Sets / Bundles (Nguyên Set Đồ)
+  // ==========================================
+  {
+    id: 'set_cyberpunk_master',
+    itemCode: 'set_cyberpunk_master',
+    nameEn: 'Cyberpunk Luminary Full Set',
+    nameVi: 'Nguyên Set Cơ Khí Cyber Neon',
+    description: 'Trọn bộ tương lai cao cấp: Áo Bomber Cyber + Quần Túi Hộp + Kính VR Cyber + Cánh Cơ Khí Cyber Neon + Hào Quang Ma Trận.',
+    category: 'bundle',
+    layerSlot: 'bundle',
+    rarityTier: 'legendary',
+    tokenPrice: 3200,
+    requiredLevel: 10,
+    isPurchasable: true,
+    isLimitedEdition: false,
+    assetSvgKey: 'assets/avatar/bundles/set_cyberpunk.svg',
+    zIndex: 120
+  },
+  {
+    id: 'set_royal_scholar',
+    itemCode: 'set_royal_scholar',
+    nameEn: 'Royal Grand Scholar Full Set',
+    nameVi: 'Nguyên Set Đại Học Giả Hoàng Gia',
+    description: 'Trọn bộ học thuật vinh danh: Áo Vest Học Giả Oxford + Quần Kaki Chinos + Mũ Cử Nhân + Bút Lông Vũ Cổ Điển + Đôi Cánh Thiên Thần Tri Thức.',
+    category: 'bundle',
+    layerSlot: 'bundle',
+    rarityTier: 'legendary',
+    tokenPrice: 3500,
+    requiredLevel: 12,
+    isPurchasable: true,
+    isLimitedEdition: false,
+    assetSvgKey: 'assets/avatar/bundles/set_scholar.svg',
+    zIndex: 120
+  },
+  {
+    id: 'set_phoenix_warlord',
+    itemCode: 'set_phoenix_warlord',
+    nameEn: 'Blazing Phoenix Warlord Set',
+    nameVi: 'Nguyên Set Chiến Vương Phượng Hoàng',
+    description: 'Trọn bộ rực lửa thần thoại: Áo Choàng Đại Pháp Sư + Quần Pháp Sư + Vương Miện Quán Quân + Đôi Cánh Phượng Hoàng Lửa + Hào Quang Lửa Vàng.',
+    category: 'bundle',
+    layerSlot: 'bundle',
+    rarityTier: 'legendary',
+    tokenPrice: 5800,
+    requiredLevel: 25,
+    isPurchasable: true,
+    isLimitedEdition: false,
+    assetSvgKey: 'assets/avatar/bundles/set_phoenix.svg',
+    zIndex: 120
+  },
+  {
+    id: 'set_detective_holmes',
+    itemCode: 'set_detective_holmes',
+    nameEn: 'Baker Street Master Detective Set',
+    nameVi: 'Nguyên Set Thám Tử Huyền Thoại',
+    description: 'Trọn bộ phá án London: Áo Măng Tô Baker + Quần Tây Doanh Nhân + Mũ Thám Tử Săn Hươu + Kính Phi Công Cổ Điển + Bút Lông Vũ Cổ Điển.',
+    category: 'bundle',
+    layerSlot: 'bundle',
+    rarityTier: 'epic',
+    tokenPrice: 2200,
+    requiredLevel: 8,
+    isPurchasable: true,
+    isLimitedEdition: false,
+    assetSvgKey: 'assets/avatar/bundles/set_detective.svg',
+    zIndex: 120
+  },
+  {
+    id: 'set_celestial_angel',
+    itemCode: 'set_celestial_angel',
+    nameEn: 'Celestial Archangel Seraph Set',
+    nameVi: 'Nguyên Set Sứ Giả Ánh Sáng',
+    description: 'Trọn bộ thiên thần thánh khiết: Áo Hoodie Học Giả + Mũ Nguyệt Quế Olympus + Micro Mạ Vàng Thần Thoại + Đôi Cánh Thiên Thần Tri Thức.',
+    category: 'bundle',
+    layerSlot: 'bundle',
+    rarityTier: 'legendary',
+    tokenPrice: 4200,
+    requiredLevel: 18,
+    isPurchasable: true,
+    isLimitedEdition: false,
+    assetSvgKey: 'assets/avatar/bundles/set_angel.svg',
+    zIndex: 120
+  },
+
+  // ==========================================
+  // IELTS & TOEIC Exam Tickets (Vé Thi Thử / Luyện Thi)
+  // ==========================================
+  {
+    id: 'ticket_ielts_mock_master',
+    itemCode: 'ticket_ielts_mock_master',
+    nameEn: 'IELTS Mock Exam Master Pass',
+    nameVi: 'Vé Thi Thử IELTS 4 Kỹ Năng Chuẩn Quốc Tế',
+    description: 'Vé mở khóa phòng thi mô phỏng chuẩn đề thi thật IELTS (Nghe, Nói, Đọc, Viết) với đồng hồ bấm giờ, chấm điểm tự động và nhận xét chi tiết band 1.0 - 9.0 từ AI Examiner.',
+    category: 'ticket',
+    layerSlot: 'ticket',
+    rarityTier: 'epic',
+    tokenPrice: 450,
+    requiredLevel: 5,
+    isPurchasable: true,
+    isLimitedEdition: false,
+    assetSvgKey: 'assets/icons/ticket_ielts.svg',
+    zIndex: 10
+  },
+  {
+    id: 'ticket_toeic_champion_exam',
+    itemCode: 'ticket_toeic_champion_exam',
+    nameEn: 'TOEIC Speed Champion 990 Pass',
+    nameVi: 'Vé Đấu Trường TOEIC 990 Điểm',
+    description: 'Vé mở khóa phòng thi Full Test 200 câu TOEIC chuẩn format ETS với áp lực bấm giờ thời gian thực, bảng phân tích điểm mạnh yếu và bẫy ngữ pháp.',
+    category: 'ticket',
+    layerSlot: 'ticket',
+    rarityTier: 'rare',
+    tokenPrice: 300,
+    requiredLevel: 3,
+    isPurchasable: true,
+    isLimitedEdition: false,
+    assetSvgKey: 'assets/icons/ticket_toeic.svg',
+    zIndex: 10
+  },
+  {
+    id: 'ticket_ielts_speaking_vip',
+    itemCode: 'ticket_ielts_speaking_vip',
+    nameEn: 'IELTS Speaking 1-on-1 VIP Room Pass',
+    nameVi: 'Vé Luyện Nói 1-1 IELTS VIP Với Giám Khảo AI',
+    description: 'Mở khóa 30 phút luyện nói chuyên sâu phòng thi 1v1 với giám khảo AI theo format Part 1-2-3 và nhận báo cáo ngữ điệu, phát âm Phoneme chi tiết.',
+    category: 'ticket',
+    layerSlot: 'ticket',
+    rarityTier: 'legendary',
+    tokenPrice: 750,
+    requiredLevel: 10,
+    isPurchasable: true,
+    isLimitedEdition: false,
+    assetSvgKey: 'assets/icons/ticket_speaking.svg',
+    zIndex: 10
+  },
+  {
+    id: 'ticket_toeic_listening_booster',
+    itemCode: 'ticket_toeic_listening_booster',
+    nameEn: 'TOEIC Rapid Audio Sprint Ticket',
+    nameVi: 'Vé Luyện Nghe Tốc Độ Cao TOEIC Part 3-4',
+    description: 'Vé tham gia bài test nghe nhanh x1.25 tốc độ chuẩn đề thi TOEIC Part 3 & 4 để rèn phản xạ bắt từ khóa trong 5 giây.',
+    category: 'ticket',
+    layerSlot: 'ticket',
+    rarityTier: 'common',
+    tokenPrice: 120,
+    requiredLevel: 1,
+    isPurchasable: true,
+    isLimitedEdition: false,
+    assetSvgKey: 'assets/icons/ticket_listening.svg',
+    zIndex: 10
+  },
+  {
+    id: 'ticket_ielts_writing_review',
+    itemCode: 'ticket_ielts_writing_review',
+    nameEn: 'IELTS AI Writing Examiner Fast-Pass',
+    nameVi: 'Vé Chấm Bài Writing IELTS Siêu Tốc',
+    description: 'Gửi 1 bài luận Task 1 hoặc Task 2 để nhận báo cáo sửa lỗi ngữ pháp, nâng cấp từ vựng học thuật C1-C2 và dự đoán Band điểm chi tiết.',
+    category: 'ticket',
+    layerSlot: 'ticket',
+    rarityTier: 'rare',
+    tokenPrice: 250,
+    requiredLevel: 4,
+    isPurchasable: true,
+    isLimitedEdition: false,
+    assetSvgKey: 'assets/icons/ticket_writing.svg',
+    zIndex: 10
   }
 ];
 
@@ -573,6 +741,34 @@ export const useShopStore = create<ShopState>((set, get) => ({
   },
 
   tryOnItem: (item: ShopItemDto) => {
+    if (item.category === 'bundle') {
+      const bundleMap: Record<string, string[]> = {
+        set_cyberpunk_master: ['top_cyber_jacket', 'bot_cargo_joggers', 'eye_vr_visor', 'wings_cyber_neon', 'aura_floating_books'],
+        set_royal_scholar: ['top_oxford_blazer', 'bot_classic_chinos', 'head_graduation_cap', 'hand_quill_pen', 'wings_angel_celestial'],
+        set_phoenix_warlord: ['top_wizard_robe', 'bot_wizard_skirt', 'head_olympus_crown', 'wings_phoenix_flame', 'aura_golden_triumph'],
+        set_detective_holmes: ['top_detective_trench', 'bot_suit_pants', 'head_detective_hat', 'eye_steampunk_goggles', 'hand_quill_pen'],
+        set_celestial_angel: ['top_scholastic_hoodie', 'head_olympus_crown', 'hand_golden_mic', 'wings_angel_celestial']
+      };
+      const codes = bundleMap[item.itemCode] || [];
+      const catalog = get().catalog;
+      set(state => {
+        const next = { ...state.tryingOnItems };
+        if (next['bundle']?.itemCode === item.itemCode) {
+          delete next['bundle'];
+        } else {
+          next['bundle'] = item;
+          codes.forEach(c => {
+            const sub = catalog.find(x => x.itemCode === c) || FALLBACK_SHOP_ITEMS.find(x => x.itemCode === c);
+            if (sub) {
+              next[sub.layerSlot] = sub;
+            }
+          });
+        }
+        return { tryingOnItems: next };
+      });
+      return;
+    }
+
     const slot = item.layerSlot;
     set(state => {
       const next = { ...state.tryingOnItems };

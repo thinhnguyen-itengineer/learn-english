@@ -5,6 +5,7 @@ using LearnEnglish.Api.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using LearnEnglish.Api.Services;
 
 namespace LearnEnglish.Api.Controllers;
 
@@ -73,7 +74,26 @@ public class InventoryController : ControllerBase
         var slot = item.LayerSlot.ToLowerInvariant();
         var cat = item.Category.ToLowerInvariant();
 
-        if (slot == "tops" || cat == "tops") config.TopsId = item.ItemCode;
+        if (slot == "bundle" || cat == "bundle")
+        {
+            var codes = TokenLedgerService.GetBundleConstituentCodes(item.ItemCode);
+            var subItems = await _context.ShopItems.Where(x => codes.Contains(x.ItemCode)).ToListAsync();
+            foreach (var sub in subItems)
+            {
+                string subSlot = sub.LayerSlot.ToLowerInvariant();
+                string subCategory = sub.Category.ToLowerInvariant();
+                if (subSlot == "tops" || subCategory == "tops") config.TopsId = sub.ItemCode;
+                else if (subSlot == "bottoms" || subCategory == "bottoms") config.BottomsId = sub.ItemCode;
+                else if (subSlot == "footwear" || subCategory == "footwear") config.FootwearId = sub.ItemCode;
+                else if (subSlot == "headwear" || subCategory == "headwear") config.HeadwearId = sub.ItemCode;
+                else if (subSlot == "eyewear" || subCategory == "eyewear") config.EyewearId = sub.ItemCode;
+                else if (subSlot == "neckwear" || subCategory == "neckwear") config.NeckwearId = sub.ItemCode;
+                else if (subSlot == "handheld" || subCategory == "handheld") config.HandheldId = sub.ItemCode;
+                else if (subSlot == "pedestal_aura" || subCategory == "aura_background") config.AuraBackgroundId = sub.ItemCode;
+                else if (subSlot == "wings" || subCategory == "wings") config.WingsId = sub.ItemCode;
+            }
+        }
+        else if (slot == "tops" || cat == "tops") config.TopsId = item.ItemCode;
         else if (slot == "bottoms" || cat == "bottoms") config.BottomsId = item.ItemCode;
         else if (slot == "footwear" || cat == "footwear") config.FootwearId = item.ItemCode;
         else if (slot == "headwear" || cat == "headwear") config.HeadwearId = item.ItemCode;

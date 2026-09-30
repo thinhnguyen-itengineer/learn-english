@@ -8,7 +8,7 @@ export interface ShopItem {
   itemCode: string;
   name: string;
   description?: string;
-  category: 'tops' | 'bottoms' | 'footwear' | 'hair' | 'headwear' | 'eyewear' | 'neckwear' | 'wings' | 'companion' | 'aura' | 'preset_slot';
+  category: 'tops' | 'bottoms' | 'footwear' | 'hair' | 'headwear' | 'eyewear' | 'neckwear' | 'wings' | 'companion' | 'aura' | 'preset_slot' | 'bundle' | 'ticket';
   rarity: RarityTier;
   tokenPrice: number;
   previewSvg?: React.ReactNode;
@@ -42,6 +42,9 @@ export const ShopItemCard: React.FC<ShopItemCardProps> = ({
 
   // Category label in Vietnamese
   const categoryLabels: Record<string, string> = {
+    bundle: '🎁 Nguyên Set Đồ',
+    ticket: '🎟️ Vé IELTS & TOEIC',
+    wings: '🪽 Đôi Cánh',
     tops: 'Áo Trang Phục',
     bottoms: 'Quần & Váy',
     footwear: 'Giày Dép',
@@ -49,7 +52,6 @@ export const ShopItemCard: React.FC<ShopItemCardProps> = ({
     headwear: 'Mũ Nón',
     eyewear: 'Kính Mắt',
     neckwear: 'Phụ Kiện Cổ',
-    wings: 'Đôi Cánh',
     companion: 'Thú Cưng / Bạn',
     aura: 'Hào Quang & Bục',
     preset_slot: 'Slot Trang Phục',
@@ -88,8 +90,22 @@ export const ShopItemCard: React.FC<ShopItemCardProps> = ({
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center text-slate-500">
-            <span className="text-3xl mb-1">🎁</span>
-            <span className="text-[10px] font-medium text-slate-400">Vật phẩm</span>
+            <span className="text-3xl mb-1">
+              {item.category === 'bundle' && '🎁'}
+              {item.category === 'ticket' && '🎟️'}
+              {item.category === 'wings' && '🪽'}
+              {item.category === 'tops' && '👔'}
+              {item.category === 'bottoms' && '👖'}
+              {item.category === 'footwear' && '👟'}
+              {item.category === 'headwear' && '🎩'}
+              {item.category === 'eyewear' && '👓'}
+              {item.category === 'aura' && '✨'}
+              {item.category === 'companion' && '🐾'}
+              {!['bundle', 'ticket', 'wings', 'tops', 'bottoms', 'footwear', 'headwear', 'eyewear', 'aura', 'companion'].includes(item.category) && '🎁'}
+            </span>
+            <span className="text-[10px] font-medium text-slate-400">
+              {item.category === 'bundle' ? 'Bộ đầy đủ' : item.category === 'ticket' ? 'Vé phòng thi' : 'Vật phẩm'}
+            </span>
           </div>
         )}
 
