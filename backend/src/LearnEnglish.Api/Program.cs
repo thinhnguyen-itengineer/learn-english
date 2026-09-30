@@ -261,6 +261,69 @@ using (var scope = app.Services.CreateScope())
                 {
                     logger.LogWarning(ex, "Could not check or add missing WingsId column to avatar_configs table.");
                 }
+
+                // Check avatar_items_3d table for dual character columns
+                try
+                {
+                    var itemCols = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                    using var itemCmd = conn.CreateCommand();
+                    itemCmd.CommandText = "PRAGMA table_info(avatar_items_3d);";
+                    using var itemReader = await itemCmd.ExecuteReaderAsync();
+                    while (await itemReader.ReadAsync())
+                    {
+                        itemCols.Add(itemReader.GetString(1));
+                    }
+                    await itemReader.CloseAsync();
+
+                    var itemMissingCols = new Dictionary<string, string>
+                    {
+                        { "GenderCompatibility", "TEXT NOT NULL DEFAULT 'UNISEX'" },
+                        { "SourceAiReference", "TEXT NULL" },
+                        { "MeshVariantFemaleUrl", "TEXT NULL" },
+                        { "MeshVariantMaleUrl", "TEXT NULL" }
+                    };
+
+                    foreach (var (col, def) in itemMissingCols)
+                    {
+                        if (!itemCols.Contains(col))
+                        {
+                            using var alterCmd = conn.CreateCommand();
+                            alterCmd.CommandText = $"ALTER TABLE avatar_items_3d ADD COLUMN {col} {def};";
+                            await alterCmd.ExecuteNonQueryAsync();
+                            logger.LogInformation("Added missing '{Column}' column to 'avatar_items_3d' table.", col);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    logger.LogWarning(ex, "Could not check or add missing columns to avatar_items_3d table.");
+                }
+
+                // Check user_avatar_equips_3d table for ActiveGender
+                try
+                {
+                    var equipCols = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                    using var equipCmd = conn.CreateCommand();
+                    equipCmd.CommandText = "PRAGMA table_info(user_avatar_equips_3d);";
+                    using var equipReader = await equipCmd.ExecuteReaderAsync();
+                    while (await equipReader.ReadAsync())
+                    {
+                        equipCols.Add(equipReader.GetString(1));
+                    }
+                    await equipReader.CloseAsync();
+
+                    if (!equipCols.Contains("ActiveGender"))
+                    {
+                        using var alterCmd = conn.CreateCommand();
+                        alterCmd.CommandText = "ALTER TABLE user_avatar_equips_3d ADD COLUMN ActiveGender TEXT NOT NULL DEFAULT 'FEMALE';";
+                        await alterCmd.ExecuteNonQueryAsync();
+                        logger.LogInformation("Added missing 'ActiveGender' column to 'user_avatar_equips_3d' table.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    logger.LogWarning(ex, "Could not check or add missing ActiveGender column to user_avatar_equips_3d table.");
+                }
             }
             catch (Exception ex)
             {

@@ -44,6 +44,7 @@ public class AppDbContext : DbContext
     public DbSet<AvatarItem3D> AvatarItems3D => Set<AvatarItem3D>();
     public DbSet<UserAvatarEquip3D> UserAvatarEquips3D => Set<UserAvatarEquip3D>();
     public DbSet<AvatarPreset3D> AvatarPresets3D => Set<AvatarPreset3D>();
+    public DbSet<AvatarMatchingSet3D> AvatarMatchingSets3D => Set<AvatarMatchingSet3D>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -714,6 +715,10 @@ public class AppDbContext : DbContext
             entity.Property(e => e.Slot).HasMaxLength(32).IsRequired();
             entity.Property(e => e.Rarity).HasMaxLength(32).HasDefaultValue("COMMON");
             entity.Property(e => e.Gender).HasMaxLength(16).HasDefaultValue("UNISEX");
+            entity.Property(e => e.GenderCompatibility).HasMaxLength(20).HasDefaultValue("UNISEX");
+            entity.Property(e => e.SourceAiReference).HasMaxLength(255);
+            entity.Property(e => e.MeshVariantFemaleUrl).HasMaxLength(500);
+            entity.Property(e => e.MeshVariantMaleUrl).HasMaxLength(500);
             entity.Property(e => e.ModelUrl).HasMaxLength(512).IsRequired();
             entity.Property(e => e.ThumbnailUrl).HasMaxLength(512).IsRequired();
             entity.Property(e => e.BoneBindingRoot).HasMaxLength(64).HasDefaultValue("Hips");
@@ -741,6 +746,7 @@ public class AppDbContext : DbContext
 
             entity.HasIndex(e => e.Slot);
             entity.HasIndex(e => e.Rarity);
+            entity.HasIndex(e => e.GenderCompatibility);
         });
 
         // UserAvatarEquip3D
@@ -748,6 +754,7 @@ public class AppDbContext : DbContext
         {
             entity.ToTable("user_avatar_equips_3d");
             entity.HasKey(e => e.UserId);
+            entity.Property(e => e.ActiveGender).HasMaxLength(16).HasDefaultValue("FEMALE");
 
             entity.HasOne(e => e.User)
                 .WithOne()
@@ -799,6 +806,55 @@ public class AppDbContext : DbContext
 
             entity.HasIndex(e => new { e.UserId, e.PresetSlot }).IsUnique();
             entity.HasIndex(e => e.UserId);
+        });
+
+        // AvatarMatchingSet3D
+        modelBuilder.Entity<AvatarMatchingSet3D>(entity =>
+        {
+            entity.ToTable("avatar_matching_sets_3d");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id).HasMaxLength(64);
+            entity.Property(e => e.Name).HasMaxLength(128).IsRequired();
+            entity.Property(e => e.Theme).HasMaxLength(64).IsRequired();
+            entity.Property(e => e.Description).HasMaxLength(500);
+            entity.Property(e => e.BadgeText).HasMaxLength(64);
+            entity.Property(e => e.TokenPriceTotal).HasDefaultValue(0);
+            entity.Property(e => e.DiscountPercentage).HasDefaultValue(15);
+
+            var listComparer = new Microsoft.EntityFrameworkCore.ChangeTracking.ValueComparer<List<string>>(
+                (c1, c2) => (c1 == null && c2 == null) || (c1 != null && c2 != null && c1.SequenceEqual(c2)),
+                c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
+                c => c.ToList());
+
+            entity.Property(e => e.FemaleItemIds)
+                .HasConversion(
+                    v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
+                    v => JsonSerializer.Deserialize<List<string>>(v, (JsonSerializerOptions?)null) ?? new List<string>()
+                )
+                .Metadata.SetValueComparer(listComparer);
+
+            entity.Property(e => e.MaleItemIds)
+                .HasConversion(
+                    v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
+                    v => JsonSerializer.Deserialize<List<string>>(v, (JsonSerializerOptions?)null) ?? new List<string>()
+                )
+                .Metadata.SetValueComparer(listComparer);
+
+            entity.Property(e => e.FemalePreviewNames)
+                .HasConversion(
+                    v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
+                    v => JsonSerializer.Deserialize<List<string>>(v, (JsonSerializerOptions?)null) ?? new List<string>()
+                )
+                .Metadata.SetValueComparer(listComparer);
+
+            entity.Property(e => e.MalePreviewNames)
+                .HasConversion(
+                    v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
+                    v => JsonSerializer.Deserialize<List<string>>(v, (JsonSerializerOptions?)null) ?? new List<string>()
+                )
+                .Metadata.SetValueComparer(listComparer);
+
+            entity.HasIndex(e => e.Theme);
         });
     }
 }

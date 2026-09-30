@@ -17,6 +17,10 @@ public class AvatarItem3D
     public List<string> MaskedBodyParts { get; set; } = new();
     public int PolyCount { get; set; } = 0;
     public int FileSizeBytes { get; set; } = 0;
+    public string GenderCompatibility { get; set; } = "UNISEX"; // FEMALE, MALE, UNISEX
+    public string? SourceAiReference { get; set; }
+    public string? MeshVariantFemaleUrl { get; set; }
+    public string? MeshVariantMaleUrl { get; set; }
     public bool IsActive { get; set; } = true;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }

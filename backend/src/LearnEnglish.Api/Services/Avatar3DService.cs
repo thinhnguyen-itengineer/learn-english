@@ -60,16 +60,17 @@ public class Avatar3DService : IAvatar3DService
 
         if (equip == null)
         {
-            // Create default equip
+            // Create default equip for Aoi
             equip = new UserAvatarEquip3D
             {
                 UserId = userId,
-                BaseBodyId = "body_chibi_male_01",
-                HairId = "hair_zingspeed_spiky_grey",
-                TopId = "top_zingspeed_black_hoodie",
-                BottomId = "bot_zingspeed_cargo_shorts",
-                ShoesId = "foot_zingspeed_combat_boots",
-                AccessoryId = null,
+                ActiveGender = "FEMALE",
+                BaseBodyId = "body_chibi_female_aoi",
+                HairId = "hair_twin_tails_cherry_01",
+                TopId = "top_chibi_female_sailor_01",
+                BottomId = "bottom_chibi_female_pleated_01",
+                ShoesId = "shoes_chibi_female_oxford_01",
+                AccessoryId = "acc_chibi_female_star_clip_01",
                 UpdatedAt = DateTime.UtcNow
             };
             _context.UserAvatarEquips3D.Add(equip);
@@ -105,11 +106,13 @@ public class Avatar3DService : IAvatar3DService
             equip = new UserAvatarEquip3D
             {
                 UserId = userId,
-                BaseBodyId = "body_chibi_male_01",
-                HairId = "hair_zingspeed_spiky_grey",
-                TopId = "top_zingspeed_black_hoodie",
-                BottomId = "bot_zingspeed_cargo_shorts",
-                ShoesId = "foot_zingspeed_combat_boots",
+                ActiveGender = "FEMALE",
+                BaseBodyId = "body_chibi_female_aoi",
+                HairId = "hair_twin_tails_cherry_01",
+                TopId = "top_chibi_female_sailor_01",
+                BottomId = "bottom_chibi_female_pleated_01",
+                ShoesId = "shoes_chibi_female_oxford_01",
+                AccessoryId = "acc_chibi_female_star_clip_01",
                 UpdatedAt = DateTime.UtcNow
             };
             _context.UserAvatarEquips3D.Add(equip);
@@ -282,6 +285,100 @@ public class Avatar3DService : IAvatar3DService
         return await GetEquippedAsync(userId);
     }
 
+    public async Task<ActiveCharacterDto> GetActiveCharacterAsync(Guid userId)
+    {
+        var equipped = await GetEquippedAsync(userId);
+        var isMale = string.Equals(equipped.ActiveGender, "MALE", StringComparison.OrdinalIgnoreCase);
+        var isDuo = string.Equals(equipped.ActiveGender, "DUO", StringComparison.OrdinalIgnoreCase);
+
+        if (isMale)
+        {
+            return new ActiveCharacterDto
+            {
+                ActiveGender = "MALE",
+                CharacterName = "Ren",
+                VietnameseName = "Tuệ Minh",
+                Height = "0.98m",
+                Role = "Đọc & Viết (Reading & Writing)",
+                BaseBodyId = equipped.BaseBodyId,
+                EquippedConfig = equipped
+            };
+        }
+        else if (isDuo)
+        {
+            return new ActiveCharacterDto
+            {
+                ActiveGender = "DUO",
+                CharacterName = "Aoi & Ren",
+                VietnameseName = "Ánh Dương & Tuệ Minh",
+                Height = "0.95m / 0.98m",
+                Role = "Song Hành Toàn Diện 4 Kỹ Năng",
+                BaseBodyId = equipped.BaseBodyId,
+                EquippedConfig = equipped
+            };
+        }
+
+        return new ActiveCharacterDto
+        {
+            ActiveGender = "FEMALE",
+            CharacterName = "Aoi",
+            VietnameseName = "Ánh Dương",
+            Height = "0.95m",
+            Role = "Nói & Nghe (Speaking & Listening)",
+            BaseBodyId = equipped.BaseBodyId,
+            EquippedConfig = equipped
+        };
+    }
+
+    public async Task<ActiveCharacterDto> SwitchActiveCharacterAsync(Guid userId, string gender)
+    {
+        var normalized = (gender ?? "FEMALE").Trim().ToUpperInvariant();
+        if (normalized != "FEMALE" && normalized != "MALE" && normalized != "DUO")
+        {
+            normalized = "FEMALE";
+        }
+
+        var equip = await _context.UserAvatarEquips3D.FirstOrDefaultAsync(e => e.UserId == userId);
+        if (equip == null)
+        {
+            await GetEquippedAsync(userId);
+            equip = await _context.UserAvatarEquips3D.FirstAsync(e => e.UserId == userId);
+        }
+
+        equip.ActiveGender = normalized;
+
+        // Auto-switch starter bodies and hair if currently on opposite gender defaults
+        if (normalized == "MALE")
+        {
+            if (equip.BaseBodyId == "body_chibi_female_aoi" || equip.BaseBodyId == "body_chibi_female_01")
+            {
+                equip.BaseBodyId = "body_chibi_male_ren";
+                equip.HairId = "hair_side_part_scholar_01";
+                equip.TopId = "top_chibi_male_vest_gilet_01";
+                equip.BottomId = "bottom_chibi_male_slacks_01";
+                equip.ShoesId = "shoes_chibi_male_sneaker_cyan_01";
+                equip.AccessoryId = "acc_chibi_male_cyber_headset_01";
+            }
+        }
+        else if (normalized == "FEMALE")
+        {
+            if (equip.BaseBodyId == "body_chibi_male_ren" || equip.BaseBodyId == "body_chibi_male_01")
+            {
+                equip.BaseBodyId = "body_chibi_female_aoi";
+                equip.HairId = "hair_twin_tails_cherry_01";
+                equip.TopId = "top_chibi_female_sailor_01";
+                equip.BottomId = "bottom_chibi_female_pleated_01";
+                equip.ShoesId = "shoes_chibi_female_oxford_01";
+                equip.AccessoryId = "acc_chibi_female_star_clip_01";
+            }
+        }
+
+        equip.UpdatedAt = DateTime.UtcNow;
+        await _context.SaveChangesAsync();
+
+        return await GetActiveCharacterAsync(userId);
+    }
+
     private static UserAvatar3DConfigDto BuildDto(UserAvatarEquip3D equip)
     {
         var hiddenSlots = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -304,6 +401,7 @@ public class Avatar3DService : IAvatar3DService
         return new UserAvatar3DConfigDto
         {
             UserId = equip.UserId,
+            ActiveGender = string.IsNullOrWhiteSpace(equip.ActiveGender) ? "FEMALE" : equip.ActiveGender,
             BaseBodyId = equip.BaseBodyId,
             HairId = equip.HairId,
             TopId = equip.TopId,

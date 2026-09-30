@@ -6,6 +6,9 @@ import {
   Manifest3D,
   Slot3D,
   AnimationState3D,
+  ActiveCharacterData,
+  MatchingOutfitSet,
+  PurchaseMatchingSetResponse,
 } from '../types/avatar3d';
 
 const API_BASE = '/api/v1';
@@ -397,11 +400,18 @@ interface Avatar3DStoreState {
   autoRotate: boolean;
   selectedCategory: Slot3D | 'ALL';
   selectedRarity: string;
+  activeGender: 'FEMALE' | 'MALE' | 'DUO';
+  activeCharacter: ActiveCharacterData | null;
+  matchingSets: MatchingOutfitSet[];
 
   // Actions
+  fetchActiveCharacter: () => Promise<void>;
+  switchCharacter: (gender: 'FEMALE' | 'MALE' | 'DUO') => Promise<boolean>;
+  fetchMatchingSets: () => Promise<void>;
+  purchaseMatchingSet: (setId: string) => Promise<PurchaseMatchingSetResponse | null>;
   fetchManifest: () => Promise<void>;
   fetchEquipped: () => Promise<void>;
-  fetchCatalog: (slot?: Slot3D, rarity?: string) => Promise<void>;
+  fetchCatalog: (slot?: Slot3D, rarity?: string, gender?: string) => Promise<void>;
   fetchPresets: () => Promise<void>;
   tryOnItem: (item: AvatarItem3D) => void;
   revertTryOn: () => void;
@@ -436,6 +446,119 @@ export const useAvatar3DStore = create<Avatar3DStoreState>((set, get) => {
     autoRotate: true,
     selectedCategory: 'ALL',
     selectedRarity: 'ALL',
+    activeGender: 'FEMALE',
+    activeCharacter: null,
+    matchingSets: [],
+
+    fetchActiveCharacter: async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const res = await fetch(`${API_BASE}/characters/active`, {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        });
+        if (res.ok) {
+          const data: ActiveCharacterData = await res.json();
+          set({
+            activeCharacter: data,
+            activeGender: data.activeGender,
+            equipped: data.equippedConfig,
+            previewEquipped: data.equippedConfig,
+          });
+          return;
+        }
+      } catch (err) {
+        console.warn('[Avatar3D] Fetch active character fallback:', err);
+      }
+    },
+
+    switchCharacter: async (gender: 'FEMALE' | 'MALE' | 'DUO') => {
+      set({ isLoading: true });
+      try {
+        const token = localStorage.getItem('token');
+        const res = await fetch(`${API_BASE}/characters/switch`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+          body: JSON.stringify({ gender }),
+        });
+        if (res.ok) {
+          const data: ActiveCharacterData = await res.json();
+          set({
+            activeCharacter: data,
+            activeGender: data.activeGender,
+            equipped: data.equippedConfig,
+            previewEquipped: data.equippedConfig,
+            previewingItem: null,
+            isLoading: false,
+          });
+          // Refresh catalog for new character
+          await get().fetchCatalog(undefined, undefined, gender === 'DUO' ? undefined : gender);
+          return true;
+        }
+      } catch (err) {
+        console.warn('[Avatar3D] Switch character fallback:', err);
+      }
+
+      // Local fallback for switch
+      set((s) => ({
+        activeGender: gender,
+        previewEquipped: {
+          ...s.previewEquipped,
+          activeGender: gender,
+          baseBodyId: gender === 'MALE' ? 'body_chibi_male_ren' : 'body_chibi_female_aoi',
+        },
+        isLoading: false,
+      }));
+      return true;
+    },
+
+    fetchMatchingSets: async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const res = await fetch(`${API_BASE}/shop/matching-sets`, {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        });
+        if (res.ok) {
+          const data = await res.json();
+          set({ matchingSets: data });
+          return;
+        }
+      } catch (err) {
+        console.warn('[Avatar3D] Fetch matching sets fallback:', err);
+      }
+    },
+
+    purchaseMatchingSet: async (setId: string) => {
+      set({ isLoading: true });
+      try {
+        const token = localStorage.getItem('token');
+        const res = await fetch(`${API_BASE}/shop/matching-sets/${setId}/purchase-duo`, {
+          method: 'POST',
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        });
+        if (res.ok) {
+          const data: PurchaseMatchingSetResponse = await res.json();
+          set((s) => ({
+            userTokenBalance: data.newBalance,
+            matchingSets: s.matchingSets.map((m) =>
+              m.id === setId ? { ...m, isOwned: true } : m
+            ),
+            catalog: s.catalog.map((c) =>
+              data.unlockedItemIds.includes(c.id) ? { ...c, isOwned: true } : c
+            ),
+            isLoading: false,
+            activeAnimation: 'VICTORY',
+          }));
+          return data;
+        }
+      } catch (err) {
+        console.warn('[Avatar3D] Purchase matching set fallback:', err);
+      }
+      set({ isLoading: false });
+      return null;
+    },
 
     fetchManifest: async () => {
       try {
@@ -472,13 +595,14 @@ export const useAvatar3DStore = create<Avatar3DStoreState>((set, get) => {
       set({ isLoading: false });
     },
 
-    fetchCatalog: async (slot?: Slot3D, rarity?: string) => {
+    fetchCatalog: async (slot?: Slot3D, rarity?: string, gender?: string) => {
       set({ isLoading: true });
       try {
         const token = localStorage.getItem('token');
         const params = new URLSearchParams();
         if (slot && slot !== 'BASE_BODY') params.append('slot', slot);
         if (rarity && rarity !== 'ALL') params.append('rarity', rarity);
+        if (gender && gender !== 'DUO') params.append('gender', gender);
 
         const res = await fetch(`${API_BASE}/shop/3d-items?${params.toString()}`, {
           headers: token ? { Authorization: `Bearer ${token}` } : {},

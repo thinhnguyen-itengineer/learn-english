@@ -10,4 +10,6 @@ public interface IAvatar3DService
     Task<List<AvatarPreset3DDto>> GetPresetsAsync(Guid userId);
     Task<AvatarPreset3DDto> SavePresetAsync(Guid userId, SavePreset3DRequest request);
     Task<UserAvatar3DConfigDto> ApplyPresetAsync(Guid userId, Guid presetId);
+    Task<ActiveCharacterDto> GetActiveCharacterAsync(Guid userId);
+    Task<ActiveCharacterDto> SwitchActiveCharacterAsync(Guid userId, string gender);
 }

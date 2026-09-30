@@ -11,6 +11,7 @@ public class UserAvatarEquip3D
     public string ShoesId { get; set; } = string.Empty;
     public string? AccessoryId { get; set; }
 
+    public string ActiveGender { get; set; } = "FEMALE"; // FEMALE, MALE, DUO
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
     public User User { get; set; } = null!;

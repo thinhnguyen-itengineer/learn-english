@@ -8,6 +8,10 @@ public class AvatarItem3DDto
     public string Slot { get; set; } = string.Empty;
     public string Rarity { get; set; } = string.Empty;
     public string Gender { get; set; } = string.Empty;
+    public string GenderCompatibility { get; set; } = "UNISEX";
+    public string? SourceAiReference { get; set; }
+    public string? MeshVariantFemaleUrl { get; set; }
+    public string? MeshVariantMaleUrl { get; set; }
     public string ModelUrl { get; set; } = string.Empty;
     public string ThumbnailUrl { get; set; } = string.Empty;
     public int PriceTokens { get; set; }
@@ -24,6 +28,7 @@ public class AvatarItem3DDto
 public class UserAvatar3DConfigDto
 {
     public Guid UserId { get; set; }
+    public string ActiveGender { get; set; } = "FEMALE";
     public string BaseBodyId { get; set; } = string.Empty;
     public string HairId { get; set; } = string.Empty;
     public string TopId { get; set; } = string.Empty;
@@ -34,6 +39,48 @@ public class UserAvatar3DConfigDto
     public DateTime UpdatedAt { get; set; }
     public List<string> HiddenSlots { get; set; } = new();
     public List<string> MaskedBodyParts { get; set; } = new();
+}
+
+public class AvatarMatchingSet3DDto
+{
+    public string Id { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
+    public string Theme { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
+    public string BadgeText { get; set; } = string.Empty;
+    public int TokenPriceTotal { get; set; }
+    public int DiscountPercentage { get; set; }
+    public List<string> FemaleItemIds { get; set; } = new();
+    public List<string> MaleItemIds { get; set; } = new();
+    public List<string> FemalePreviewNames { get; set; } = new();
+    public List<string> MalePreviewNames { get; set; } = new();
+    public bool IsOwned { get; set; }
+    public bool CanAfford { get; set; }
+}
+
+public class PurchaseMatchingSetResponse
+{
+    public bool Success { get; set; }
+    public string Message { get; set; } = string.Empty;
+    public int NewBalance { get; set; }
+    public AvatarMatchingSet3DDto MatchingSet { get; set; } = null!;
+    public List<string> UnlockedItemIds { get; set; } = new();
+}
+
+public class ActiveCharacterDto
+{
+    public string ActiveGender { get; set; } = "FEMALE";
+    public string CharacterName { get; set; } = "Aoi";
+    public string VietnameseName { get; set; } = "Ánh Dương";
+    public string Height { get; set; } = "0.95m";
+    public string Role { get; set; } = "Nói & Nghe (Speaking & Listening)";
+    public string BaseBodyId { get; set; } = "body_chibi_female_aoi";
+    public UserAvatar3DConfigDto EquippedConfig { get; set; } = null!;
+}
+
+public class SwitchCharacterRequest
+{
+    public string Gender { get; set; } = "FEMALE";
 }
 
 public class Equip3DRequest

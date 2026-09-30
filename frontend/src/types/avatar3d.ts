@@ -21,6 +21,10 @@ export interface AvatarItem3D {
   slot: Slot3D;
   rarity: Rarity3D;
   gender: Gender3D;
+  genderCompatibility?: Gender3D;
+  sourceAiReference?: string | null;
+  meshVariantFemaleUrl?: string | null;
+  meshVariantMaleUrl?: string | null;
   modelUrl: string;
   thumbnailUrl: string;
   priceTokens: number;
@@ -36,6 +40,7 @@ export interface AvatarItem3D {
 
 export interface UserAvatar3DConfig {
   userId: string;
+  activeGender?: 'FEMALE' | 'MALE' | 'DUO';
   baseBodyId: string;
   hairId: string;
   topId: string;
@@ -115,5 +120,41 @@ export interface Purchase3DItemResponse {
   message: string;
   newBalance: number;
   item: AvatarItem3D;
+  equippedConfig: UserAvatar3DConfig;
+}
+
+export interface MatchingOutfitSet {
+  id: string;
+  name: string;
+  theme: string;
+  description: string;
+  badgeText: string;
+  tokenPriceTotal: number;
+  discountPercentage?: number;
+  femaleItems?: string[];
+  maleItems?: string[];
+  femaleItemIds?: string[];
+  maleItemIds?: string[];
+  femalePreviewNames?: string[];
+  malePreviewNames?: string[];
+  isOwned?: boolean;
+  canAfford?: boolean;
+}
+
+export interface PurchaseMatchingSetResponse {
+  success: boolean;
+  message: string;
+  newBalance: number;
+  matchingSet: MatchingOutfitSet;
+  unlockedItemIds: string[];
+}
+
+export interface ActiveCharacterData {
+  activeGender: 'FEMALE' | 'MALE' | 'DUO';
+  characterName: string;
+  vietnameseName: string;
+  height: string;
+  role: string;
+  baseBodyId: string;
   equippedConfig: UserAvatar3DConfig;
 }

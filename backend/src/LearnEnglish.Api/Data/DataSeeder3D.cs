@@ -31,7 +31,603 @@ public static class DataSeeder3D
         var items = new List<AvatarItem3D>
         {
             // ==========================================
-            // === 1. BASE_BODY (4 items) ===
+            // === 0. AOI & REN DUAL CHIBI CHARACTERS & MODULAR WARDROBE (PHU-34 / PHU-35) ===
+            // ==========================================
+            new()
+            {
+                Id = "body_chibi_female_aoi",
+                Name = "Thân Nữ Chibi Aoi (Meshy AI .glb Gốc)",
+                Description = "Khung cơ thể Chibi Nữ tỷ lệ vàng 1:2.8, tối ưu từ file Meshy AI 426k tris.",
+                Slot = "BASE_BODY",
+                Rarity = "COMMON",
+                Gender = "FEMALE",
+                GenderCompatibility = "FEMALE",
+                ModelUrl = "/models/3d/Meshy_AI_Chibi_Figure_0930081629_texture.glb",
+                ThumbnailUrl = "/thumbnails/3d/body_chibi_female_aoi.webp",
+                SourceAiReference = "D:\\Meshy_AI_Chibi_Figure_0930081629_texture.glb",
+                MeshVariantFemaleUrl = "/models/3d/body_chibi_female_aoi.glb",
+                PriceTokens = 0,
+                LevelRequired = 1,
+                BoneBindingRoot = "Hips",
+                HideSlotsWhenEquipped = new List<string>(),
+                MaskedBodyParts = new List<string>(),
+                PolyCount = 4800,
+                FileSizeBytes = 524288,
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            },
+            new()
+            {
+                Id = "body_chibi_male_ren",
+                Name = "Thân Nam Chibi Ren (Khung Xương Đối Ứng)",
+                Description = "Khung cơ thể Chibi Nam tỷ lệ 1:2.8, vai thể thao, rig xương Humanoid 42 bones.",
+                Slot = "BASE_BODY",
+                Rarity = "COMMON",
+                Gender = "MALE",
+                GenderCompatibility = "MALE",
+                ModelUrl = "/models/3d/chibi_male_ren_master_rig.glb",
+                ThumbnailUrl = "/thumbnails/3d/body_chibi_male_ren.webp",
+                SourceAiReference = "Mixamo Humanoid 42 Bones Normalized Rig",
+                MeshVariantMaleUrl = "/models/3d/body_chibi_male_ren.glb",
+                PriceTokens = 0,
+                LevelRequired = 1,
+                BoneBindingRoot = "Hips",
+                HideSlotsWhenEquipped = new List<string>(),
+                MaskedBodyParts = new List<string>(),
+                PolyCount = 4900,
+                FileSizeBytes = 535000,
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            },
+            new()
+            {
+                Id = "body_chibi_tan_athletic_01",
+                Name = "Thân Chibi Thể Thao Bánh Mật",
+                Description = "Cơ thể thể thao năng động, nước da rám nắng khỏe khoắn.",
+                Slot = "BASE_BODY",
+                Rarity = "RARE",
+                Gender = "UNISEX",
+                GenderCompatibility = "UNISEX",
+                ModelUrl = "/models/3d/body_chibi_tan_athletic_01.glb",
+                ThumbnailUrl = "/thumbnails/3d/body_chibi_tan_athletic_01.webp",
+                PriceTokens = 350,
+                LevelRequired = 3,
+                BoneBindingRoot = "Hips",
+                HideSlotsWhenEquipped = new List<string>(),
+                MaskedBodyParts = new List<string>(),
+                PolyCount = 4950,
+                FileSizeBytes = 535000,
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            },
+            new()
+            {
+                Id = "hair_twin_tails_cherry_01",
+                Name = "Tóc Cột Hai Bên Sakura Pop",
+                Description = "Tóc bím hai bên bồng bềnh phong cách Anime Idol Nhật Bản.",
+                Slot = "HAIR",
+                Rarity = "RARE",
+                Gender = "FEMALE",
+                GenderCompatibility = "FEMALE",
+                ModelUrl = "/models/3d/hair_twin_tails_cherry_01.glb",
+                ThumbnailUrl = "/thumbnails/3d/hair_twin_tails_cherry_01.webp",
+                PriceTokens = 500,
+                LevelRequired = 2,
+                BoneBindingRoot = "Head",
+                HideSlotsWhenEquipped = new List<string>(),
+                MaskedBodyParts = new List<string>(),
+                PolyCount = 3200,
+                FileSizeBytes = 245000,
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            },
+            new()
+            {
+                Id = "hair_short_bob_scholar_01",
+                Name = "Tóc Ngắn Bob Học Đường Anime",
+                Description = "Mái tóc ngắn ôm cằm xinh xắn của nữ sinh chăm chỉ.",
+                Slot = "HAIR",
+                Rarity = "COMMON",
+                Gender = "FEMALE",
+                GenderCompatibility = "FEMALE",
+                ModelUrl = "/models/3d/hair_short_bob_scholar_01.glb",
+                ThumbnailUrl = "/thumbnails/3d/hair_short_bob_scholar_01.webp",
+                PriceTokens = 250,
+                LevelRequired = 1,
+                BoneBindingRoot = "Head",
+                HideSlotsWhenEquipped = new List<string>(),
+                MaskedBodyParts = new List<string>(),
+                PolyCount = 2600,
+                FileSizeBytes = 210000,
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            },
+            new()
+            {
+                Id = "hair_side_part_scholar_01",
+                Name = "Tóc Học Giả Rẽ Ngôi 7/3",
+                Description = "Mái tóc rẽ ngôi 7/3 gọn gàng, phong thái điềm tĩnh của Ren.",
+                Slot = "HAIR",
+                Rarity = "COMMON",
+                Gender = "MALE",
+                GenderCompatibility = "MALE",
+                ModelUrl = "/models/3d/hair_side_part_scholar_01.glb",
+                ThumbnailUrl = "/thumbnails/3d/hair_side_part_scholar_01.webp",
+                PriceTokens = 200,
+                LevelRequired = 1,
+                BoneBindingRoot = "Head",
+                HideSlotsWhenEquipped = new List<string>(),
+                MaskedBodyParts = new List<string>(),
+                PolyCount = 2100,
+                FileSizeBytes = 180000,
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            },
+            new()
+            {
+                Id = "hair_anime_spiky_layer_01",
+                Name = "Tóc Layer Gai Học Trưởng Cool Ngầu",
+                Description = "Mái tóc layer gai nhọn highlight xanh cá tính của học trưởng Ren.",
+                Slot = "HAIR",
+                Rarity = "EPIC",
+                Gender = "MALE",
+                GenderCompatibility = "MALE",
+                ModelUrl = "/models/3d/hair_anime_spiky_layer_01.glb",
+                ThumbnailUrl = "/thumbnails/3d/hair_anime_spiky_layer_01.webp",
+                PriceTokens = 750,
+                LevelRequired = 5,
+                BoneBindingRoot = "Head",
+                HideSlotsWhenEquipped = new List<string>(),
+                MaskedBodyParts = new List<string>(),
+                PolyCount = 3400,
+                FileSizeBytes = 275000,
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            },
+            new()
+            {
+                Id = "hair_anime_spiky_blue_01",
+                Name = "Tóc Anime Gai Xanh Điện Unisex",
+                Description = "Tóc anime gai xanh điện phong cách hiện đại cho cả hai.",
+                Slot = "HAIR",
+                Rarity = "EPIC",
+                Gender = "UNISEX",
+                GenderCompatibility = "UNISEX",
+                ModelUrl = "/models/3d/hair_anime_spiky_blue_01.glb",
+                ThumbnailUrl = "/thumbnails/3d/hair_anime_spiky_blue_01.webp",
+                PriceTokens = 750,
+                LevelRequired = 5,
+                BoneBindingRoot = "Head",
+                HideSlotsWhenEquipped = new List<string>(),
+                MaskedBodyParts = new List<string>(),
+                PolyCount = 3300,
+                FileSizeBytes = 265000,
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            },
+            new()
+            {
+                Id = "top_chibi_female_sailor_01",
+                Name = "Áo Thủy Thủ Nữ Sinh Kèm Nơ Đỏ",
+                Description = "Áo sơ mi thủy thủ cổ bẻ thắt nơ đỏ ruby duyên dáng của Aoi.",
+                Slot = "TOP",
+                Rarity = "RARE",
+                Gender = "FEMALE",
+                GenderCompatibility = "FEMALE",
+                ModelUrl = "/models/3d/top_chibi_female_sailor_01.glb",
+                ThumbnailUrl = "/thumbnails/3d/top_chibi_female_sailor_01.webp",
+                PriceTokens = 550,
+                LevelRequired = 2,
+                BoneBindingRoot = "Spine",
+                HideSlotsWhenEquipped = new List<string>(),
+                MaskedBodyParts = new List<string> { "Mat_Torso" },
+                PolyCount = 3800,
+                FileSizeBytes = 320000,
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            },
+            new()
+            {
+                Id = "top_chibi_female_hoodie_pink_01",
+                Name = "Áo Hoodie Chibi Tai Thỏ Pastel",
+                Description = "Áo hoodie tai thỏ màu hồng pastel mềm mại đáng yêu.",
+                Slot = "TOP",
+                Rarity = "EPIC",
+                Gender = "FEMALE",
+                GenderCompatibility = "FEMALE",
+                ModelUrl = "/models/3d/top_chibi_female_hoodie_pink_01.glb",
+                ThumbnailUrl = "/thumbnails/3d/top_chibi_female_hoodie_pink_01.webp",
+                PriceTokens = 850,
+                LevelRequired = 4,
+                BoneBindingRoot = "Spine",
+                HideSlotsWhenEquipped = new List<string> { "Slot_Hair" },
+                MaskedBodyParts = new List<string> { "Mat_Torso" },
+                PolyCount = 4200,
+                FileSizeBytes = 360000,
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            },
+            new()
+            {
+                Id = "top_chibi_male_vest_gilet_01",
+                Name = "Áo Gile Len Kèm Sơ Mi Trắng",
+                Description = "Sơ mi trắng cổ đứng kết hợp áo gile len xanh navy viền vàng của Ren.",
+                Slot = "TOP",
+                Rarity = "RARE",
+                Gender = "MALE",
+                GenderCompatibility = "MALE",
+                ModelUrl = "/models/3d/top_chibi_male_vest_gilet_01.glb",
+                ThumbnailUrl = "/thumbnails/3d/top_chibi_male_vest_gilet_01.webp",
+                PriceTokens = 600,
+                LevelRequired = 2,
+                BoneBindingRoot = "Spine",
+                HideSlotsWhenEquipped = new List<string>(),
+                MaskedBodyParts = new List<string> { "Mat_Torso" },
+                PolyCount = 3900,
+                FileSizeBytes = 330000,
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            },
+            new()
+            {
+                Id = "top_chibi_male_cyber_jacket_01",
+                Name = "Áo Khoác Techwear Cyan Electric",
+                Description = "Áo khoác phong cách cyberpunk với đường viền dạ quang rực rỡ.",
+                Slot = "TOP",
+                Rarity = "EPIC",
+                Gender = "MALE",
+                GenderCompatibility = "MALE",
+                ModelUrl = "/models/3d/top_chibi_male_cyber_jacket_01.glb",
+                ThumbnailUrl = "/thumbnails/3d/top_chibi_male_cyber_jacket_01.webp",
+                PriceTokens = 900,
+                LevelRequired = 5,
+                BoneBindingRoot = "Spine",
+                HideSlotsWhenEquipped = new List<string>(),
+                MaskedBodyParts = new List<string> { "Mat_Torso" },
+                PolyCount = 4500,
+                FileSizeBytes = 380000,
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            },
+            new()
+            {
+                Id = "top_school_blazer_oxford_01",
+                Name = "Áo Blazer Học Viện Hoàng Gia",
+                Description = "Áo blazer học đường phong cách Oxford danh giá dùng chung cho cả hai.",
+                Slot = "TOP",
+                Rarity = "RARE",
+                Gender = "UNISEX",
+                GenderCompatibility = "UNISEX",
+                ModelUrl = "/models/3d/top_school_blazer_oxford_01.glb",
+                ThumbnailUrl = "/thumbnails/3d/top_school_blazer_oxford_01.webp",
+                PriceTokens = 600,
+                LevelRequired = 2,
+                BoneBindingRoot = "Spine",
+                HideSlotsWhenEquipped = new List<string>(),
+                MaskedBodyParts = new List<string> { "Mat_Torso" },
+                PolyCount = 3800,
+                FileSizeBytes = 310000,
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            },
+            new()
+            {
+                Id = "top_golden_dragon_robe_01",
+                Name = "Áo Choàng Hoàng Kim Long (Top 1)",
+                Description = "Áo choàng hoàng kim thêu rồng tỏa ánh hào quang pháp thuật tối cao.",
+                Slot = "TOP",
+                Rarity = "LEGENDARY",
+                Gender = "UNISEX",
+                GenderCompatibility = "UNISEX",
+                ModelUrl = "/models/3d/top_golden_dragon_robe_01.glb",
+                ThumbnailUrl = "/thumbnails/3d/top_golden_dragon_robe_01.webp",
+                PriceTokens = 2500,
+                LevelRequired = 10,
+                BoneBindingRoot = "Spine",
+                HideSlotsWhenEquipped = new List<string>(),
+                MaskedBodyParts = new List<string> { "Mat_Torso" },
+                PolyCount = 5200,
+                FileSizeBytes = 460000,
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            },
+            new()
+            {
+                Id = "bottom_chibi_female_pleated_01",
+                Name = "Váy Xếp Ly Đồng Phục Học Viện",
+                Description = "Váy xếp ly ca rô đỏ phong cách nữ sinh học viện của Aoi.",
+                Slot = "BOTTOM",
+                Rarity = "COMMON",
+                Gender = "FEMALE",
+                GenderCompatibility = "FEMALE",
+                ModelUrl = "/models/3d/bottom_chibi_female_pleated_01.glb",
+                ThumbnailUrl = "/thumbnails/3d/bottom_chibi_female_pleated_01.webp",
+                PriceTokens = 200,
+                LevelRequired = 1,
+                BoneBindingRoot = "Hips",
+                HideSlotsWhenEquipped = new List<string>(),
+                MaskedBodyParts = new List<string>(),
+                PolyCount = 2800,
+                FileSizeBytes = 220000,
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            },
+            new()
+            {
+                Id = "bottom_chibi_female_denim_01",
+                Name = "Quần Short Yếm Denim Trẻ Trung",
+                Description = "Quần yếm denim năng động cá tính dạo phố.",
+                Slot = "BOTTOM",
+                Rarity = "RARE",
+                Gender = "FEMALE",
+                GenderCompatibility = "FEMALE",
+                ModelUrl = "/models/3d/bottom_chibi_female_denim_01.glb",
+                ThumbnailUrl = "/thumbnails/3d/bottom_chibi_female_denim_01.webp",
+                PriceTokens = 450,
+                LevelRequired = 2,
+                BoneBindingRoot = "Hips",
+                HideSlotsWhenEquipped = new List<string>(),
+                MaskedBodyParts = new List<string>(),
+                PolyCount = 3100,
+                FileSizeBytes = 250000,
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            },
+            new()
+            {
+                Id = "bottom_chibi_male_slacks_01",
+                Name = "Quần Âu Thể Thao Dáng Ôm",
+                Description = "Quần âu ống côn thể thao màu xám than lịch lãm của Ren.",
+                Slot = "BOTTOM",
+                Rarity = "COMMON",
+                Gender = "MALE",
+                GenderCompatibility = "MALE",
+                ModelUrl = "/models/3d/bottom_chibi_male_slacks_01.glb",
+                ThumbnailUrl = "/thumbnails/3d/bottom_chibi_male_slacks_01.webp",
+                PriceTokens = 200,
+                LevelRequired = 1,
+                BoneBindingRoot = "Hips",
+                HideSlotsWhenEquipped = new List<string>(),
+                MaskedBodyParts = new List<string>(),
+                PolyCount = 2600,
+                FileSizeBytes = 210000,
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            },
+            new()
+            {
+                Id = "bottom_cargo_shorts_01",
+                Name = "Quần Cargo Techwear Túi Hộp",
+                Description = "Quần short túi hộp tiện dụng thể thao cho cả hai.",
+                Slot = "BOTTOM",
+                Rarity = "COMMON",
+                Gender = "UNISEX",
+                GenderCompatibility = "UNISEX",
+                ModelUrl = "/models/3d/bottom_cargo_shorts_01.glb",
+                ThumbnailUrl = "/thumbnails/3d/bottom_cargo_shorts_01.webp",
+                PriceTokens = 150,
+                LevelRequired = 1,
+                BoneBindingRoot = "Hips",
+                HideSlotsWhenEquipped = new List<string>(),
+                MaskedBodyParts = new List<string>(),
+                PolyCount = 2400,
+                FileSizeBytes = 195000,
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            },
+            new()
+            {
+                Id = "bottom_hologram_tech_skirt_01",
+                Name = "Váy Hologram Neon Dạ Quang",
+                Description = "Váy phản quang hologram chuyển sắc kỳ ảo theo nhịp điệu.",
+                Slot = "BOTTOM",
+                Rarity = "EPIC",
+                Gender = "FEMALE",
+                GenderCompatibility = "FEMALE",
+                ModelUrl = "/models/3d/bottom_hologram_tech_skirt_01.glb",
+                ThumbnailUrl = "/thumbnails/3d/bottom_hologram_tech_skirt_01.webp",
+                PriceTokens = 750,
+                LevelRequired = 4,
+                BoneBindingRoot = "Hips",
+                HideSlotsWhenEquipped = new List<string>(),
+                MaskedBodyParts = new List<string>(),
+                PolyCount = 3300,
+                FileSizeBytes = 270000,
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            },
+            new()
+            {
+                Id = "shoes_chibi_female_oxford_01",
+                Name = "Giày Oxford Nữ Kèm Vớ Cổ Ngắn",
+                Description = "Giày da bóng oxford kèm vớ trắng ren cổ ngắn trang nhã của Aoi.",
+                Slot = "SHOES",
+                Rarity = "COMMON",
+                Gender = "FEMALE",
+                GenderCompatibility = "FEMALE",
+                ModelUrl = "/models/3d/shoes_chibi_female_oxford_01.glb",
+                ThumbnailUrl = "/thumbnails/3d/shoes_chibi_female_oxford_01.webp",
+                PriceTokens = 150,
+                LevelRequired = 1,
+                BoneBindingRoot = "LeftFoot",
+                HideSlotsWhenEquipped = new List<string>(),
+                MaskedBodyParts = new List<string> { "Mat_Feet" },
+                PolyCount = 2200,
+                FileSizeBytes = 180000,
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            },
+            new()
+            {
+                Id = "shoes_chibi_male_sneaker_cyan_01",
+                Name = "Giày Sneaker Cổ Cao Đế Khí Cyan",
+                Description = "Sneaker thể thao cổ cao đệm khí năng động viền cyan của Ren.",
+                Slot = "SHOES",
+                Rarity = "RARE",
+                Gender = "MALE",
+                GenderCompatibility = "MALE",
+                ModelUrl = "/models/3d/shoes_chibi_male_sneaker_cyan_01.glb",
+                ThumbnailUrl = "/thumbnails/3d/shoes_chibi_male_sneaker_cyan_01.webp",
+                PriceTokens = 400,
+                LevelRequired = 2,
+                BoneBindingRoot = "LeftFoot",
+                HideSlotsWhenEquipped = new List<string>(),
+                MaskedBodyParts = new List<string> { "Mat_Feet" },
+                PolyCount = 2800,
+                FileSizeBytes = 230000,
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            },
+            new()
+            {
+                Id = "shoes_runner_sneakers_01",
+                Name = "Giày Thể Thao Siêu Nhẹ Neon",
+                Description = "Sneaker chạy bộ siêu nhẹ dạ quang cho các buổi luyện tập.",
+                Slot = "SHOES",
+                Rarity = "RARE",
+                Gender = "UNISEX",
+                GenderCompatibility = "UNISEX",
+                ModelUrl = "/models/3d/shoes_runner_sneakers_01.glb",
+                ThumbnailUrl = "/thumbnails/3d/shoes_runner_sneakers_01.webp",
+                PriceTokens = 400,
+                LevelRequired = 2,
+                BoneBindingRoot = "LeftFoot",
+                HideSlotsWhenEquipped = new List<string>(),
+                MaskedBodyParts = new List<string> { "Mat_Feet" },
+                PolyCount = 2700,
+                FileSizeBytes = 225000,
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            },
+            new()
+            {
+                Id = "shoes_high_boots_cyber_01",
+                Name = "Bốt Chiến Binh Cyber 2077",
+                Description = "Bốt da cao cổ công nghệ tương lai bảo vệ đôi chân hoàn hảo.",
+                Slot = "SHOES",
+                Rarity = "EPIC",
+                Gender = "UNISEX",
+                GenderCompatibility = "UNISEX",
+                ModelUrl = "/models/3d/shoes_high_boots_cyber_01.glb",
+                ThumbnailUrl = "/thumbnails/3d/shoes_high_boots_cyber_01.webp",
+                PriceTokens = 700,
+                LevelRequired = 4,
+                BoneBindingRoot = "LeftFoot",
+                HideSlotsWhenEquipped = new List<string>(),
+                MaskedBodyParts = new List<string> { "Mat_Feet" },
+                PolyCount = 3200,
+                FileSizeBytes = 260000,
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            },
+            new()
+            {
+                Id = "acc_chibi_female_star_clip_01",
+                Name = "Kẹp Tóc Ngôi Sao Vàng May Mắn",
+                Description = "Kẹp tóc ngôi sao vàng nhỏ xinh cài trên mái tóc Aoi.",
+                Slot = "ACCESSORY",
+                Rarity = "COMMON",
+                Gender = "FEMALE",
+                GenderCompatibility = "FEMALE",
+                ModelUrl = "/models/3d/acc_chibi_female_star_clip_01.glb",
+                ThumbnailUrl = "/thumbnails/3d/acc_chibi_female_star_clip_01.webp",
+                PriceTokens = 100,
+                LevelRequired = 1,
+                BoneBindingRoot = "Head",
+                HideSlotsWhenEquipped = new List<string>(),
+                MaskedBodyParts = new List<string>(),
+                PolyCount = 1200,
+                FileSizeBytes = 95000,
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            },
+            new()
+            {
+                Id = "acc_chibi_female_cat_headphones_01",
+                Name = "Tai Nghe Tai Mèo Phát Quang RGB",
+                Description = "Tai nghe gaming tai mèo phát quang đổi 16 triệu màu RGB sống động.",
+                Slot = "ACCESSORY",
+                Rarity = "EPIC",
+                Gender = "FEMALE",
+                GenderCompatibility = "FEMALE",
+                ModelUrl = "/models/3d/acc_chibi_female_cat_headphones_01.glb",
+                ThumbnailUrl = "/thumbnails/3d/acc_chibi_female_cat_headphones_01.webp",
+                PriceTokens = 900,
+                LevelRequired = 5,
+                BoneBindingRoot = "Head",
+                HideSlotsWhenEquipped = new List<string>(),
+                MaskedBodyParts = new List<string>(),
+                PolyCount = 2800,
+                FileSizeBytes = 230000,
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            },
+            new()
+            {
+                Id = "acc_chibi_male_smart_glasses_01",
+                Name = "Kính Mắt Trí Tuệ AR Scanner",
+                Description = "Kính thông minh quét hiển thị nghĩa từ vựng thời gian thực.",
+                Slot = "ACCESSORY",
+                Rarity = "RARE",
+                Gender = "MALE",
+                GenderCompatibility = "MALE",
+                ModelUrl = "/models/3d/acc_chibi_male_smart_glasses_01.glb",
+                ThumbnailUrl = "/thumbnails/3d/acc_chibi_male_smart_glasses_01.webp",
+                PriceTokens = 450,
+                LevelRequired = 3,
+                BoneBindingRoot = "Head",
+                HideSlotsWhenEquipped = new List<string>(),
+                MaskedBodyParts = new List<string>(),
+                PolyCount = 1800,
+                FileSizeBytes = 150000,
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            },
+            new()
+            {
+                Id = "acc_chibi_male_cyber_headset_01",
+                Name = "Tai Nghe Bluetooth Chụp Tai Studio",
+                Description = "Tai nghe studio chống ồn chủ động chuyên nghiệp của Ren.",
+                Slot = "ACCESSORY",
+                Rarity = "RARE",
+                Gender = "MALE",
+                GenderCompatibility = "MALE",
+                ModelUrl = "/models/3d/acc_chibi_male_cyber_headset_01.glb",
+                ThumbnailUrl = "/thumbnails/3d/acc_chibi_male_cyber_headset_01.webp",
+                PriceTokens = 500,
+                LevelRequired = 3,
+                BoneBindingRoot = "Head",
+                HideSlotsWhenEquipped = new List<string>(),
+                MaskedBodyParts = new List<string>(),
+                PolyCount = 2200,
+                FileSizeBytes = 180000,
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            },
+            new()
+            {
+                Id = "acc_angel_wings_aurora_01",
+                Name = "Đôi Cánh Thiên Thần Bắc Cực Quang",
+                Description = "Cánh thiên thần tỏa dải cực quang lung linh chuyển động theo từng bước đi.",
+                Slot = "ACCESSORY",
+                Rarity = "LEGENDARY",
+                Gender = "UNISEX",
+                GenderCompatibility = "UNISEX",
+                ModelUrl = "/models/3d/acc_angel_wings_aurora_01.glb",
+                ThumbnailUrl = "/thumbnails/3d/acc_angel_wings_aurora_01.webp",
+                PriceTokens = 3000,
+                LevelRequired = 10,
+                BoneBindingRoot = "Spine2",
+                HideSlotsWhenEquipped = new List<string>(),
+                MaskedBodyParts = new List<string>(),
+                PolyCount = 3800,
+                FileSizeBytes = 310000,
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            },
+
+            // ==========================================
+            // === 1. BASE_BODY (Legacy & Special bodies) ===
             // ==========================================
             new()
             {
@@ -869,6 +1465,10 @@ public static class DataSeeder3D
                 existing.Slot = item.Slot;
                 existing.Rarity = item.Rarity;
                 existing.Gender = item.Gender;
+                existing.GenderCompatibility = string.IsNullOrWhiteSpace(item.GenderCompatibility) ? item.Gender : item.GenderCompatibility;
+                existing.SourceAiReference = item.SourceAiReference;
+                existing.MeshVariantFemaleUrl = item.MeshVariantFemaleUrl;
+                existing.MeshVariantMaleUrl = item.MeshVariantMaleUrl;
                 existing.ModelUrl = item.ModelUrl;
                 existing.ThumbnailUrl = item.ThumbnailUrl;
                 existing.PriceTokens = item.PriceTokens;
@@ -882,7 +1482,105 @@ public static class DataSeeder3D
             }
             else
             {
+                if (string.IsNullOrWhiteSpace(item.GenderCompatibility))
+                {
+                    item.GenderCompatibility = item.Gender;
+                }
                 context.AvatarItems3D.Add(item);
+            }
+        }
+        await context.SaveChangesAsync();
+
+        // 1.5. Seed 4 Matching Sets for Couple Wardrobe (PHU-34 / PHU-35)
+        var matchingSets = new List<AvatarMatchingSet3D>
+        {
+            new()
+            {
+                Id = "set_royal_academy_duo",
+                Name = "Set Đồng Phục Học Viện Hoàng Gia",
+                Theme = "Academic Elegance",
+                Description = "Blazer xanh navy viền vàng gold, cà vạt/nơ học sinh thanh lịch",
+                BadgeText = "Bộ Đôi Học Viện",
+                TokenPriceTotal = 1200,
+                DiscountPercentage = 15,
+                FemaleItemIds = new List<string> { "top_chibi_female_sailor_01", "bottom_chibi_female_pleated_01", "shoes_chibi_female_oxford_01", "acc_chibi_female_star_clip_01" },
+                MaleItemIds = new List<string> { "top_chibi_male_vest_gilet_01", "bottom_chibi_male_slacks_01", "shoes_chibi_male_sneaker_cyan_01", "acc_chibi_male_cyber_headset_01" },
+                FemalePreviewNames = new List<string> { "Blazer Sakura", "Váy Xếp Ly Caro", "Giày Oxford Cổ Ngắn", "Kẹp Tóc Ngôi Sao" },
+                MalePreviewNames = new List<string> { "Blazer Navy Gold", "Quần Âu Thể Thao", "Giày Loafer Da", "Cà Vạt Học Viện" },
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            },
+            new()
+            {
+                Id = "set_cyberpunk_neon_duo",
+                Name = "Set Đường Phố Cyberpunk Neon 2077",
+                Theme = "Cyber Futuristic",
+                Description = "Áo khoác dạ quang Hologram phát sáng trong phòng thi đấu 1v1",
+                BadgeText = "Bộ Đôi Chiến Binh",
+                TokenPriceTotal = 2500,
+                DiscountPercentage = 15,
+                FemaleItemIds = new List<string> { "top_chibi_female_hoodie_pink_01", "bottom_hologram_tech_skirt_01", "shoes_high_boots_cyber_01", "acc_chibi_female_cat_headphones_01" },
+                MaleItemIds = new List<string> { "top_chibi_male_cyber_jacket_01", "bottom_cargo_shorts_01", "shoes_high_boots_cyber_01", "acc_chibi_male_cyber_headset_01" },
+                FemalePreviewNames = new List<string> { "Hoodie Neon Pink", "Váy Hologram Tech", "Bốt Cao Gót Cyber", "Kính AR Visor" },
+                MalePreviewNames = new List<string> { "Áo Khoác Cyber Cyan", "Quần Cargo Techwear", "Sneaker Phát Sáng", "Tai Nghe Cyber" },
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            },
+            new()
+            {
+                Id = "set_athletic_runner_duo",
+                Name = "Set Năng Lượng Thể Thao Marathon",
+                Theme = "Athletic Runner",
+                Description = "Bộ đồ thể thao thoáng khí, tối ưu cho các bài luyện phát âm tốc độ",
+                BadgeText = "Bộ Đôi Thể Thao",
+                TokenPriceTotal = 850,
+                DiscountPercentage = 10,
+                FemaleItemIds = new List<string> { "top_chibi_female_sailor_01", "bottom_chibi_female_denim_01", "shoes_runner_sneakers_01", "acc_chibi_female_star_clip_01" },
+                MaleItemIds = new List<string> { "top_school_blazer_oxford_01", "bottom_cargo_shorts_01", "shoes_runner_sneakers_01", "acc_chibi_male_smart_glasses_01" },
+                FemalePreviewNames = new List<string> { "Áo Croptop Runner", "Quần Short Thể Thao", "Sneaker Siêu Nhẹ", "Băng Đô Thể Thao" },
+                MalePreviewNames = new List<string> { "Áo Thun Co Giãn", "Quần Jogger Năng Động", "Sneaker Chạy Bộ", "Đồng Hồ Đo Nhịp" },
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            },
+            new()
+            {
+                Id = "set_mystic_scholar_duo",
+                Name = "Set Pháp Sư Học Thuật Huyền Bí",
+                Theme = "Mystic Fantasy",
+                Description = "Áo choàng pháp sư thêu chỉ vàng phép thuật, hào quang sao rơi",
+                BadgeText = "Bộ Đôi Huyền Thoại",
+                TokenPriceTotal = 3800,
+                DiscountPercentage = 20,
+                FemaleItemIds = new List<string> { "top_golden_dragon_robe_01", "bottom_hologram_tech_skirt_01", "shoes_chibi_female_oxford_01", "acc_angel_wings_aurora_01" },
+                MaleItemIds = new List<string> { "top_golden_dragon_robe_01", "bottom_chibi_male_slacks_01", "shoes_chibi_male_sneaker_cyan_01", "acc_angel_wings_aurora_01" },
+                FemalePreviewNames = new List<string> { "Áo Choàng Pháp Sư Nữ", "Váy Phù Thủy Huyền Ảo", "Giày Phép Thuật", "Trượng Ngữ Pháp" },
+                MalePreviewNames = new List<string> { "Áo Choàng Pháp Sư Nam", "Quần Phép Thuật", "Bốt Da Thần Kỳ", "Sách Cổ Phép Thuật" },
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            }
+        };
+
+        var existingSets = await context.AvatarMatchingSets3D.ToListAsync();
+        var existingSetMap = existingSets.ToDictionary(s => s.Id, StringComparer.OrdinalIgnoreCase);
+        foreach (var s in matchingSets)
+        {
+            if (existingSetMap.TryGetValue(s.Id, out var existingSet))
+            {
+                existingSet.Name = s.Name;
+                existingSet.Theme = s.Theme;
+                existingSet.Description = s.Description;
+                existingSet.BadgeText = s.BadgeText;
+                existingSet.TokenPriceTotal = s.TokenPriceTotal;
+                existingSet.DiscountPercentage = s.DiscountPercentage;
+                existingSet.FemaleItemIds = s.FemaleItemIds;
+                existingSet.MaleItemIds = s.MaleItemIds;
+                existingSet.FemalePreviewNames = s.FemalePreviewNames;
+                existingSet.MalePreviewNames = s.MalePreviewNames;
+                existingSet.IsActive = true;
+            }
+            else
+            {
+                context.AvatarMatchingSets3D.Add(s);
             }
         }
         await context.SaveChangesAsync();
@@ -897,14 +1595,22 @@ public static class DataSeeder3D
                 context.UserAvatarEquips3D.Add(new UserAvatarEquip3D
                 {
                     UserId = user.Id,
-                    BaseBodyId = "body_chibi_male_01",
-                    HairId = "hair_zingspeed_spiky_grey",
-                    TopId = "top_zingspeed_black_hoodie",
-                    BottomId = "bot_zingspeed_cargo_shorts",
-                    ShoesId = "foot_zingspeed_combat_boots",
-                    AccessoryId = null,
+                    ActiveGender = "FEMALE",
+                    BaseBodyId = "body_chibi_female_aoi",
+                    HairId = "hair_twin_tails_cherry_01",
+                    TopId = "top_chibi_female_sailor_01",
+                    BottomId = "bottom_chibi_female_pleated_01",
+                    ShoesId = "shoes_chibi_female_oxford_01",
+                    AccessoryId = "acc_chibi_female_star_clip_01",
                     UpdatedAt = DateTime.UtcNow
                 });
+            }
+            else
+            {
+                if (string.IsNullOrWhiteSpace(equip.ActiveGender))
+                {
+                    equip.ActiveGender = "FEMALE";
+                }
             }
 
             // Ensure Preset 1 exists for user
@@ -913,12 +1619,13 @@ public static class DataSeeder3D
             {
                 var starterConfig = new
                 {
-                    baseBodyId = "body_chibi_male_01",
-                    hairId = "hair_zingspeed_spiky_grey",
-                    topId = "top_zingspeed_black_hoodie",
-                    bottomId = "bot_zingspeed_cargo_shorts",
-                    shoesId = "foot_zingspeed_combat_boots",
-                    accessoryId = (string?)null
+                    activeGender = "FEMALE",
+                    baseBodyId = "body_chibi_female_aoi",
+                    hairId = "hair_twin_tails_cherry_01",
+                    topId = "top_chibi_female_sailor_01",
+                    bottomId = "bottom_chibi_female_pleated_01",
+                    shoesId = "shoes_chibi_female_oxford_01",
+                    accessoryId = "acc_chibi_female_star_clip_01"
                 };
 
                 context.AvatarPresets3D.Add(new AvatarPreset3D
@@ -926,7 +1633,7 @@ public static class DataSeeder3D
                     Id = Guid.NewGuid(),
                     UserId = user.Id,
                     PresetSlot = 1,
-                    PresetName = "Tay Đua ZingSpeed Đường Phố 3D",
+                    PresetName = "Nữ Sinh Aoi Học Viện Hoàng Gia",
                     Config = JsonSerializer.Serialize(starterConfig),
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow

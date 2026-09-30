@@ -18,6 +18,9 @@ export function buildBaseBodyMesh(gender: 'MALE' | 'FEMALE' | 'UNISEX', maskedPa
   group.name = 'BaseBody_Group';
 
   const isFemale = gender === 'FEMALE';
+  const isAoi = bodyId === 'body_chibi_female_aoi';
+  const isRen = bodyId === 'body_chibi_male_ren';
+  const isTan = bodyId === 'body_chibi_tan_athletic_01';
   const isGolden = bodyId === 'body_chibi_golden_divine';
   const isMecha = bodyId === 'body_chibi_mecha_01';
 
@@ -36,6 +39,12 @@ export function buildBaseBodyMesh(gender: 'MALE' | 'FEMALE' | 'UNISEX', maskedPa
       emissive: 0x00cec9,
       emissiveIntensity: 0.15,
     });
+  } else if (isTan) {
+    skinMat = createVinylMaterial(0xcd853f, { roughness: 0.38 }); // Warm honey bronze
+  } else if (isAoi) {
+    skinMat = createVinylMaterial(0xffe4db, { roughness: 0.32 }); // Aoi soft porcelain anime skin
+  } else if (isRen) {
+    skinMat = createVinylMaterial(0xfde4ce, { roughness: 0.34 }); // Ren fair natural athletic skin
   } else {
     const skinColor = isFemale ? 0xffdfd0 : 0xf7d5bc;
     skinMat = createVinylMaterial(skinColor, { roughness: 0.35 });
@@ -60,7 +69,15 @@ export function buildBaseBodyMesh(gender: 'MALE' | 'FEMALE' | 'UNISEX', maskedPa
   group.add(leftEar, rightEar);
 
   // Eyes (Big expressive anime eyes)
-  const eyeColor = isGolden ? 0xfff200 : (isFemale ? 0x9b51e0 : (isMecha ? 0x00cec9 : 0x00b894));
+  const eyeColor = isGolden
+    ? 0xfff200
+    : isMecha
+    ? 0x00cec9
+    : isAoi || isFemale
+    ? 0x9b51e0 // Violet anime eyes for Aoi
+    : isRen
+    ? 0x0984e3 // Azure sapphire anime eyes for Ren
+    : 0x00b894;
   const eyeWhiteMat = createVinylMaterial(0xffffff, { roughness: 0.1 });
   const eyeIrisMat = createVinylMaterial(eyeColor, { roughness: 0.1, emissive: eyeColor, emissiveIntensity: 0.35 });
   const pupilMat = createVinylMaterial(0x1a1a1a, { roughness: 0.05 });
@@ -185,10 +202,15 @@ export function buildHairMesh(hairId: string): THREE.Group {
   const group = new THREE.Group();
   group.name = `Hair_${hairId}`;
 
-  if (hairId === 'hair_zingspeed_spiky_grey') {
-    // Spiky grey racer hair with yellow streak
-    const hairMat = createVinylMaterial(0x576574, { roughness: 0.25 });
-    const streakMat = createVinylMaterial(0xfeca57, { roughness: 0.2, emissive: 0xfeca57, emissiveIntensity: 0.15 });
+  if (hairId === 'hair_zingspeed_spiky_grey' || hairId === 'hair_anime_spiky_layer_01') {
+    // Spiky racer / anime spiky layer hair with cyan streak
+    const isCyanLayer = hairId === 'hair_anime_spiky_layer_01';
+    const hairMat = createVinylMaterial(isCyanLayer ? 0x2d3436 : 0x576574, { roughness: 0.25 });
+    const streakMat = createVinylMaterial(isCyanLayer ? 0x00cec9 : 0xfeca57, {
+      roughness: 0.2,
+      emissive: isCyanLayer ? 0x00cec9 : 0xfeca57,
+      emissiveIntensity: 0.3,
+    });
 
     const capGeo = new THREE.SphereGeometry(0.25, 24, 24, 0, Math.PI * 2, 0, Math.PI * 0.6);
     const cap = new THREE.Mesh(capGeo, hairMat);
@@ -204,9 +226,10 @@ export function buildHairMesh(hairId: string): THREE.Group {
       spike.rotation.set(-0.2, 0, -angle * 0.8);
       group.add(spike);
     }
-  } else if (hairId === 'hair_zingspeed_pink_twintails') {
-    // Sweet idol pink twintails with star clips
-    const pinkMat = createVinylMaterial(0xff7675, { roughness: 0.3 });
+  } else if (hairId === 'hair_zingspeed_pink_twintails' || hairId === 'hair_twin_tails_cherry_01') {
+    // Sweet idol pink twintails / Sakura Pop twintails with star clips
+    const isSakura = hairId === 'hair_twin_tails_cherry_01';
+    const pinkMat = createVinylMaterial(isSakura ? 0xff9aa2 : 0xff7675, { roughness: 0.28 });
     const starMat = createVinylMaterial(0xfdcb6e, { roughness: 0.15, emissive: 0xfdcb6e, emissiveIntensity: 0.3 });
 
     const capGeo = new THREE.SphereGeometry(0.255, 24, 24, 0, Math.PI * 2, 0, Math.PI * 0.65);
@@ -255,25 +278,28 @@ export function buildHairMesh(hairId: string): THREE.Group {
     };
 
     group.add(createTwintail(true), createTwintail(false));
-  } else if (hairId === 'hair_anime_bob_blonde') {
-    // Anime Blonde Bob
-    const goldMat = createVinylMaterial(0xffeaa7, { roughness: 0.28 });
+  } else if (hairId === 'hair_anime_bob_blonde' || hairId === 'hair_short_bob_scholar_01') {
+    // Anime Blonde Bob or Scholar Dark Bob
+    const isScholar = hairId === 'hair_short_bob_scholar_01';
+    const bobMat = createVinylMaterial(isScholar ? 0x2c3e50 : 0xffeaa7, { roughness: 0.3 });
     const capGeo = new THREE.SphereGeometry(0.255, 24, 24, 0, Math.PI * 2, 0, Math.PI * 0.7);
-    const cap = new THREE.Mesh(capGeo, goldMat);
+    const cap = new THREE.Mesh(capGeo, bobMat);
     cap.position.set(0, 0.77, 0);
     group.add(cap);
 
     // Bob sides
     for (const isLeft of [true, false]) {
       const bobGeo = new THREE.CylinderGeometry(0.05, 0.03, 0.18, 12);
-      const bob = new THREE.Mesh(bobGeo, goldMat);
+      const bob = new THREE.Mesh(bobGeo, bobMat);
       bob.position.set(isLeft ? 0.2 : -0.2, 0.72, 0.06);
       bob.rotation.z = isLeft ? -0.15 : 0.15;
       group.add(bob);
     }
-  } else if (hairId === 'hair_kpop_curtain_brown') {
-    // K-Pop Curtain Brown
-    const brownMat = createVinylMaterial(0x6d4c41, { roughness: 0.35 });
+  } else if (hairId === 'hair_kpop_curtain_brown' || hairId === 'hair_side_part_scholar_01') {
+    // K-Pop Curtain Brown or Scholar 7/3 Side Part (Ren)
+    const isRenScholar = hairId === 'hair_side_part_scholar_01';
+    const hairColor = isRenScholar ? 0x1e272e : 0x6d4c41;
+    const brownMat = createVinylMaterial(hairColor, { roughness: 0.32 });
     const capGeo = new THREE.SphereGeometry(0.252, 24, 24, 0, Math.PI * 2, 0, Math.PI * 0.62);
     const cap = new THREE.Mesh(capGeo, brownMat);
     cap.position.set(0, 0.77, -0.02);
@@ -381,8 +407,88 @@ export function buildTopMesh(topId: string): THREE.Group {
     };
 
     group.add(torso, pocket, bolt, createSleeve(true), createSleeve(false));
-  } else if (topId === 'top_zingspeed_white_hoodie') {
-    const whiteMat = createVinylMaterial(0xf5f6fa, { roughness: 0.3 });
+  } else if (topId === 'top_chibi_female_sailor_01') {
+    // Aoi Sailor uniform with crisp white collar and red ruby bow
+    const navyMat = createVinylMaterial(0x192a56, { roughness: 0.3 });
+    const whiteMat = createVinylMaterial(0xffffff, { roughness: 0.25 });
+    const rubyMat = createVinylMaterial(0xe74c3c, { roughness: 0.2, emissive: 0xc0392b, emissiveIntensity: 0.25 });
+
+    const torsoGeo = new THREE.CylinderGeometry(0.12, 0.138, 0.26, 24);
+    const torso = new THREE.Mesh(torsoGeo, whiteMat);
+    torso.position.set(0, 0.45, 0);
+
+    // Sailor collar
+    const collarGeo = new THREE.BoxGeometry(0.18, 0.04, 0.16);
+    const collar = new THREE.Mesh(collarGeo, navyMat);
+    collar.position.set(0, 0.54, 0);
+
+    // Red ribbon bow
+    const bowGeo = new THREE.TorusGeometry(0.035, 0.012, 8, 16);
+    const bow = new THREE.Mesh(bowGeo, rubyMat);
+    bow.position.set(0, 0.51, 0.12);
+
+    group.add(torso, collar, bow);
+  } else if (topId === 'top_chibi_male_vest_gilet_01') {
+    // Ren Navy wool gilet vest over white shirt
+    const navyMat = createVinylMaterial(0x192a56, { roughness: 0.35 });
+    const shirtMat = createVinylMaterial(0xf5f6fa, { roughness: 0.25 });
+    const goldMat = createVinylMaterial(0xf1c40f, { roughness: 0.2, metalness: 0.6 });
+
+    const shirtGeo = new THREE.CylinderGeometry(0.125, 0.14, 0.28, 24);
+    const shirt = new THREE.Mesh(shirtGeo, shirtMat);
+    shirt.position.set(0, 0.44, 0);
+
+    // Gilet vest outer
+    const vestGeo = new THREE.CylinderGeometry(0.128, 0.142, 0.25, 24);
+    const vest = new THREE.Mesh(vestGeo, navyMat);
+    vest.position.set(0, 0.43, 0);
+
+    // Gold academy crest
+    const crestGeo = new THREE.CircleGeometry(0.018, 12);
+    const crest = new THREE.Mesh(crestGeo, goldMat);
+    crest.position.set(0.065, 0.48, 0.128);
+
+    group.add(shirt, vest, crest);
+  } else if (topId === 'top_chibi_male_cyber_jacket_01') {
+    // Ren Cyber Electric Jacket
+    const darkMat = createVinylMaterial(0x1e272e, { roughness: 0.2, metalness: 0.4 });
+    const cyanNeonMat = createVinylMaterial(0x00cec9, { roughness: 0.1, emissive: 0x00cec9, emissiveIntensity: 0.8 });
+
+    const jacketGeo = new THREE.CylinderGeometry(0.13, 0.145, 0.28, 24);
+    const jacket = new THREE.Mesh(jacketGeo, darkMat);
+    jacket.position.set(0, 0.44, 0);
+
+    // Neon circuit lines
+    for (let c = -1; c <= 1; c += 2) {
+      const stripeGeo = new THREE.BoxGeometry(0.012, 0.22, 0.015);
+      const stripe = new THREE.Mesh(stripeGeo, cyanNeonMat);
+      stripe.position.set(c * 0.08, 0.44, 0.12);
+      group.add(stripe);
+    }
+    group.add(jacket);
+  } else if (topId === 'top_golden_dragon_robe_01') {
+    // Emperor Golden Dragon Robe (Legendary)
+    const goldRobeMat = createVinylMaterial(0xffd700, {
+      roughness: 0.2,
+      metalness: 0.5,
+      emissive: 0xffaa00,
+      emissiveIntensity: 0.35,
+    });
+    const dragonRedMat = createVinylMaterial(0xc0392b, { roughness: 0.25 });
+
+    const robeGeo = new THREE.CylinderGeometry(0.13, 0.155, 0.32, 24);
+    const robe = new THREE.Mesh(robeGeo, goldRobeMat);
+    robe.position.set(0, 0.42, 0);
+
+    const sashGeo = new THREE.TorusGeometry(0.132, 0.015, 8, 24);
+    const sash = new THREE.Mesh(sashGeo, dragonRedMat);
+    sash.position.set(0, 0.42, 0);
+    sash.rotation.x = Math.PI / 2;
+
+    group.add(robe, sash);
+  } else if (topId === 'top_zingspeed_white_hoodie' || topId === 'top_chibi_female_hoodie_pink_01') {
+    const isBunnyPink = topId === 'top_chibi_female_hoodie_pink_01';
+    const whiteMat = createVinylMaterial(isBunnyPink ? 0xffc0cb : 0xf5f6fa, { roughness: 0.3 });
     const pinkMat = createVinylMaterial(0xff9ff3, { roughness: 0.25 });
 
     const torsoGeo = new THREE.CylinderGeometry(0.13, 0.145, 0.28, 24);
@@ -395,7 +501,7 @@ export function buildTopMesh(topId: string): THREE.Group {
     hoodBack.position.set(0, 0.54, -0.1);
 
     group.add(torso, hoodBack);
-  } else if (topId === 'top_oxford_scholar_blazer') {
+  } else if (topId === 'top_oxford_scholar_blazer' || topId === 'top_school_blazer_oxford_01') {
     // Oxford Scholar Blazer (Navy with red tie and gold button accents)
     const navyMat = createVinylMaterial(0x192a56, { roughness: 0.3 });
     const shirtMat = createVinylMaterial(0xffffff, { roughness: 0.2 });
@@ -507,7 +613,7 @@ export function buildBottomMesh(bottomId: string): THREE.Group {
   const group = new THREE.Group();
   group.name = `Bottom_${bottomId}`;
 
-  if (bottomId === 'bot_zingspeed_cargo_shorts') {
+  if (bottomId === 'bot_zingspeed_cargo_shorts' || bottomId === 'bottom_cargo_shorts_01') {
     const shortsMat = createVinylMaterial(0x2d3436, { roughness: 0.4 });
     const orangeMat = createVinylMaterial(0xff7675, { roughness: 0.3, emissive: 0xff7675, emissiveIntensity: 0.2 });
 
@@ -536,9 +642,14 @@ export function buildBottomMesh(bottomId: string): THREE.Group {
     };
 
     group.add(waist, createLegShort(true), createLegShort(false));
-  } else if (bottomId === 'bot_zingspeed_pleated_skirt' || bottomId === 'bot_school_uniform_skirt') {
-    // Pleated Skirt
-    const skirtColor = bottomId === 'bot_school_uniform_skirt' ? 0x353b48 : 0x0984e3;
+  } else if (
+    bottomId === 'bot_zingspeed_pleated_skirt' ||
+    bottomId === 'bot_school_uniform_skirt' ||
+    bottomId === 'bottom_chibi_female_pleated_01'
+  ) {
+    // Pleated Skirt (Aoi red plaid or academy navy)
+    const isAoiPlaid = bottomId === 'bottom_chibi_female_pleated_01';
+    const skirtColor = isAoiPlaid ? 0xc0392b : bottomId === 'bot_school_uniform_skirt' ? 0x353b48 : 0x0984e3;
     const skirtMat = createVinylMaterial(skirtColor, { roughness: 0.35 });
     const whiteLineMat = createVinylMaterial(0xffffff, { roughness: 0.2 });
 
@@ -552,9 +663,42 @@ export function buildBottomMesh(bottomId: string): THREE.Group {
     ring.rotation.x = Math.PI / 2;
 
     group.add(skirt, ring);
-  } else if (bottomId === 'bot_streetwear_cargo_pants') {
-    // Streetwear cargo pants
-    const pantsMat = createVinylMaterial(0x57606f, { roughness: 0.4 });
+  } else if (bottomId === 'bottom_chibi_female_denim_01') {
+    // Denim overall shorts
+    const denimMat = createVinylMaterial(0x2980b9, { roughness: 0.45 });
+    const buttonMat = createVinylMaterial(0xf39c12, { roughness: 0.2, metalness: 0.7 });
+
+    const waistGeo = new THREE.CylinderGeometry(0.125, 0.122, 0.1, 24);
+    const waist = new THREE.Mesh(waistGeo, denimMat);
+    waist.position.set(0, 0.3, 0);
+
+    for (let c = -1; c <= 1; c += 2) {
+      const legGeo = new THREE.CylinderGeometry(0.06, 0.062, 0.1, 16);
+      const leg = new THREE.Mesh(legGeo, denimMat);
+      leg.position.set(c * 0.065, 0.23, 0);
+
+      const btnGeo = new THREE.SphereGeometry(0.01, 8, 8);
+      const btn = new THREE.Mesh(btnGeo, buttonMat);
+      btn.position.set(c * 0.05, 0.33, 0.11);
+      group.add(leg, btn);
+    }
+    group.add(waist);
+  } else if (bottomId === 'bottom_hologram_tech_skirt_01') {
+    // Hologram Tech Skirt
+    const holoMat = createVinylMaterial(0x00cec9, {
+      roughness: 0.15,
+      metalness: 0.3,
+      emissive: 0x9b59b6,
+      emissiveIntensity: 0.4,
+    });
+    const skirtGeo = new THREE.ConeGeometry(0.19, 0.15, 24, 1, true);
+    const skirt = new THREE.Mesh(skirtGeo, holoMat);
+    skirt.position.set(0, 0.25, 0);
+    group.add(skirt);
+  } else if (bottomId === 'bot_streetwear_cargo_pants' || bottomId === 'bottom_chibi_male_slacks_01') {
+    // Streetwear cargo pants or Ren charcoal slacks
+    const isSlacks = bottomId === 'bottom_chibi_male_slacks_01';
+    const pantsMat = createVinylMaterial(isSlacks ? 0x2d3436 : 0x57606f, { roughness: 0.4 });
     const createPantsLeg = (isLeft: boolean) => {
       const g = new THREE.Group();
       const x = isLeft ? 0.065 : -0.065;
@@ -624,7 +768,7 @@ export function buildShoesMesh(shoesId: string): THREE.Group {
   const group = new THREE.Group();
   group.name = `Shoes_${shoesId}`;
 
-  if (shoesId === 'foot_zingspeed_combat_boots') {
+  if (shoesId === 'foot_zingspeed_combat_boots' || shoesId === 'shoes_high_boots_cyber_01') {
     const leatherMat = createVinylMaterial(0x1e272e, { roughness: 0.3 });
     const yellowMat = createVinylMaterial(0xfeca57, { roughness: 0.2 });
 
@@ -649,8 +793,9 @@ export function buildShoesMesh(shoesId: string): THREE.Group {
     };
 
     group.add(createBoot(true), createBoot(false));
-  } else if (shoesId === 'foot_school_loafers') {
-    const brownLeatherMat = createVinylMaterial(0x4a2810, { roughness: 0.25 });
+  } else if (shoesId === 'foot_school_loafers' || shoesId === 'shoes_chibi_female_oxford_01') {
+    const isOxford = shoesId === 'shoes_chibi_female_oxford_01';
+    const brownLeatherMat = createVinylMaterial(isOxford ? 0x111111 : 0x4a2810, { roughness: 0.22 });
     const sockMat = createVinylMaterial(0xffffff, { roughness: 0.4 });
 
     const createLoafer = (isLeft: boolean) => {
@@ -671,8 +816,16 @@ export function buildShoesMesh(shoesId: string): THREE.Group {
     };
 
     group.add(createLoafer(true), createLoafer(false));
-  } else if (shoesId === 'foot_cyber_neon_sneakers' || shoesId === 'foot_zingspeed_pastel_sneakers') {
-    const isNeon = shoesId === 'foot_cyber_neon_sneakers';
+  } else if (
+    shoesId === 'foot_cyber_neon_sneakers' ||
+    shoesId === 'foot_zingspeed_pastel_sneakers' ||
+    shoesId === 'shoes_chibi_male_sneaker_cyan_01' ||
+    shoesId === 'shoes_runner_sneakers_01'
+  ) {
+    const isNeon =
+      shoesId === 'foot_cyber_neon_sneakers' ||
+      shoesId === 'shoes_chibi_male_sneaker_cyan_01' ||
+      shoesId === 'shoes_runner_sneakers_01';
     const mainMat = createVinylMaterial(isNeon ? 0x1e272e : 0xff9ff3, { roughness: 0.3 });
     const soleMat = createVinylMaterial(isNeon ? 0x00cec9 : 0xffffff, {
       roughness: 0.2,
@@ -891,11 +1044,58 @@ export function buildAccessoryMesh(accId: string): THREE.Group {
     };
 
     group.add(createFlameWing(true), createFlameWing(false));
-  } else if (accId === 'acc_cat_ears_headband') {
-    // Neko Cat Ears Headband
-    const bandMat = createVinylMaterial(0x1e272e, { roughness: 0.3 });
-    const earOuterMat = createVinylMaterial(0xffffff, { roughness: 0.4 });
-    const earInnerMat = createVinylMaterial(0xff7675, { roughness: 0.3 });
+  } else if (accId === 'acc_chibi_female_star_clip_01') {
+    // Aoi Gold Star Hair Clip
+    const goldMat = createVinylMaterial(0xfdcb6e, { roughness: 0.15, emissive: 0xfdcb6e, emissiveIntensity: 0.4 });
+    const clipMat = createVinylMaterial(0xff7675, { roughness: 0.3 });
+
+    const starGeo = new THREE.OctahedronGeometry(0.045, 0);
+    const star = new THREE.Mesh(starGeo, goldMat);
+    star.position.set(0.19, 0.88, 0.12);
+
+    const pinGeo = new THREE.BoxGeometry(0.01, 0.04, 0.005);
+    const pin = new THREE.Mesh(pinGeo, clipMat);
+    pin.position.set(0.18, 0.88, 0.11);
+    pin.rotation.z = -0.4;
+
+    group.add(star, pin);
+  } else if (accId === 'acc_chibi_male_cyber_headset_01') {
+    // Ren Studio Bluetooth Headset
+    const darkMat = createVinylMaterial(0x1e272e, { roughness: 0.25 });
+    const silverMat = createVinylMaterial(0xdcdde1, { roughness: 0.2, metalness: 0.8 });
+    const cyanLightMat = createVinylMaterial(0x00cec9, { roughness: 0.1, emissive: 0x00cec9, emissiveIntensity: 0.6 });
+
+    // Headband
+    const bandGeo = new THREE.TorusGeometry(0.24, 0.012, 8, 24, Math.PI);
+    const band = new THREE.Mesh(bandGeo, darkMat);
+    band.position.set(0, 0.77, 0);
+    band.rotation.x = -Math.PI / 2;
+
+    // Ear cups
+    for (const isLeft of [true, false]) {
+      const cupGeo = new THREE.CylinderGeometry(0.055, 0.055, 0.03, 16);
+      const cup = new THREE.Mesh(cupGeo, darkMat);
+      cup.position.set(isLeft ? 0.24 : -0.24, 0.74, 0);
+      cup.rotation.z = Math.PI / 2;
+
+      const ringGeo = new THREE.TorusGeometry(0.04, 0.005, 8, 16);
+      const ring = new THREE.Mesh(ringGeo, cyanLightMat);
+      ring.position.set(isLeft ? 0.256 : -0.256, 0.74, 0);
+      ring.rotation.y = Math.PI / 2;
+
+      group.add(cup, ring);
+    }
+    group.add(band);
+  } else if (accId === 'acc_cat_ears_headband' || accId === 'acc_chibi_female_cat_headphones_01') {
+    // Neko Cat Ears Headband / RGB Cat Headphones
+    const isRGB = accId === 'acc_chibi_female_cat_headphones_01';
+    const bandMat = createVinylMaterial(isRGB ? 0x2d3436 : 0x1e272e, { roughness: 0.3 });
+    const earOuterMat = createVinylMaterial(isRGB ? 0xff7675 : 0xffffff, { roughness: 0.4 });
+    const earInnerMat = createVinylMaterial(isRGB ? 0x00cec9 : 0xff7675, {
+      roughness: 0.3,
+      emissive: isRGB ? 0x00cec9 : 0x000000,
+      emissiveIntensity: isRGB ? 0.6 : 0,
+    });
 
     const bandGeo = new THREE.TorusGeometry(0.24, 0.008, 8, 24, Math.PI);
     const band = new THREE.Mesh(bandGeo, bandMat);
@@ -930,8 +1130,8 @@ export function buildAccessoryMesh(accId: string): THREE.Group {
     halo.position.set(0, 1.08, -0.04);
     halo.rotation.x = Math.PI / 2 - 0.2;
     group.add(halo);
-  } else if (accId === 'acc_cyber_visor') {
-    // Holo Cyber Visor
+  } else if (accId === 'acc_cyber_visor' || accId === 'acc_chibi_male_smart_glasses_01') {
+    // Holo Cyber Visor / AR Smart Glasses
     const visorMat = createVinylMaterial(0x00cec9, {
       roughness: 0.05,
       transparent: true,

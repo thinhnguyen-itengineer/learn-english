@@ -30,12 +30,47 @@ public class Shop3DController : ControllerBase
     public async Task<ActionResult<Shop3DListResponse>> GetCatalog(
         [FromQuery] string? slot,
         [FromQuery] string? rarity,
+        [FromQuery] string? gender,
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 50)
     {
         var userId = await GetCurrentUserIdAsync();
-        var result = await _shop3DCheckoutService.GetCatalogAsync(userId, slot, rarity, page, pageSize);
+        var result = await _shop3DCheckoutService.GetCatalogAsync(userId, slot, rarity, gender, page, pageSize);
         return Ok(result);
+    }
+
+    [HttpGet("matching-sets")]
+    [HttpGet("/api/v1/shop/matching-sets")]
+    public async Task<ActionResult<List<AvatarMatchingSet3DDto>>> GetMatchingSets()
+    {
+        var userId = await GetCurrentUserIdAsync();
+        var sets = await _shop3DCheckoutService.GetMatchingSetsAsync(userId);
+        return Ok(sets);
+    }
+
+    [HttpPost("matching-sets/{id}/purchase-duo")]
+    [HttpPost("/api/v1/shop/matching-sets/{id}/purchase-duo")]
+    public async Task<ActionResult<PurchaseMatchingSetResponse>> PurchaseMatchingSet(string id)
+    {
+        try
+        {
+            var userId = await GetCurrentUserIdAsync();
+            var result = await _shop3DCheckoutService.PurchaseMatchingSetDuoAsync(userId, id);
+            return Ok(result);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Lỗi khi mua bộ trang phục đôi {SetId}", id);
+            return StatusCode(500, new { message = "Lỗi máy chủ khi mua bộ trang phục đôi." });
+        }
     }
 
     [HttpPost("{id}/purchase")]
