@@ -15,6 +15,7 @@ interface NavbarProps {
   onReturnToLobby: () => void;
   onOpenProfile?: () => void;
   onOpenFittingRoom?: () => void;
+  onOpenFittingRoom3D?: () => void;
   onOpenWardrobe?: () => void;
 }
 
@@ -27,6 +28,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onReturnToLobby,
   onOpenProfile,
   onOpenFittingRoom,
+  onOpenFittingRoom3D,
   onOpenWardrobe
 }) => {
   const { activeConfig } = useAvatarStore();
@@ -117,6 +119,18 @@ export const Navbar: React.FC<NavbarProps> = ({
                 </div>
               </div>
             </>
+          )}
+
+          {/* 3D Studio Button */}
+          {onOpenFittingRoom3D && (
+            <button
+              onClick={onOpenFittingRoom3D}
+              className="px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-cyan-600/30 to-indigo-600/30 hover:from-cyan-600/50 hover:to-indigo-600/50 border border-cyan-400/40 text-cyan-300 font-bold text-xs transition-all cursor-pointer flex items-center gap-1.5 shadow-sm shadow-cyan-500/10"
+              title="Phòng Thử Đồ 3D WebGL (Three.js)"
+            >
+              <span>🎮</span>
+              <span className="hidden md:inline">3D Studio</span>
+            </button>
           )}
 
           {/* Quick Shop Button */}

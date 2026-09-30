@@ -16,6 +16,7 @@ import { MatchResultModal, MatchResultData } from './components/ui/MatchResultMo
 import { TidMiniGameModal } from './components/TidMiniGameModal';
 import { ProfileModal } from './components/avatar/ProfileModal';
 import { FittingRoomModal } from './components/avatar/FittingRoomModal';
+import { FittingRoom3DModal } from './components/avatar3d/FittingRoom3DModal';
 import { WardrobeModal } from './components/avatar/WardrobeModal';
 import { useAvatarStore } from './services/useAvatarStore';
 import { useProfileAndInventoryStore } from './services/useProfileAndInventoryStore';
@@ -79,6 +80,7 @@ export function App() {
   // Avatar & Shop Modals
   const [showProfileModal, setShowProfileModal] = useState<boolean>(false);
   const [showFittingRoomModal, setShowFittingRoomModal] = useState<boolean>(false);
+  const [showFittingRoom3DModal, setShowFittingRoom3DModal] = useState<boolean>(false);
   const [showWardrobeModal, setShowWardrobeModal] = useState<boolean>(false);
 
   const refreshProfileAndRank = async () => {
@@ -423,6 +425,7 @@ export function App() {
         onReturnToLobby={handleBackToLobby}
         onOpenProfile={() => setShowProfileModal(true)}
         onOpenFittingRoom={() => setShowFittingRoomModal(true)}
+        onOpenFittingRoom3D={() => setShowFittingRoom3DModal(true)}
         onOpenWardrobe={() => setShowWardrobeModal(true)}
       />
 
@@ -590,6 +593,15 @@ export function App() {
         onOpenWardrobe={() => {
           setShowFittingRoomModal(false);
           setShowWardrobeModal(true);
+        }}
+      />
+
+      {/* Standalone 3D WebGL Live Fitting Room & Boutique Showroom Modal */}
+      <FittingRoom3DModal
+        isOpen={showFittingRoom3DModal}
+        onClose={() => {
+          setShowFittingRoom3DModal(false);
+          refreshProfileAndRank();
         }}
       />
 

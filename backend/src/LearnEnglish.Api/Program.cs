@@ -54,6 +54,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // 2. Configure Dependency Injection
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<ITokenLedgerService, TokenLedgerService>();
+builder.Services.AddScoped<IAvatar3DService, Avatar3DService>();
+builder.Services.AddScoped<IShop3DCheckoutService, Shop3DCheckoutService>();
 builder.Services.AddScoped<IGameService, GameService>();
 builder.Services.AddScoped<ISkillService, SkillService>();
 builder.Services.AddSingleton<IEloRatingCalculator, EloRatingCalculator>();

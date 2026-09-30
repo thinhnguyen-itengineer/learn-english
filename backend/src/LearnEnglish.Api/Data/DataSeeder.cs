@@ -14,6 +14,7 @@ public static class DataSeeder
             await SeedSkillDomainsAsync(context);
             await SeedRetentionDataAsync(context);
             await SeedAvatarAndShopDataAsync(context);
+            await DataSeeder3D.SeedAsync(context);
             return;
         }
 
@@ -1333,5 +1334,6 @@ public static class DataSeeder
         }
 
         await context.SaveChangesAsync();
+        await DataSeeder3D.SeedAsync(context);
     }
 }

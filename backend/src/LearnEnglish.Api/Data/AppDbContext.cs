@@ -41,6 +41,9 @@ public class AppDbContext : DbContext
     public DbSet<UserInventory> UserInventories => Set<UserInventory>();
     public DbSet<TokenTransaction> TokenTransactions => Set<TokenTransaction>();
     public DbSet<AvatarPreset> AvatarPresets => Set<AvatarPreset>();
+    public DbSet<AvatarItem3D> AvatarItems3D => Set<AvatarItem3D>();
+    public DbSet<UserAvatarEquip3D> UserAvatarEquips3D => Set<UserAvatarEquip3D>();
+    public DbSet<AvatarPreset3D> AvatarPresets3D => Set<AvatarPreset3D>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -698,6 +701,103 @@ public class AppDbContext : DbContext
             entity.Property(e => e.PresetName).HasMaxLength(100).IsRequired();
 
             entity.HasIndex(e => new { e.UserId, e.PresetIndex }).IsUnique();
+            entity.HasIndex(e => e.UserId);
+        });
+
+        // AvatarItem3D
+        modelBuilder.Entity<AvatarItem3D>(entity =>
+        {
+            entity.ToTable("avatar_items_3d");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id).HasMaxLength(64);
+            entity.Property(e => e.Name).HasMaxLength(128).IsRequired();
+            entity.Property(e => e.Slot).HasMaxLength(32).IsRequired();
+            entity.Property(e => e.Rarity).HasMaxLength(32).HasDefaultValue("COMMON");
+            entity.Property(e => e.Gender).HasMaxLength(16).HasDefaultValue("UNISEX");
+            entity.Property(e => e.ModelUrl).HasMaxLength(512).IsRequired();
+            entity.Property(e => e.ThumbnailUrl).HasMaxLength(512).IsRequired();
+            entity.Property(e => e.BoneBindingRoot).HasMaxLength(64).HasDefaultValue("Hips");
+            entity.Property(e => e.PriceTokens).HasDefaultValue(0);
+            entity.Property(e => e.LevelRequired).HasDefaultValue(1);
+
+            var listComparer = new Microsoft.EntityFrameworkCore.ChangeTracking.ValueComparer<List<string>>(
+                (c1, c2) => (c1 == null && c2 == null) || (c1 != null && c2 != null && c1.SequenceEqual(c2)),
+                c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
+                c => c.ToList());
+
+            entity.Property(e => e.HideSlotsWhenEquipped)
+                .HasConversion(
+                    v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
+                    v => JsonSerializer.Deserialize<List<string>>(v, (JsonSerializerOptions?)null) ?? new List<string>()
+                )
+                .Metadata.SetValueComparer(listComparer);
+
+            entity.Property(e => e.MaskedBodyParts)
+                .HasConversion(
+                    v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
+                    v => JsonSerializer.Deserialize<List<string>>(v, (JsonSerializerOptions?)null) ?? new List<string>()
+                )
+                .Metadata.SetValueComparer(listComparer);
+
+            entity.HasIndex(e => e.Slot);
+            entity.HasIndex(e => e.Rarity);
+        });
+
+        // UserAvatarEquip3D
+        modelBuilder.Entity<UserAvatarEquip3D>(entity =>
+        {
+            entity.ToTable("user_avatar_equips_3d");
+            entity.HasKey(e => e.UserId);
+
+            entity.HasOne(e => e.User)
+                .WithOne()
+                .HasForeignKey<UserAvatarEquip3D>(e => e.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.BaseBody)
+                .WithMany()
+                .HasForeignKey(e => e.BaseBodyId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(e => e.Hair)
+                .WithMany()
+                .HasForeignKey(e => e.HairId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(e => e.Top)
+                .WithMany()
+                .HasForeignKey(e => e.TopId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(e => e.Bottom)
+                .WithMany()
+                .HasForeignKey(e => e.BottomId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(e => e.Shoes)
+                .WithMany()
+                .HasForeignKey(e => e.ShoesId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(e => e.Accessory)
+                .WithMany()
+                .HasForeignKey(e => e.AccessoryId)
+                .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        // AvatarPreset3D
+        modelBuilder.Entity<AvatarPreset3D>(entity =>
+        {
+            entity.ToTable("avatar_presets_3d");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.PresetName).HasMaxLength(64).IsRequired();
+
+            entity.HasOne(e => e.User)
+                .WithMany()
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasIndex(e => new { e.UserId, e.PresetSlot }).IsUnique();
             entity.HasIndex(e => e.UserId);
         });
     }
