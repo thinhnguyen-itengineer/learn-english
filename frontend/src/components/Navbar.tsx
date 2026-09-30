@@ -2,8 +2,8 @@ import React from 'react';
 import { Flame, Trophy, Snowflake, Sparkles, Swords, Coins, ShoppingBag, Shirt } from 'lucide-react';
 import { UserProfileDto, UserRankProfileDto, RankTier, RankDivision } from '../types/game';
 import { RankBadge, TrophyBadge } from './ui/RankBadge';
-import { ModularAvatar } from './avatar/ModularAvatar';
-import { useAvatarStore } from '../services/useAvatarStore';
+import { Avatar3DCanvas } from './avatar3d/Avatar3DCanvas';
+import { useAvatar3DStore } from '../services/useAvatar3DStore';
 import { useProfileAndInventoryStore } from '../services/useProfileAndInventoryStore';
 
 interface NavbarProps {
@@ -31,7 +31,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenFittingRoom3D,
   onOpenWardrobe
 }) => {
-  const { activeConfig } = useAvatarStore();
+  const { previewEquipped } = useAvatar3DStore();
   const { profile: fullProfile } = useProfileAndInventoryStore();
 
   const tokenBalance = fullProfile?.tokenBalance ?? (profile as any)?.tokenBalance ?? 0;
@@ -71,9 +71,9 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           {/* Tokens Pill */}
           <div 
-            onClick={onOpenFittingRoom}
+            onClick={onOpenFittingRoom3D || onOpenFittingRoom}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 hover:bg-amber-500/20 transition-all cursor-pointer shadow-sm group"
-            title="Số dư Token - Bấm để mở Cửa Hàng"
+            title="Số dư Token - Bấm để mở Cửa Hàng 3D"
           >
             <Coins className="w-4 h-4 text-amber-400 group-hover:rotate-12 transition-transform" />
             <span className="font-extrabold text-sm tracking-tight">{tokenBalance.toLocaleString()}</span>
@@ -121,37 +121,15 @@ export const Navbar: React.FC<NavbarProps> = ({
             </>
           )}
 
-          {/* 3D Studio Button */}
-          {onOpenFittingRoom3D && (
+          {/* 3D Studio & Shop Button */}
+          {(onOpenFittingRoom3D || onOpenFittingRoom) && (
             <button
-              onClick={onOpenFittingRoom3D}
+              onClick={onOpenFittingRoom3D || onOpenFittingRoom}
               className="px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-cyan-600/30 to-indigo-600/30 hover:from-cyan-600/50 hover:to-indigo-600/50 border border-cyan-400/40 text-cyan-300 font-bold text-xs transition-all cursor-pointer flex items-center gap-1.5 shadow-sm shadow-cyan-500/10"
-              title="Phòng Thử Đồ 3D WebGL (Three.js)"
+              title="Phòng Thử Đồ & Shop 3D WebGL (R3F)"
             >
               <span>🎮</span>
-              <span className="hidden md:inline">3D Studio</span>
-            </button>
-          )}
-
-          {/* Quick Shop Button */}
-          {onOpenFittingRoom && (
-            <button
-              onClick={onOpenFittingRoom}
-              className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-amber-400 hover:text-amber-300 transition-all cursor-pointer hidden sm:flex"
-              title="Cửa hàng thời trang & phụ kiện"
-            >
-              <ShoppingBag className="w-4 h-4" />
-            </button>
-          )}
-
-          {/* Quick Wardrobe Button */}
-          {onOpenWardrobe && (
-            <button
-              onClick={onOpenWardrobe}
-              className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-indigo-400 hover:text-indigo-300 transition-all cursor-pointer hidden sm:flex"
-              title="Tủ đồ & Quản lý Outfit"
-            >
-              <Shirt className="w-4 h-4" />
+              <span className="hidden md:inline">3D Studio & Shop</span>
             </button>
           )}
 
@@ -179,14 +157,10 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               onClick={onOpenProfile}
               className="flex items-center gap-2 p-1 rounded-full bg-slate-800/90 hover:bg-slate-700 border border-slate-700 hover:border-indigo-500/60 transition-all cursor-pointer group shadow-sm"
-              title="Hồ sơ & Avatar cá nhân"
+              title="Hồ sơ & Avatar 3D cá nhân"
             >
-              <div className="w-8 h-8 rounded-full overflow-hidden border-2 border-indigo-400/80 bg-slate-950 flex items-center justify-center">
-                <ModularAvatar
-                  config={activeConfig}
-                  mode="head"
-                  size={36}
-                />
+              <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-indigo-400/80 bg-slate-950 flex items-center justify-center relative">
+                <Avatar3DCanvas mode="head" className="w-full h-full min-h-0" showControlsOverlay={false} />
               </div>
             </button>
           )}

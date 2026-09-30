@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ModularAvatar } from './ModularAvatar';
+import { Avatar3DCanvas } from '../avatar3d/Avatar3DCanvas';
 import { useAvatarStore } from '../../services/useAvatarStore';
 import { useProfileAndInventoryStore } from '../../services/useProfileAndInventoryStore';
 import { AvatarConfigDto, InventoryItemDto } from '../../types/avatarAndShop';
@@ -211,8 +211,8 @@ export const WardrobeModal: React.FC<WardrobeModalProps> = ({
           
           {/* Avatar Preview Left column */}
           <div className="md:col-span-4 bg-gradient-to-b from-slate-50 via-white to-indigo-50/20 p-5 flex flex-col items-center justify-center border-r border-slate-200">
-            <div className="w-full max-w-[280px] drop-shadow-xl">
-              <ModularAvatar config={config} size="100%" animateBreath={true} mode="full" />
+            <div className="w-full max-w-[280px] h-72 rounded-2xl overflow-hidden shadow-xl bg-slate-950">
+              <Avatar3DCanvas mode="full" showControlsOverlay={false} className="w-full h-full min-h-0" />
             </div>
             <div className="mt-4 text-center">
               <p className="text-xs font-bold text-slate-800">

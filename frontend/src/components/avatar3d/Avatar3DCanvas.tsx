@@ -59,7 +59,7 @@ function ChibiAvatarRenderer({
     if (bodyRef.current) {
       disposeObject3D(bodyRef.current);
     }
-    const mesh = buildBaseBodyMesh(gender, maskedParts);
+    const mesh = buildBaseBodyMesh(gender, maskedParts, baseBodyId);
     bodyRef.current = mesh;
     avatarRootRef.current.add(mesh);
 
@@ -311,9 +311,11 @@ function StudioLightingRig() {
 function CameraRigController({
   cameraView,
   autoRotate,
+  mode = 'full',
 }: {
   cameraView: 'front' | 'left' | 'right' | 'back';
   autoRotate: boolean;
+  mode?: 'full' | 'head' | 'preview';
 }) {
   const controlsRef = useRef<any>(null);
 
@@ -340,12 +342,13 @@ function CameraRigController({
   return (
     <OrbitControls
       ref={controlsRef}
-      target={[0, 0.5, 0]}
-      minDistance={1.2}
-      maxDistance={3.0}
-      minPolarAngle={Math.PI / 2.4} // ~75 deg
-      maxPolarAngle={Math.PI / 1.8} // ~100 deg
+      target={mode === 'head' ? [0, 0.74, 0] : [0, 0.5, 0]}
+      minDistance={mode === 'head' ? 0.4 : 1.2}
+      maxDistance={mode === 'head' ? 1.4 : 3.0}
+      minPolarAngle={mode === 'head' ? Math.PI / 2.3 : Math.PI / 2.4}
+      maxPolarAngle={mode === 'head' ? Math.PI / 1.7 : Math.PI / 1.8}
       enablePan={false}
+      enableZoom={mode !== 'head'}
       autoRotate={autoRotate}
       autoRotateSpeed={0.8}
     />
@@ -355,20 +358,27 @@ function CameraRigController({
 interface Avatar3DCanvasProps {
   className?: string;
   showControlsOverlay?: boolean;
+  mode?: 'full' | 'head' | 'preview';
+  overrideEquipped?: Partial<typeof import('../../services/useAvatar3DStore').useAvatar3DStore extends { getState: () => { previewEquipped: infer T } } ? T : any>;
 }
 
 export const Avatar3DCanvas: React.FC<Avatar3DCanvasProps> = ({
   className = 'w-full h-full min-h-[380px]',
-  showControlsOverlay = true,
+  showControlsOverlay,
+  mode = 'full',
+  overrideEquipped,
 }) => {
   const {
-    previewEquipped,
+    previewEquipped: storeEquipped,
     activeAnimation,
     cameraView,
     autoRotate,
     setCameraView,
     toggleAutoRotate,
   } = useAvatar3DStore();
+
+  const previewEquipped = overrideEquipped ? { ...storeEquipped, ...overrideEquipped } : storeEquipped;
+  const shouldShowControls = showControlsOverlay !== undefined ? showControlsOverlay : (mode === 'full');
 
   const [webGlSupported, setWebGlSupported] = useState(true);
 
@@ -399,11 +409,14 @@ export const Avatar3DCanvas: React.FC<Avatar3DCanvasProps> = ({
     );
   }
 
+  const cameraPos: [number, number, number] = mode === 'head' ? [0, 0.74, 0.72] : [0, 0.6, 2.3];
+  const cameraFov = mode === 'head' ? 24 : 35;
+
   return (
-    <div className={`relative w-full h-full overflow-hidden select-none bg-gradient-to-b from-slate-950 via-slate-900 to-indigo-950 rounded-2xl ${className}`}>
+    <div className={`relative w-full h-full overflow-hidden select-none ${mode === 'head' ? 'bg-transparent' : 'bg-gradient-to-b from-slate-950 via-slate-900 to-indigo-950 rounded-2xl'} ${className}`}>
       <Canvas
-        camera={{ position: [0, 0.6, 2.3], fov: 35 }}
-        shadows
+        camera={{ position: cameraPos, fov: cameraFov }}
+        shadows={mode !== 'head'}
         gl={{
           antialias: true,
           alpha: true,
@@ -412,7 +425,7 @@ export const Avatar3DCanvas: React.FC<Avatar3DCanvasProps> = ({
       >
         <Suspense fallback={null}>
           <StudioLightingRig />
-          <ShowroomStage />
+          {mode !== 'head' && <ShowroomStage />}
           <ChibiAvatarRenderer
             animationState={activeAnimation}
             hiddenSlots={previewEquipped.hiddenSlots || []}
@@ -424,12 +437,12 @@ export const Avatar3DCanvas: React.FC<Avatar3DCanvasProps> = ({
             shoesId={previewEquipped.shoesId}
             accessoryId={previewEquipped.accessoryId}
           />
-          <CameraRigController cameraView={cameraView} autoRotate={autoRotate} />
+          <CameraRigController cameraView={cameraView} autoRotate={mode === 'head' ? false : autoRotate} mode={mode} />
         </Suspense>
       </Canvas>
 
       {/* Orbit Controls & Angle Presets Overlay */}
-      {showControlsOverlay && (
+      {shouldShowControls && (
         <div className="absolute top-3 right-3 flex flex-col gap-1.5 z-10">
           <div className="bg-slate-900/80 backdrop-blur-md p-1 rounded-xl border border-white/10 shadow-lg flex flex-col gap-1 text-[11px] font-semibold text-slate-300">
             <button
@@ -481,10 +494,12 @@ export const Avatar3DCanvas: React.FC<Avatar3DCanvasProps> = ({
       )}
 
       {/* Animation Status pill badge */}
-      <div className="absolute bottom-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-900/85 backdrop-blur-md border border-white/10 text-[10px] text-cyan-300 font-mono shadow-md z-10">
-        <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping" />
-        <span>R3F 60 FPS • {activeAnimation}</span>
-      </div>
+      {mode !== 'head' && (
+        <div className="absolute bottom-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-900/85 backdrop-blur-md border border-white/10 text-[10px] text-cyan-300 font-mono shadow-md z-10">
+          <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping" />
+          <span>R3F 60 FPS • {activeAnimation}</span>
+        </div>
+      )}
     </div>
   );
 };

@@ -13,7 +13,7 @@ public static class DataSeeder
             await SeedNewMiniGamesAsync(context);
             await SeedSkillDomainsAsync(context);
             await SeedRetentionDataAsync(context);
-            await SeedAvatarAndShopDataAsync(context);
+            // 2.5D Chibi removed per PHU-33 - only 3D WebGL (R3F) system is active
             await DataSeeder3D.SeedAsync(context);
             return;
         }
@@ -249,6 +249,9 @@ public static class DataSeeder
         await SeedBattleDataAsync(context);
         await SeedNewMiniGamesAsync(context);
         await SeedSkillDomainsAsync(context);
+        await SeedRetentionDataAsync(context);
+        // 2.5D Chibi removed per PHU-33 - only 3D WebGL (R3F) system is active
+        await DataSeeder3D.SeedAsync(context);
     }
 
     public static async Task SeedBattleDataAsync(AppDbContext context)

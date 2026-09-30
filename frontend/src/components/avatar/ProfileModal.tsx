@@ -20,14 +20,14 @@ import {
   TrendingUp
 } from 'lucide-react';
 import { useProfileAndInventoryStore } from '../../services/useProfileAndInventoryStore';
-import { useAvatarStore } from '../../services/useAvatarStore';
-import { ModularAvatar } from './ModularAvatar';
+import { useAvatar3DStore } from '../../services/useAvatar3DStore';
+import { Avatar3DCanvas } from '../avatar3d/Avatar3DCanvas';
 
 interface ProfileModalProps {
   isOpen: boolean;
   onClose: () => void;
   onOpenFittingRoom: () => void;
-  onOpenWardrobe: () => void;
+  onOpenWardrobe?: () => void;
 }
 
 const TITLE_OPTIONS = [
@@ -56,7 +56,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
     loading 
   } = useProfileAndInventoryStore();
 
-  const { activeConfig } = useAvatarStore();
+  const { fetchEquipped } = useAvatar3DStore();
 
   const [activeTab, setActiveTab] = useState<'overview' | 'ledger'>('overview');
   const [isEditingBio, setIsEditingBio] = useState(false);
@@ -69,8 +69,9 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
     if (isOpen) {
       fetchProfile();
       fetchTransactions(1, 25);
+      fetchEquipped();
     }
-  }, [isOpen, fetchProfile, fetchTransactions]);
+  }, [isOpen, fetchProfile, fetchTransactions, fetchEquipped]);
 
   useEffect(() => {
     if (profile) {
@@ -103,7 +104,6 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
 
   if (!isOpen) return null;
 
-  const avatarConfigToUse = profile?.avatarConfig || activeConfig;
   const skills = profile?.skillsMastery || {
     listeningScore: 78,
     readingScore: 85,
@@ -180,38 +180,34 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
             <>
               {/* Hero Showcase Grid */}
               <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center bg-gradient-to-br from-slate-800/40 via-indigo-950/20 to-slate-900 border border-slate-800 p-6 rounded-3xl">
-                {/* Left: Avatar Bust Stage */}
-                <div className="md:col-span-4 flex flex-col items-center">
-                  <div className="relative w-48 h-48 rounded-full bg-gradient-to-b from-indigo-500/20 via-purple-500/10 to-slate-900 border-2 border-indigo-500/40 p-2 shadow-2xl shadow-indigo-500/10 flex items-center justify-center overflow-hidden">
-                    <ModularAvatar
-                      config={avatarConfigToUse}
-                      mode="bust"
-                      size={180}
+                {/* Left: 3D Avatar Showcase Stage */}
+                <div className="md:col-span-5 flex flex-col items-center">
+                  <div className="relative w-full max-w-[240px] h-64 rounded-3xl bg-gradient-to-b from-indigo-950/40 via-slate-900 to-slate-950 border-2 border-indigo-500/40 shadow-2xl shadow-indigo-500/10 flex items-center justify-center overflow-hidden">
+                    <Avatar3DCanvas
+                      mode="full"
+                      className="w-full h-full min-h-0"
+                      showControlsOverlay={false}
                     />
-                    <div className="absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-slate-900 to-transparent pointer-events-none" />
+                    <div className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-full bg-slate-900/80 backdrop-blur-md border border-cyan-400/30 text-[10px] text-cyan-300 font-mono flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+                      3D Chibi WebGL
+                    </div>
                   </div>
 
-                  {/* Quick Action Buttons */}
-                  <div className="flex gap-2 mt-4 w-full">
-                    <button
-                      onClick={onOpenWardrobe}
-                      className="flex-1 py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-bold flex items-center justify-center gap-1.5 transition-all text-indigo-300 hover:text-indigo-200 cursor-pointer"
-                    >
-                      <Shirt className="w-3.5 h-3.5" />
-                      Tủ Đồ
-                    </button>
+                  {/* Quick Action Button: Enter 3D Studio & Shop */}
+                  <div className="flex gap-2 mt-4 w-full max-w-[240px]">
                     <button
                       onClick={onOpenFittingRoom}
-                      className="flex-1 py-2 px-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-xs font-black text-slate-950 flex items-center justify-center gap-1.5 transition-all shadow-md cursor-pointer"
+                      className="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-cyan-600 via-indigo-600 to-pink-600 hover:from-cyan-500 hover:to-pink-500 text-xs font-black text-white flex items-center justify-center gap-2 transition-all shadow-lg shadow-indigo-500/25 cursor-pointer"
                     >
-                      <ShoppingBag className="w-3.5 h-3.5" />
-                      Cửa Hàng
+                      <Sparkles className="w-4 h-4 text-amber-300 animate-spin" />
+                      Phòng Thử Đồ & Shop 3D
                     </button>
                   </div>
                 </div>
 
                 {/* Right: User Information & Bio */}
-                <div className="md:col-span-8 flex flex-col justify-center space-y-4">
+                <div className="md:col-span-7 flex flex-col justify-center space-y-4">
                   {/* User display name & title badge */}
                   <div>
                     <div className="flex items-center gap-3">

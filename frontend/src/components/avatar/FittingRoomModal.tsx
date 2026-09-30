@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { ModularAvatar } from './ModularAvatar';
 import { Avatar3DCanvas } from '../avatar3d/Avatar3DCanvas';
 import { useAvatarStore } from '../../services/useAvatarStore';
 import { useShopStore } from '../../services/useShopStore';
@@ -73,7 +72,6 @@ export const FittingRoomModal: React.FC<FittingRoomModalProps> = ({
   const [zoom, setZoom] = useState(1);
   const [isAutoTurntable, setIsAutoTurntable] = useState(false);
   const [characterModel, setCharacterModel] = useState<'auto' | 'boy' | 'girl' | 'duo'>('auto');
-  const [renderEngine, setRenderEngine] = useState<'3d' | '2d'>('3d');
 
   useEffect(() => {
     if (isOpen) {
@@ -368,65 +366,21 @@ export const FittingRoomModal: React.FC<FittingRoomModalProps> = ({
               </div>
             )}
 
-            {/* Engine Switcher: 3D WebGL (Three.js) vs 2.5D Chibi */}
+            {/* 3D WebGL (R3F) Stage Header */}
             <div className="flex items-center justify-between mb-2 px-1">
               <span className="text-[11px] font-bold text-slate-600 flex items-center gap-1">
                 <span>⚡</span> Engine hiển thị:
               </span>
-              <div className="flex items-center gap-1 bg-slate-200/80 p-0.5 rounded-lg text-[11px] font-bold">
-                <button
-                  type="button"
-                  onClick={() => setRenderEngine('3d')}
-                  className={`px-2.5 py-0.5 rounded-md transition-all ${
-                    renderEngine === '3d'
-                      ? 'bg-indigo-600 text-white shadow-xs'
-                      : 'text-slate-600 hover:text-slate-900'
-                  }`}
-                >
-                  🎮 3D WebGL (R3F)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setRenderEngine('2d')}
-                  className={`px-2.5 py-0.5 rounded-md transition-all ${
-                    renderEngine === '2d'
-                      ? 'bg-indigo-600 text-white shadow-xs'
-                      : 'text-slate-600 hover:text-slate-900'
-                  }`}
-                >
-                  🎨 2.5D Chibi
-                </button>
+              <div className="flex items-center gap-1 bg-slate-200/80 px-2.5 py-0.5 rounded-lg text-[11px] font-bold text-indigo-700">
+                <span>🎮 3D WebGL (R3F)</span>
               </div>
             </div>
 
             {/* Avatar Stage Container */}
             <div className="relative flex-1 flex flex-col items-center justify-center min-h-[320px] rounded-2xl bg-white/40 border border-slate-200/60 p-2 shadow-inner overflow-hidden">
-              {renderEngine === '3d' ? (
-                <div className="w-full h-full min-h-[340px] flex-1 rounded-2xl overflow-hidden relative shadow-inner">
-                  <Avatar3DCanvas showControlsOverlay={true} />
-                </div>
-              ) : (
-                <div className="w-full max-w-[340px] drop-shadow-xl cursor-grab active:cursor-grabbing">
-                  <ModularAvatar
-                    config={displayedConfig}
-                    size="100%"
-                    animateBreath={true}
-                    mode="full"
-                    characterModel={characterModel}
-                    rotationY={rotationY}
-                    rotationX={rotationX}
-                    pan={pan}
-                    zoom={zoom}
-                    interactiveOrbit={true}
-                    onRotationChange={(y, x) => {
-                      setRotationY(y);
-                      setRotationX(x);
-                    }}
-                    onPanChange={setPan}
-                    onZoomChange={setZoom}
-                  />
-                </div>
-              )}
+              <div className="w-full h-full min-h-[340px] flex-1 rounded-2xl overflow-hidden relative shadow-inner">
+                <Avatar3DCanvas showControlsOverlay={true} />
+              </div>
 
               {/* Status pill on bottom */}
               <div className="absolute top-2 right-2 px-2.5 py-0.5 rounded-full bg-white/90 backdrop-blur-md border border-slate-200 text-[10px] font-bold text-slate-700 shadow-sm flex items-center gap-1">
