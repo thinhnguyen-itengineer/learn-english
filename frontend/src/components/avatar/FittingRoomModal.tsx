@@ -71,6 +71,7 @@ export const FittingRoomModal: React.FC<FittingRoomModalProps> = ({
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [isAutoTurntable, setIsAutoTurntable] = useState(false);
+  const [characterModel, setCharacterModel] = useState<'auto' | 'boy' | 'girl' | 'duo'>('auto');
 
   useEffect(() => {
     if (isOpen) {
@@ -124,7 +125,9 @@ export const FittingRoomModal: React.FC<FittingRoomModalProps> = ({
           set_celestial_angel: { topsId: 'top_scholastic_hoodie', headwearId: 'head_olympus_crown', handheldId: 'hand_golden_mic', wingsId: 'wings_angel_celestial' },
           set_devil_night: { topsId: 'top_devil_hoodie', bottomsId: 'bot_devil_pants', headwearId: 'head_devil_horns', handheldId: 'hand_devil_pitchfork', wingsId: 'wings_devil_demonic' },
           set_angel_divine: { topsId: 'top_angel_tunic', bottomsId: 'bot_angel_skirt', headwearId: 'head_angel_halo', handheldId: 'hand_star_wand', wingsId: 'wings_angel_celestial' },
-          set_princess_lolita: { topsId: 'top_princess_lolita', bottomsId: 'bot_lolita_skirt', headwearId: 'head_bunny_ears', handheldId: 'hand_giant_lollipop', wingsId: 'wings_fairy_butterfly' }
+          set_princess_lolita: { topsId: 'top_princess_lolita', bottomsId: 'bot_lolita_skirt', headwearId: 'head_bunny_ears', handheldId: 'hand_giant_lollipop', wingsId: 'wings_fairy_butterfly' },
+          set_zingspeed_boy_racer: { topsId: 'top_zingspeed_black_hoodie', bottomsId: 'bot_zingspeed_cargo_shorts', footwearId: 'foot_zingspeed_combat_boots', hairStyleId: 'hair_zingspeed_spiky_grey', bodyType: 'male' },
+          set_zingspeed_girl_idol: { topsId: 'top_zingspeed_white_hoodie', bottomsId: 'bot_zingspeed_pleated_skirt', footwearId: 'foot_zingspeed_pastel_sneakers', hairStyleId: 'hair_zingspeed_pink_twintails', handheldId: 'hand_cat_paw_sling_bag', neckwearId: 'neck_star_choker', bodyType: 'female' }
         };
         const parts = bundleMap[item.itemCode];
         if (parts) Object.assign(next, parts);
@@ -291,6 +294,61 @@ export const FittingRoomModal: React.FC<FittingRoomModalProps> = ({
               )}
             </div>
 
+            {/* ZingSpeed 3D Character Quick Switcher */}
+            <div className="flex items-center justify-between gap-1.5 mb-2 px-1">
+              <span className="text-[11px] font-bold text-slate-600 flex items-center gap-1">
+                <span>🎮</span> ZingSpeed 3D:
+              </span>
+              <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCharacterModel('boy');
+                    const boySet = catalog.find(x => x.itemCode === 'set_zingspeed_boy_racer');
+                    if (boySet) tryOnItem(boySet);
+                  }}
+                  className={`px-2 py-0.5 rounded-lg text-xs font-bold border transition-all ${
+                    characterModel === 'boy'
+                      ? 'bg-amber-500 text-white border-amber-600 shadow-sm'
+                      : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+                  }`}
+                  title="Thử nguyên set Tay Đua Đường Phố ZingSpeed Nam"
+                >
+                  👦 Tay Đua Nam
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCharacterModel('girl');
+                    const girlSet = catalog.find(x => x.itemCode === 'set_zingspeed_girl_idol');
+                    if (girlSet) tryOnItem(girlSet);
+                  }}
+                  className={`px-2 py-0.5 rounded-lg text-xs font-bold border transition-all ${
+                    characterModel === 'girl'
+                      ? 'bg-pink-500 text-white border-pink-600 shadow-sm'
+                      : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+                  }`}
+                  title="Thử nguyên set Thần Tượng ZingSpeed Nữ"
+                >
+                  👧 Thần Tượng Nữ
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCharacterModel(characterModel === 'duo' ? 'auto' : 'duo');
+                  }}
+                  className={`px-2 py-0.5 rounded-lg text-xs font-bold border transition-all ${
+                    characterModel === 'duo'
+                      ? 'bg-cyan-500 text-white border-cyan-600 shadow-sm'
+                      : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+                  }`}
+                  title="Ngắm cả 2 nhân vật cùng đứng trong Showroom thời trang"
+                >
+                  👫 Cả Hai (Duo)
+                </button>
+              </div>
+            </div>
+
             {/* Same-slot Replacement Notice Toast */}
             {lastReplacementNotice && (
               <div className="mb-2 px-3 py-1.5 rounded-xl bg-amber-50 border border-amber-300/80 text-amber-900 text-xs font-medium flex items-center justify-between shadow-sm animate-pulse">
@@ -316,6 +374,7 @@ export const FittingRoomModal: React.FC<FittingRoomModalProps> = ({
                   size="100%"
                   animateBreath={true}
                   mode="full"
+                  characterModel={characterModel}
                   rotationY={rotationY}
                   rotationX={rotationX}
                   pan={pan}

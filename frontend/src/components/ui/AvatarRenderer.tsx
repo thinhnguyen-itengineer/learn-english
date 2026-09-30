@@ -359,7 +359,23 @@ export const AvatarRenderer: React.FC<AvatarRendererProps> = ({
         {/* ------------------------------------------------------------- */}
         {mode === 'full' && (
           <g id="layer-4-bottoms">
-            {bottomsId?.includes('devil') ? (
+            {bottomsId?.includes('zingspeed_cargo') ? (
+              <g id="bottoms-zingspeed-cargo" fill="#12151b">
+                <path d="M 195 350 L 305 350 L 305 460 L 258 460 L 252 390 L 248 390 L 242 460 L 195 460 Z" stroke="#020617" strokeWidth="2.5" />
+                <line x1="198" y1="455" x2="238" y2="455" stroke="#06b6d4" strokeWidth="3" />
+                <line x1="262" y1="455" x2="302" y2="455" stroke="#facc15" strokeWidth="3" />
+                <rect x="194" y="380" width="10" height="22" rx="2" fill="#1e293b" />
+                <rect x="193" y="378" width="12" height="5" rx="1" fill="#facc15" />
+              </g>
+            ) : bottomsId?.includes('zingspeed_pleated') ? (
+              <g id="bottoms-zingspeed-skirt" fill="#1e293b">
+                <polygon points="190,350 310,350 335,435 165,435" stroke="#0f172a" strokeWidth="2" />
+                <line x1="168" y1="430" x2="332" y2="430" stroke="#ffffff" strokeWidth="3.5" />
+                <line x1="220" y1="350" x2="210" y2="430" stroke="#020617" strokeWidth="1.5" />
+                <line x1="250" y1="350" x2="250" y2="430" stroke="#020617" strokeWidth="1.5" />
+                <line x1="280" y1="350" x2="290" y2="430" stroke="#020617" strokeWidth="1.5" />
+              </g>
+            ) : bottomsId?.includes('devil') ? (
               <g id="bottoms-devil-pants" fill="#18181b">
                 <path d="M 195 350 L 305 350 L 302 480 L 258 480 L 252 390 L 248 390 L 242 480 L 198 480 Z" stroke="#e11d48" strokeWidth="2" />
                 <path d="M 252 380 Q 290 400 310 380 Q 320 370 330 385 L 340 375 L 332 395 Z" fill="#e11d48" stroke="#881337" strokeWidth="1.5" />
@@ -416,7 +432,31 @@ export const AvatarRenderer: React.FC<AvatarRendererProps> = ({
         {/* ------------------------------------------------------------- */}
         {mode === 'full' && (
           <g id="layer-5-footwear">
-            {footwearId?.includes('boots') ? (
+            {footwearId?.includes('zingspeed_combat') ? (
+              <g id="footwear-zingspeed-boots" fill="#1e293b">
+                <path d="M 198 470 L 242 470 L 246 520 L 178 520 Q 180 495 198 470 Z" stroke="#09090b" strokeWidth="2.5" />
+                <path d="M 258 470 L 302 470 L 322 520 L 254 520 Q 255 495 258 470 Z" stroke="#09090b" strokeWidth="2.5" />
+                <rect x="175" y="515" width="72" height="12" rx="3" fill="#18181b" stroke="#09090b" strokeWidth="2" />
+                <line x1="180" y1="521" x2="242" y2="521" stroke="#facc15" strokeWidth="2" />
+                <rect x="254" y="515" width="72" height="12" rx="3" fill="#18181b" stroke="#09090b" strokeWidth="2" />
+                <line x1="259" y1="521" x2="321" y2="521" stroke="#facc15" strokeWidth="2" />
+                {/* Gold Laces */}
+                <line x1="202" y1="480" x2="238" y2="486" stroke="#fde047" strokeWidth="2" />
+                <line x1="238" y1="480" x2="202" y2="486" stroke="#fde047" strokeWidth="2" />
+                <line x1="262" y1="480" x2="298" y2="486" stroke="#fde047" strokeWidth="2" />
+                <line x1="298" y1="480" x2="262" y2="486" stroke="#fde047" strokeWidth="2" />
+              </g>
+            ) : footwearId?.includes('zingspeed_pastel') ? (
+              <g id="footwear-zingspeed-sneakers" fill="#c084fc">
+                <path d="M 200 472 L 242 472 L 245 520 L 180 520 Q 185 495 200 472 Z" stroke="#7e22ce" strokeWidth="2" />
+                <path d="M 258 472 L 300 472 L 320 520 L 255 520 Q 270 495 258 472 Z" stroke="#7e22ce" strokeWidth="2" />
+                {/* Thick White Platform Sole */}
+                <rect x="176" y="514" width="70" height="13" rx="4" fill="#ffffff" stroke="#cbd5e1" strokeWidth="2" />
+                <rect x="254" y="514" width="70" height="13" rx="4" fill="#ffffff" stroke="#cbd5e1" strokeWidth="2" />
+                <line x1="190" y1="488" x2="230" y2="488" stroke="#f472b6" strokeWidth="2.5" />
+                <line x1="270" y1="488" x2="310" y2="488" stroke="#f472b6" strokeWidth="2.5" />
+              </g>
+            ) : footwearId?.includes('boots') ? (
               <g id="footwear-boots" fill="#78350f">
                 <path d="M 198 475 L 242 475 L 245 520 L 180 520 Q 180 495 198 475 Z" stroke="#451a03" strokeWidth="2" />
                 <path d="M 258 475 L 302 475 L 320 520 L 255 520 Q 255 495 258 475 Z" stroke="#451a03" strokeWidth="2" />
@@ -449,7 +489,40 @@ export const AvatarRenderer: React.FC<AvatarRendererProps> = ({
         {/* LAYER 6 (Z: 6): TOPS (T-Shirt, Hoodie, Suit, Jacket)         */}
         {/* ------------------------------------------------------------- */}
         <g id="layer-6-tops">
-          {topsId?.includes('devil') ? (
+          {topsId?.includes('zingspeed_black') ? (
+            <g id="tops-zingspeed-black" fill="#18181b">
+              <path d="M 175 250 Q 250 240 325 250 L 315 370 Q 250 380 185 370 Z" stroke="#09090b" strokeWidth="2.5" />
+              <path d="M 180 252 L 145 350 L 175 355 L 195 270 Z" />
+              <path d="M 320 252 L 355 350 L 325 355 L 305 270 Z" />
+              {/* Speed stripes on sleeves */}
+              <line x1="160" y1="280" x2="148" y2="340" stroke="#06b6d4" strokeWidth="3" />
+              <line x1="165" y1="280" x2="153" y2="340" stroke="#facc15" strokeWidth="3" />
+              <line x1="340" y1="280" x2="352" y2="340" stroke="#06b6d4" strokeWidth="3" />
+              <line x1="335" y1="280" x2="347" y2="340" stroke="#facc15" strokeWidth="3" />
+              {/* Kangaroo Pocket with Cyan/Yellow border */}
+              <polygon points="215,325 285,325 275,360 225,360" fill="#27272a" stroke="#06b6d4" strokeWidth="1.5" />
+              <line x1="215" y1="325" x2="285" y2="325" stroke="#facc15" strokeWidth="2" />
+              {/* Winged Lightning Logo */}
+              <polygon points="250,270 254,282 248,282 252,296 244,284 250,284" fill="#fde047" stroke="#eab308" strokeWidth="1" />
+              <path d="M 245 282 Q 235 275 230 285 Q 240 288 246 284 Z" fill="#06b6d4" />
+              <path d="M 255 282 Q 265 275 270 285 Q 260 288 254 284 Z" fill="#06b6d4" />
+            </g>
+          ) : topsId?.includes('zingspeed_white') ? (
+            <g id="tops-zingspeed-white" fill="#ffffff">
+              <path d="M 175 250 Q 250 240 325 250 L 315 370 Q 250 380 185 370 Z" stroke="#cbd5e1" strokeWidth="2.5" />
+              <path d="M 180 252 L 145 350 L 175 355 L 195 270 Z" />
+              <path d="M 320 252 L 355 350 L 325 355 L 305 270 Z" />
+              <ellipse cx="250" cy="245" rx="30" ry="10" fill="#e0f2fe" stroke="#38bdf8" strokeWidth="1.5" />
+              {/* Winged Lightning Logo */}
+              <polygon points="250,270 254,282 248,282 252,296 244,284 250,284" fill="#fde047" stroke="#eab308" strokeWidth="1" />
+              <path d="M 245 282 Q 235 275 230 285 Q 240 288 246 284 Z" fill="#38bdf8" />
+              <path d="M 255 282 Q 265 275 270 285 Q 260 288 254 284 Z" fill="#38bdf8" />
+              {/* Candy bead bracelet */}
+              <circle cx="342" cy="342" r="3" fill="#f472b6" />
+              <circle cx="348" cy="344" r="3" fill="#facc15" />
+              <circle cx="354" cy="342" r="3" fill="#38bdf8" />
+            </g>
+          ) : topsId?.includes('devil') ? (
             <g id="tops-devil-hoodie" fill="#18181b">
               <path d="M 175 250 Q 250 240 325 250 L 315 370 Q 250 380 185 370 Z" stroke="#e11d48" strokeWidth="2.5" />
               <path d="M 180 252 L 145 350 L 175 355 L 195 270 Z" />
@@ -544,7 +617,12 @@ export const AvatarRenderer: React.FC<AvatarRendererProps> = ({
         {/* ------------------------------------------------------------- */}
         {neckwearId && (
           <g id="layer-7-neckwear">
-            {neckwearId.includes('scarf') ? (
+            {neckwearId.includes('star_choker') ? (
+              <g id="neckwear-star-choker">
+                <rect x="236" y="246" width="28" height="5" rx="2" fill="#18181b" />
+                <polygon points="250,242 252.5,246 257,246 253.5,248.5 255,253 250,250 245,253 246.5,248.5 243,246 247.5,246" fill="#facc15" />
+              </g>
+            ) : neckwearId.includes('scarf') ? (
               <g id="neckwear-scarf" fill="#dc2626">
                 <rect x="215" y="235" width="70" height="24" rx="10" stroke="#991b1b" strokeWidth="2" />
                 <path d="M 255 245 L 270 330 L 290 330 L 275 245 Z" stroke="#991b1b" strokeWidth="2" />
@@ -566,7 +644,24 @@ export const AvatarRenderer: React.FC<AvatarRendererProps> = ({
         {/* LAYER 8 (Z: 8): FRONT HAIR & BANGS                           */}
         {/* ------------------------------------------------------------- */}
         <g id="layer-8-front-hair" fill="var(--avatar-hair-color, #3B2219)">
-          {hairStyleId.includes('short_crop') ? (
+          {hairStyleId.includes('spiky_grey') ? (
+            <g id="hair-spiky-slate">
+              <path d="M 175 160 Q 185 100 250 95 Q 315 100 325 160 Q 305 130 275 145 Q 250 120 220 145 Q 195 135 175 160 Z" fill="#64748b" />
+              <polygon points="180,150 200,115 215,145" fill="#64748b" />
+              <polygon points="215,145 235,100 255,140" fill="#64748b" />
+              <polygon points="245,140 270,105 285,145" fill="#64748b" />
+              <polygon points="275,145 300,120 315,155" fill="#64748b" />
+              {/* Golden Highlight Streaks */}
+              <polygon points="228,135 238,102 248,136" fill="#facc15" />
+              <polygon points="258,135 268,106 276,138" fill="#facc15" />
+            </g>
+          ) : hairStyleId.includes('pink_twintails') ? (
+            <g id="hair-pink-twintails">
+              <path d="M 176 160 Q 185 98 250 95 Q 315 98 324 160 Q 305 135 275 145 Q 250 130 225 145 Q 195 135 176 160 Z" fill="#f472b6" />
+              <polygon points="182,145 190,132 202,132 194,140 197,150 182,142 168,150 171,140 162,132 174,132" fill="#38bdf8" />
+              <polygon points="198,132 205,120 216,120 208,128 211,138 198,130 185,138 188,128 179,120 191,120" fill="#facc15" />
+            </g>
+          ) : hairStyleId.includes('short_crop') ? (
             <path d="M 180 160 Q 185 105 250 100 Q 315 105 320 160 Q 305 130 275 145 Q 250 125 220 145 Q 195 135 180 160 Z" />
           ) : hairStyleId.includes('side_part') ? (
             <path d="M 180 165 Q 185 98 250 95 Q 315 100 320 165 C 290 135 250 140 220 155 C 205 150 190 155 180 165 Z" />
@@ -687,7 +782,18 @@ export const AvatarRenderer: React.FC<AvatarRendererProps> = ({
         {/* ------------------------------------------------------------- */}
         {mode === 'full' && activeHandheld && (
           <g id="layer-11-companion">
-            {activeHandheld.includes('lollipop') ? (
+            {activeHandheld.includes('cat_paw') ? (
+              <g id="handheld-cat-paw-bag">
+                <path d="M 225 248 L 278 315" stroke="#1e293b" strokeWidth="4" />
+                <g transform="translate(276, 318)">
+                  <ellipse cx="0" cy="0" rx="16" ry="14" fill="#ffffff" stroke="#e2e8f0" strokeWidth="2" />
+                  <ellipse cx="0" cy="2" rx="6" ry="5" fill="#fb7185" />
+                  <circle cx="-5" cy="-4" r="2.5" fill="#fb7185" />
+                  <circle cx="0" cy="-6" r="2.5" fill="#fb7185" />
+                  <circle cx="5" cy="-4" r="2.5" fill="#fb7185" />
+                </g>
+              </g>
+            ) : activeHandheld.includes('lollipop') ? (
               <g id="handheld-lollipop">
                 {/* Stick */}
                 <line x1="350" y1="390" x2="385" y2="330" stroke="#f1f5f9" strokeWidth="6" strokeLinecap="round" />
