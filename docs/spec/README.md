@@ -84,6 +84,14 @@ Hệ thống tài liệu spec được chia thành các file chuyên sâu phục
       - *Cửa hàng vật phẩm & Phòng thử đồ (Live Fitting Room):* Hệ thống 4 cấp độ hiếm (Common, Rare, Epic, Legendary); Danh mục chi tiết 28+ vật phẩm mẫu kèm metadata SVG; Luồng thử đồ trực quan 2 cột & Mua sắm 1-click / Mua cả giỏ; Tủ đồ cá nhân (Inventory) & Lưu tối đa 3 bộ phối đồ yêu thích (Presets).
       - *Hồ sơ cá nhân (Profile) & Điểm chạm toàn diện:* Thiết kế layout Profile vinh danh, Radar năng lực 4 kỹ năng, Tủ huy hiệu; Hiển thị đồng bộ Avatar trên Header Navbar, Bục vinh quang Bảng xếp hạng tuần Top 1-2-3, Màn hình ghép trận 1v1 (Versus & Victory) và Nhóm học tập (Study Squads).
       - *Thiết kế Kỹ thuật & Nghiệm thu:* Schema CSDL PostgreSQL DDL, C# EF Core 8 Entities, TypeScript Interfaces, 10 RESTful API endpoints và 7 kịch bản nghiệm thu kiểm thử Given-When-Then.
+12. [3d-chibi-avatar-and-modular-wardrobe.md](./3d-chibi-avatar-and-modular-wardrobe.md):
+    - **Đặc tả nghiệp vụ & kỹ thuật Hệ thống Nhân vật 3D Chibi & Tủ đồ Modular tương tác thời gian thực (PHU-28):**
+      - *Đánh giá chuyên môn BA & Tích hợp Sản phẩm:* Đối chiếu spec ngoài với nền tảng `learn-english`, tích hợp vòng lặp Gamification (hoạt họa Streak, bối rối, chiến thắng 1v1, bục vinh quang).
+      - *Cấu trúc Slot & Phân tầng:* 6 slot module (`BaseBody`, `Hair`, `Top`, `Bottom`, `Shoes`, `Accessory`), ma trận ẩn lưới tự động (Auto Mesh Masking / Culling) triệt tiêu lỗi xuyên thấu polygon (Mesh Clipping).
+      - *Phòng thử đồ 3D Live & Tủ đồ:* Tương tác xoay 360° Orbit Controls, zoom giới hạn, thử đồ tức thì, mua lẻ / mua cả giỏ bằng Token, quản lý 5 Presets phối đồ.
+      - *Đặc tả 3D & WebGL Engine:* Ngân sách đa giác (20,000 - 22,000 tris), chuẩn khung xương Mixamo/Unity Humanoid (<= 42 bones), Texture ORM packing, định dạng nén GLB (Draco / Meshoptimizer).
+      - *Kiến trúc Three.js / React Three Fiber:* Thuật toán SkinnedMesh Re-parenting, quản lý thu gom bộ nhớ chống rò rỉ RAM trên Safari/Chrome Mobile (`dispose()`), giải pháp Fallback 2D Poster khi mất ngữ cảnh WebGL.
+      - *Mô hình Dữ liệu, API & Nghiệm thu:* JSON Schema, PostgreSQL DDL migrations, 8 RESTful endpoints chuẩn mực và 8 kịch bản nghiệm thu Given-When-Then chi tiết cho QA & Tech Lead.
 
 ---
 
