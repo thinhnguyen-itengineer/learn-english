@@ -47,6 +47,8 @@ export const FittingRoomModal: React.FC<FittingRoomModalProps> = ({
     rarity,
     search,
     tryingOnItems,
+    lastReplacementNotice,
+    clearReplacementNotice,
     fetchCatalog,
     setCategory,
     setRarity,
@@ -63,6 +65,13 @@ export const FittingRoomModal: React.FC<FittingRoomModalProps> = ({
   const [successToast, setSuccessToast] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
 
+  // 3D Orbit & Inspection State
+  const [rotationY, setRotationY] = useState(0);
+  const [rotationX, setRotationX] = useState(0);
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [isAutoTurntable, setIsAutoTurntable] = useState(false);
+
   useEffect(() => {
     if (isOpen) {
       fetchConfig();
@@ -70,6 +79,26 @@ export const FittingRoomModal: React.FC<FittingRoomModalProps> = ({
       fetchProfile();
     }
   }, [isOpen]);
+
+  // Turntable smooth 360 rotation effect
+  useEffect(() => {
+    if (!isAutoTurntable) return;
+    const interval = setInterval(() => {
+      setRotationY(prev => {
+        const next = prev + 1;
+        return next > 180 ? next - 360 : next;
+      });
+    }, 30);
+    return () => clearInterval(interval);
+  }, [isAutoTurntable]);
+
+  const handleResetView = () => {
+    setRotationY(0);
+    setRotationX(0);
+    setPan({ x: 0, y: 0 });
+    setZoom(1);
+    setIsAutoTurntable(false);
+  };
 
   // Construct preview config merging activeConfig with tryingOnItems
   const previewConfig: AvatarConfigDto = useMemo(() => {
@@ -92,7 +121,10 @@ export const FittingRoomModal: React.FC<FittingRoomModalProps> = ({
           set_royal_scholar: { topsId: 'top_oxford_blazer', bottomsId: 'bot_classic_chinos', headwearId: 'head_graduation_cap', handheldId: 'hand_quill_pen', wingsId: 'wings_angel_celestial' },
           set_phoenix_warlord: { topsId: 'top_wizard_robe', bottomsId: 'bot_wizard_skirt', headwearId: 'head_olympus_crown', wingsId: 'wings_phoenix_flame', auraBackgroundId: 'aura_golden_triumph' },
           set_detective_holmes: { topsId: 'top_detective_trench', bottomsId: 'bot_suit_pants', headwearId: 'head_detective_hat', eyewearId: 'eye_steampunk_goggles', handheldId: 'hand_quill_pen' },
-          set_celestial_angel: { topsId: 'top_scholastic_hoodie', headwearId: 'head_olympus_crown', handheldId: 'hand_golden_mic', wingsId: 'wings_angel_celestial' }
+          set_celestial_angel: { topsId: 'top_scholastic_hoodie', headwearId: 'head_olympus_crown', handheldId: 'hand_golden_mic', wingsId: 'wings_angel_celestial' },
+          set_devil_night: { topsId: 'top_devil_hoodie', bottomsId: 'bot_devil_pants', headwearId: 'head_devil_horns', handheldId: 'hand_devil_pitchfork', wingsId: 'wings_devil_demonic' },
+          set_angel_divine: { topsId: 'top_angel_tunic', bottomsId: 'bot_angel_skirt', headwearId: 'head_angel_halo', handheldId: 'hand_star_wand', wingsId: 'wings_angel_celestial' },
+          set_princess_lolita: { topsId: 'top_princess_lolita', bottomsId: 'bot_lolita_skirt', headwearId: 'head_bunny_ears', handheldId: 'hand_giant_lollipop', wingsId: 'wings_fairy_butterfly' }
         };
         const parts = bundleMap[item.itemCode];
         if (parts) Object.assign(next, parts);
@@ -222,7 +254,7 @@ export const FittingRoomModal: React.FC<FittingRoomModalProps> = ({
           {/* ========================================================
               LEFT COLUMN: LIVE AVATAR STAGE (40% / 5 cols)
           ======================================================== */}
-          <div className="lg:col-span-5 bg-gradient-to-b from-slate-100/70 via-slate-50 to-amber-50/20 p-5 flex flex-col justify-between border-r border-slate-200/80 overflow-y-auto">
+          <div className="lg:col-span-5 bg-gradient-to-b from-slate-100/70 via-slate-50 to-amber-50/20 p-4 sm:p-5 flex flex-col justify-between border-r border-slate-200/80 overflow-y-auto">
             
             {/* View Switcher: Original vs Preview */}
             <div className="flex items-center justify-between mb-2">
@@ -259,23 +291,141 @@ export const FittingRoomModal: React.FC<FittingRoomModalProps> = ({
               )}
             </div>
 
+            {/* Same-slot Replacement Notice Toast */}
+            {lastReplacementNotice && (
+              <div className="mb-2 px-3 py-1.5 rounded-xl bg-amber-50 border border-amber-300/80 text-amber-900 text-xs font-medium flex items-center justify-between shadow-sm animate-pulse">
+                <span className="flex items-center gap-1.5">
+                  <span className="text-sm">🔄</span>
+                  <span>{lastReplacementNotice}</span>
+                </span>
+                <button
+                  onClick={clearReplacementNotice}
+                  className="text-amber-700 hover:text-amber-950 font-bold ml-2 text-sm leading-none"
+                  title="Đóng thông báo"
+                >
+                  ×
+                </button>
+              </div>
+            )}
+
             {/* Avatar Stage Container */}
-            <div className="relative flex-1 flex items-center justify-center min-h-[300px]">
-              <div className="w-full max-w-[340px] drop-shadow-xl">
+            <div className="relative flex-1 flex flex-col items-center justify-center min-h-[320px] rounded-2xl bg-white/40 border border-slate-200/60 p-2 shadow-inner">
+              <div className="w-full max-w-[340px] drop-shadow-xl cursor-grab active:cursor-grabbing">
                 <ModularAvatar
                   config={displayedConfig}
                   size="100%"
                   animateBreath={true}
                   mode="full"
+                  rotationY={rotationY}
+                  rotationX={rotationX}
+                  pan={pan}
+                  zoom={zoom}
+                  interactiveOrbit={true}
+                  onRotationChange={(y, x) => {
+                    setRotationY(y);
+                    setRotationX(x);
+                  }}
+                  onPanChange={setPan}
+                  onZoomChange={setZoom}
                 />
               </div>
 
               {/* Status pill on bottom */}
-              <div className="absolute bottom-1 px-3 py-1 rounded-full bg-white/80 backdrop-blur-md border border-slate-200 text-[11px] font-semibold text-slate-600 shadow-sm">
-                {compareMode === 'preview' && tryingOnList.length > 0
-                  ? `Đang mặc thử ${tryingOnList.length} món mới`
-                  : 'Trang phục hiện tại'}
+              <div className="absolute top-2 right-2 px-2.5 py-0.5 rounded-full bg-white/90 backdrop-blur-md border border-slate-200 text-[10px] font-bold text-slate-700 shadow-sm flex items-center gap-1">
+                <span>{compareMode === 'preview' && tryingOnList.length > 0 ? `👗 Thử ${tryingOnList.length} món` : 'Đang mặc'}</span>
+                <span className="text-slate-400">|</span>
+                <span className="text-amber-600">{Math.round(rotationY)}°</span>
               </div>
+
+              {/* 3D Orbit & Inspection Bar */}
+              <div className="w-full mt-3 px-2 py-2 rounded-xl bg-slate-100/90 border border-slate-200 backdrop-blur-sm space-y-2">
+                {/* Angle Preset Quick Buttons */}
+                <div className="flex items-center justify-between gap-1 text-[11px] font-semibold">
+                  <span className="text-slate-500 text-[10px] uppercase tracking-wider pl-1">Góc nhìn:</span>
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => { setRotationY(0); setRotationX(0); }}
+                      className={`px-2 py-0.5 rounded-md border transition-all ${
+                        Math.abs(rotationY) < 5
+                          ? 'bg-amber-500 text-white border-amber-600 shadow-xs'
+                          : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+                      }`}
+                      title="Mặt trước"
+                    >
+                      0° Trước
+                    </button>
+                    <button
+                      onClick={() => { setRotationY(-45); setRotationX(0); }}
+                      className={`px-2 py-0.5 rounded-md border transition-all ${
+                        Math.abs(rotationY - (-45)) < 5
+                          ? 'bg-amber-500 text-white border-amber-600 shadow-xs'
+                          : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+                      }`}
+                      title="Nghiêng 45° sang trái"
+                    >
+                      -45° Trái
+                    </button>
+                    <button
+                      onClick={() => { setRotationY(45); setRotationX(0); }}
+                      className={`px-2 py-0.5 rounded-md border transition-all ${
+                        Math.abs(rotationY - 45) < 5
+                          ? 'bg-amber-500 text-white border-amber-600 shadow-xs'
+                          : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+                      }`}
+                      title="Nghiêng 45° sang phải"
+                    >
+                      +45° Phải
+                    </button>
+                    <button
+                      onClick={() => { setRotationY(180); setRotationX(0); }}
+                      className={`px-2 py-0.5 rounded-md border transition-all ${
+                        Math.abs(Math.abs(rotationY) - 180) < 5
+                          ? 'bg-amber-500 text-white border-amber-600 shadow-xs'
+                          : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+                      }`}
+                      title="Xoay ra sau để ngắm cánh và áo"
+                    >
+                      180° Sau 🪽
+                    </button>
+                  </div>
+                </div>
+
+                {/* Slider + Turntable & Reset controls */}
+                <div className="flex items-center gap-2 pt-1 border-t border-slate-200/80">
+                  <span className="text-[10px] text-slate-500 font-medium whitespace-nowrap">🔄 Xoay:</span>
+                  <input
+                    type="range"
+                    min="-180"
+                    max="180"
+                    value={Math.round(rotationY)}
+                    onChange={(e) => setRotationY(Number(e.target.value))}
+                    className="flex-1 h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-amber-500"
+                  />
+                  <button
+                    onClick={() => setIsAutoTurntable(!isAutoTurntable)}
+                    className={`px-2 py-0.5 rounded-md text-[10px] font-bold border transition-all ${
+                      isAutoTurntable
+                        ? 'bg-amber-500 text-white border-amber-600 animate-pulse'
+                        : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+                    }`}
+                    title="Bật/Tắt tự động xoay 360°"
+                  >
+                    {isAutoTurntable ? '⏸️ Dừng' : '▶️ Tự xoay'}
+                  </button>
+                  <button
+                    onClick={handleResetView}
+                    className="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
+                    title="Đặt lại góc nhìn ban đầu"
+                  >
+                    ↺ Reset
+                  </button>
+                </div>
+              </div>
+
+              {/* Subtitle Hint */}
+              <p className="mt-1 text-[10px] text-slate-400 text-center">
+                🖱️ Kéo chuột trực tiếp lên nhân vật để xoay 360° • Xoay 180° để ngắm cánh phía sau
+              </p>
             </div>
 
             {/* Trying-on Cart summary card */}

@@ -205,6 +205,24 @@ const DEFAULT_ITEMS: ShopItem[] = [
     tokenPrice: 3500,
   },
   {
+    id: 'wings_devil_demonic',
+    itemCode: 'wings_devil_demonic',
+    name: 'Đôi Cánh Ác Quỷ Dạ Xoa',
+    description: 'Đôi cánh dơi ác quỷ màu tím đen huyền bí tỏa luồng ma mị phong cách Avatar cổ điển.',
+    category: 'wings',
+    rarity: 'legendary',
+    tokenPrice: 3000,
+  },
+  {
+    id: 'wings_fairy_butterfly',
+    itemCode: 'wings_fairy_butterfly',
+    name: 'Đôi Cánh Bướm Tiên Giới Chibi',
+    description: 'Đôi cánh bướm dạ quang bảy sắc cầu vồng tỏa bụi tiên lấp lánh như tiên nữ giáng trần.',
+    category: 'wings',
+    rarity: 'epic',
+    tokenPrice: 2200,
+  },
+  {
     id: '20',
     itemCode: 'set_cyberpunk_master',
     name: 'Nguyên Set Cơ Khí Cyber Neon',
@@ -349,6 +367,12 @@ export const ShopModal: React.FC<ShopModalProps> = ({
       const catKey = item.category as keyof AvatarPresetConfig;
       (nextPreset as any)[catKey] = (currentPreset as any)[catKey] || null;
     } else {
+      // Remove any previously tried item of the same category (cùng loại)
+      catalogItems.forEach(ci => {
+        if (ci.category === item.category && ci.itemCode !== item.itemCode) {
+          newTried.delete(ci.itemCode);
+        }
+      });
       newTried.add(item.itemCode);
       // Equip item in preview
       if (item.category === 'tops') nextPreset.topsId = item.itemCode;
@@ -366,7 +390,10 @@ export const ShopModal: React.FC<ShopModalProps> = ({
           set_royal_scholar: { topsId: 'top_oxford_blazer', bottomsId: 'bot_classic_chinos', headwearId: 'head_graduation_cap', wingsId: 'wings_angel_celestial' },
           set_phoenix_warlord: { topsId: 'top_wizard_robe', bottomsId: 'bot_wizard_skirt', headwearId: 'head_olympus_crown', wingsId: 'wings_phoenix_flame', auraId: 'aura_golden_triumph' },
           set_detective_holmes: { topsId: 'top_detective_trench', bottomsId: 'bot_suit_pants', headwearId: 'head_detective_hat', eyewearId: 'eye_steampunk_goggles' },
-          set_celestial_angel: { topsId: 'top_scholastic_hoodie', headwearId: 'head_olympus_crown', wingsId: 'wings_angel_celestial' }
+          set_celestial_angel: { topsId: 'top_scholastic_hoodie', headwearId: 'head_olympus_crown', wingsId: 'wings_angel_celestial' },
+          set_devil_night: { topsId: 'top_devil_hoodie', bottomsId: 'bot_devil_pants', headwearId: 'head_devil_horns', wingsId: 'wings_devil_demonic' },
+          set_angel_divine: { topsId: 'top_angel_tunic', bottomsId: 'bot_angel_skirt', headwearId: 'head_angel_halo', wingsId: 'wings_angel_celestial' },
+          set_princess_lolita: { topsId: 'top_princess_lolita', bottomsId: 'bot_lolita_skirt', headwearId: 'head_bunny_ears', wingsId: 'wings_fairy_butterfly' }
         };
         const parts = bundleMap[item.itemCode];
         if (parts) Object.assign(nextPreset, parts);

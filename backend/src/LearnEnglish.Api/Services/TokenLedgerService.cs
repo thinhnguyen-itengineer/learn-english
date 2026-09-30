@@ -489,6 +489,9 @@ public class TokenLedgerService : ITokenLedgerService
             "set_phoenix_warlord" => new List<string> { "top_wizard_robe", "bot_wizard_skirt", "head_olympus_crown", "wings_phoenix_flame", "aura_golden_triumph" },
             "set_detective_holmes" => new List<string> { "top_detective_trench", "bot_suit_pants", "head_detective_hat", "eye_steampunk_goggles", "hand_quill_pen" },
             "set_celestial_angel" => new List<string> { "top_scholastic_hoodie", "head_olympus_crown", "hand_golden_mic", "wings_angel_celestial" },
+            "set_devil_night" => new List<string> { "top_devil_hoodie", "bot_devil_pants", "head_devil_horns", "hand_devil_pitchfork", "wings_devil_demonic" },
+            "set_angel_divine" => new List<string> { "top_angel_tunic", "bot_angel_skirt", "head_angel_halo", "hand_star_wand", "wings_angel_celestial" },
+            "set_princess_lolita" => new List<string> { "top_princess_lolita", "bot_lolita_skirt", "head_bunny_ears", "hand_giant_lollipop", "wings_fairy_butterfly" },
             _ => new List<string>()
         };
     }

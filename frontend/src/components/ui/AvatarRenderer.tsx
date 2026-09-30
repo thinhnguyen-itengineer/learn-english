@@ -14,6 +14,7 @@ export interface AvatarPresetConfig {
   neckwearId?: string | null;
   wingsId?: string | null;
   companionId?: string | null;
+  handheldId?: string | null;
   auraId?: string | null;
 }
 
@@ -50,8 +51,11 @@ export const AvatarRenderer: React.FC<AvatarRendererProps> = ({
     neckwearId = null,
     wingsId = null,
     companionId = null,
+    handheldId = null,
     auraId = 'pedestal_wood_circle',
   } = preset;
+
+  const activeHandheld = handheldId || companionId;
 
   // Mode-based viewBox & Dimensions
   const viewBox =
@@ -218,6 +222,25 @@ export const AvatarRenderer: React.FC<AvatarRendererProps> = ({
                 <polygon points="250,232 260,246 250,260 240,246" fill="#FEF08A" stroke="#DC2626" strokeWidth="2" />
               </g>
             )}
+            {wingsId === 'wings_devil_demonic' && (
+              <g id="wings-devil-demonic" fill="#4c0519" stroke="#be123c" strokeWidth="2">
+                <path d="M 210 240 Q 150 150 70 120 Q 90 170 80 200 Q 115 190 100 240 Q 140 230 130 280 Q 170 260 205 255 Z" />
+                <path d="M 70 120 Q 120 180 205 245" stroke="#f43f5e" strokeWidth="3" fill="none" />
+                <path d="M 290 240 Q 350 150 430 120 Q 410 170 420 200 Q 385 190 400 240 Q 360 230 370 280 Q 330 260 295 255 Z" />
+                <path d="M 430 120 Q 380 180 295 245" stroke="#f43f5e" strokeWidth="3" fill="none" />
+                <circle cx="250" cy="245" r="10" fill="#881337" stroke="#f43f5e" strokeWidth="2" />
+              </g>
+            )}
+            {wingsId === 'wings_fairy_butterfly' && (
+              <g id="wings-fairy-butterfly" fill="#fbcfe8" fillOpacity="0.85" stroke="#ec4899" strokeWidth="2">
+                <ellipse cx="140" cy="180" rx="65" ry="50" transform="rotate(-25 140 180)" />
+                <ellipse cx="360" cy="180" rx="65" ry="50" transform="rotate(25 360 180)" />
+                <ellipse cx="160" cy="270" rx="45" ry="35" transform="rotate(15 160 270)" fill="#c4b5fd" fillOpacity="0.8" />
+                <ellipse cx="340" cy="270" rx="45" ry="35" transform="rotate(-15 340 270)" fill="#c4b5fd" fillOpacity="0.8" />
+                <circle cx="135" cy="175" r="8" fill="#ffffff" opacity="0.7" />
+                <circle cx="365" cy="175" r="8" fill="#ffffff" opacity="0.7" />
+              </g>
+            )}
           </g>
         )}
 
@@ -262,9 +285,12 @@ export const AvatarRenderer: React.FC<AvatarRendererProps> = ({
         {/* LAYER 3 (Z: 3): FACE EXPRESSION (Eyes, Brows, Mouth, Blush)  */}
         {/* ------------------------------------------------------------- */}
         <g id="layer-3-face">
-          {/* Soft Cheek Blush */}
-          <ellipse cx="205" cy="190" rx="14" ry="7" fill="#fb7185" opacity="0.45" />
-          <ellipse cx="295" cy="190" rx="14" ry="7" fill="#fb7185" opacity="0.45" />
+          {/* Soft Cheek Blush with Nostalgic Chibi Sparkles */}
+          <ellipse cx="205" cy="190" rx="15" ry="8" fill="#fb7185" opacity="0.5" />
+          <ellipse cx="295" cy="190" rx="15" ry="8" fill="#fb7185" opacity="0.5" />
+          {/* Cheek Star Sparkles */}
+          <circle cx="198" cy="188" r="1.5" fill="#ffffff" opacity="0.8" />
+          <circle cx="302" cy="188" r="1.5" fill="#ffffff" opacity="0.8" />
 
           {/* Eyebrows */}
           {faceExpressionId === 'intellectual_focus' ? (
@@ -298,12 +324,16 @@ export const AvatarRenderer: React.FC<AvatarRendererProps> = ({
               <polygon points="284,165 286,168 290,169 286,171 284,175 282,171 278,169 282,168" fill="#fde047" />
             </g>
           ) : (
-            // Default: Friendly Smile Eyes
+            // Default: Friendly Smile Anime Chibi Eyes with Double Catchlights
             <g>
-              <circle cx="218" cy="170" r="11" fill="#1e293b" />
-              <circle cx="282" cy="170" r="11" fill="#1e293b" />
-              <circle cx="221" cy="167" r="4" fill="#ffffff" />
-              <circle cx="285" cy="167" r="4" fill="#ffffff" />
+              <ellipse cx="218" cy="170" rx="12" ry="13" fill="#1e293b" />
+              <ellipse cx="282" cy="170" rx="12" ry="13" fill="#1e293b" />
+              {/* Primary Highlights */}
+              <circle cx="221" cy="166" r="4.5" fill="#ffffff" />
+              <circle cx="285" cy="166" r="4.5" fill="#ffffff" />
+              {/* Secondary Catchlights */}
+              <circle cx="215" cy="173" r="2.2" fill="#ffffff" opacity="0.9" />
+              <circle cx="279" cy="173" r="2.2" fill="#ffffff" opacity="0.9" />
             </g>
           )}
 
@@ -329,7 +359,31 @@ export const AvatarRenderer: React.FC<AvatarRendererProps> = ({
         {/* ------------------------------------------------------------- */}
         {mode === 'full' && (
           <g id="layer-4-bottoms">
-            {bottomsId?.includes('skirt') ? (
+            {bottomsId?.includes('devil') ? (
+              <g id="bottoms-devil-pants" fill="#18181b">
+                <path d="M 195 350 L 305 350 L 302 480 L 258 480 L 252 390 L 248 390 L 242 480 L 198 480 Z" stroke="#e11d48" strokeWidth="2" />
+                <path d="M 252 380 Q 290 400 310 380 Q 320 370 330 385 L 340 375 L 332 395 Z" fill="#e11d48" stroke="#881337" strokeWidth="1.5" />
+              </g>
+            ) : bottomsId?.includes('lolita') ? (
+              <g id="bottoms-lolita-skirt" fill="#f472b6">
+                <path d="M 190 350 L 310 350 L 335 435 L 165 435 Z" stroke="#db2777" strokeWidth="2" />
+                <path d="M 160 435 Q 175 448 190 435 Q 205 448 220 435 Q 235 448 250 435 Q 265 448 280 435 Q 295 448 310 435 Q 325 448 340 435" fill="#fdf2f8" stroke="#f472b6" strokeWidth="2" />
+                <circle cx="250" cy="365" r="5" fill="#ffffff" />
+              </g>
+            ) : bottomsId?.includes('angel') ? (
+              <g id="bottoms-angel-skirt" fill="#fef9c3">
+                <polygon points="190,350 310,350 330,430 170,430" stroke="#eab308" strokeWidth="2" />
+                <line x1="225" y1="350" x2="215" y2="430" stroke="#facc15" strokeWidth="2" />
+                <line x1="250" y1="350" x2="250" y2="430" stroke="#facc15" strokeWidth="2" />
+                <line x1="275" y1="350" x2="285" y2="430" stroke="#facc15" strokeWidth="2" />
+              </g>
+            ) : bottomsId?.includes('shorts') ? (
+              <g id="bottoms-chibi-shorts" fill="#0284c7">
+                <path d="M 196 350 L 304 350 L 302 430 L 260 430 L 253 385 L 247 385 L 240 430 L 198 430 Z" stroke="#0369a1" strokeWidth="2" />
+                <rect x="195" y="422" width="46" height="8" rx="2" fill="#38bdf8" />
+                <rect x="259" y="422" width="46" height="8" rx="2" fill="#38bdf8" />
+              </g>
+            ) : bottomsId?.includes('skirt') ? (
               <g id="bottoms-skirt" fill="#1e3a8a">
                 <polygon points="195,355 305,355 330,425 170,425" stroke="#172554" strokeWidth="2" />
                 <line x1="225" y1="355" x2="215" y2="425" stroke="#1d4ed8" strokeWidth="2" />
@@ -395,7 +449,48 @@ export const AvatarRenderer: React.FC<AvatarRendererProps> = ({
         {/* LAYER 6 (Z: 6): TOPS (T-Shirt, Hoodie, Suit, Jacket)         */}
         {/* ------------------------------------------------------------- */}
         <g id="layer-6-tops">
-          {topsId?.includes('hoodie') ? (
+          {topsId?.includes('devil') ? (
+            <g id="tops-devil-hoodie" fill="#18181b">
+              <path d="M 175 250 Q 250 240 325 250 L 315 370 Q 250 380 185 370 Z" stroke="#e11d48" strokeWidth="2.5" />
+              <path d="M 180 252 L 145 350 L 175 355 L 195 270 Z" />
+              <path d="M 320 252 L 355 350 L 325 355 L 305 270 Z" />
+              <polygon points="215,325 285,325 275,360 225,360" fill="#27272a" stroke="#f43f5e" strokeWidth="1.5" />
+              <path d="M 235 290 Q 250 310 265 290 Q 250 325 235 290 Z" fill="#e11d48" />
+            </g>
+          ) : topsId?.includes('angel') ? (
+            <g id="tops-angel-tunic" fill="#fefce8">
+              <path d="M 175 250 Q 250 242 325 250 L 316 372 Q 250 380 184 372 Z" stroke="#eab308" strokeWidth="2" />
+              <path d="M 180 252 L 140 345 L 175 350 L 195 270 Z" />
+              <path d="M 320 252 L 360 345 L 325 350 L 305 270 Z" />
+              <path d="M 215 250 Q 250 280 285 250" fill="none" stroke="#facc15" strokeWidth="3" />
+              <circle cx="250" cy="300" r="8" fill="#fef08a" stroke="#ca8a04" strokeWidth="1.5" />
+            </g>
+          ) : topsId?.includes('lolita') ? (
+            <g id="tops-princess-lolita" fill="#fbcfe8">
+              <path d="M 176 250 Q 250 242 324 250 L 312 365 Q 250 372 188 365 Z" stroke="#ec4899" strokeWidth="2" />
+              <circle cx="160" cy="275" r="16" fill="#fdf2f8" stroke="#f472b6" strokeWidth="1.5" />
+              <circle cx="340" cy="275" r="16" fill="#fdf2f8" stroke="#f472b6" strokeWidth="1.5" />
+              <path d="M 220 250 Q 250 275 280 250" fill="#fdf2f8" stroke="#ec4899" strokeWidth="1.5" />
+              <polygon points="244,270 256,270 250,285" fill="#f43f5e" />
+            </g>
+          ) : topsId?.includes('bear') ? (
+            <g id="tops-bear-hoodie" fill="#78350f">
+              <path d="M 175 250 Q 250 240 325 250 L 315 370 Q 250 380 185 370 Z" stroke="#451a03" strokeWidth="2.5" />
+              <path d="M 180 252 L 145 350 L 175 355 L 195 270 Z" />
+              <path d="M 320 252 L 355 350 L 325 355 L 305 270 Z" />
+              <circle cx="250" cy="315" r="22" fill="#fef3c7" />
+              <circle cx="250" cy="310" r="5" fill="#451a03" />
+            </g>
+          ) : topsId?.includes('prince') ? (
+            <g id="tops-prince-vest" fill="#1e3a8a">
+              <path d="M 175 250 Q 250 242 325 250 L 312 370 Q 250 376 188 370 Z" stroke="#172554" strokeWidth="2" />
+              <polygon points="225,248 275,248 250,295" fill="#ffffff" />
+              <rect x="170" y="248" width="22" height="10" rx="3" fill="#eab308" />
+              <rect x="308" y="248" width="22" height="10" rx="3" fill="#eab308" />
+              <circle cx="250" cy="320" r="4" fill="#fbbf24" />
+              <circle cx="250" cy="345" r="4" fill="#fbbf24" />
+            </g>
+          ) : topsId?.includes('hoodie') ? (
             <g id="tops-cyber-hoodie" fill="#09090b">
               {/* Torso */}
               <path d="M 175 250 Q 250 240 325 250 L 315 370 Q 250 380 185 370 Z" stroke="#a855f7" strokeWidth="3" />
@@ -499,7 +594,35 @@ export const AvatarRenderer: React.FC<AvatarRendererProps> = ({
         {/* ------------------------------------------------------------- */}
         {headwearId && (
           <g id="layer-9-headwear">
-            {headwearId.includes('cap') ? (
+            {headwearId.includes('devil') || headwearId.includes('horns') ? (
+              <g id="headwear-devil-horns" fill="#881337" stroke="#e11d48" strokeWidth="2">
+                <path d="M 205 125 Q 180 80 160 55 Q 185 75 220 115 Z" />
+                <path d="M 295 125 Q 320 80 340 55 Q 315 75 280 115 Z" />
+                <circle cx="160" cy="55" r="3" fill="#f43f5e" />
+                <circle cx="340" cy="55" r="3" fill="#f43f5e" />
+              </g>
+            ) : headwearId.includes('halo') || headwearId.includes('angel') ? (
+              <g id="headwear-angel-halo" className="animate-pulse">
+                <ellipse cx="250" cy="65" rx="55" ry="16" fill="none" stroke="#facc15" strokeWidth="6" opacity="0.9" />
+                <ellipse cx="250" cy="65" rx="55" ry="16" fill="none" stroke="#fef08a" strokeWidth="2" />
+                <circle cx="210" cy="62" r="3" fill="#ffffff" />
+                <circle cx="290" cy="62" r="3" fill="#ffffff" />
+              </g>
+            ) : headwearId.includes('bunny') ? (
+              <g id="headwear-bunny-ears">
+                <ellipse cx="205" cy="65" rx="16" ry="50" fill="#ffffff" stroke="#e2e8f0" strokeWidth="2" transform="rotate(-8 205 65)" />
+                <ellipse cx="205" cy="65" rx="8" ry="36" fill="#fbcfe8" transform="rotate(-8 205 65)" />
+                <ellipse cx="295" cy="65" rx="16" ry="50" fill="#ffffff" stroke="#e2e8f0" strokeWidth="2" transform="rotate(8 295 65)" />
+                <ellipse cx="295" cy="65" rx="8" ry="36" fill="#fbcfe8" transform="rotate(8 295 65)" />
+              </g>
+            ) : headwearId.includes('cat') ? (
+              <g id="headwear-cat-ears">
+                <polygon points="190,125 175,70 225,105" fill="#f472b6" stroke="#db2777" strokeWidth="2" />
+                <polygon points="192,120 183,82 216,108" fill="#fdf2f8" />
+                <polygon points="310,125 325,70 275,105" fill="#f472b6" stroke="#db2777" strokeWidth="2" />
+                <polygon points="308,120 317,82 284,108" fill="#fdf2f8" />
+              </g>
+            ) : headwearId.includes('cap') ? (
               <g id="headwear-cap" fill="#dc2626">
                 <ellipse cx="250" cy="115" rx="72" ry="40" />
                 <path d="M 180 115 Q 140 120 125 140 Q 180 135 220 120 Z" fill="#991b1b" />
@@ -562,9 +685,33 @@ export const AvatarRenderer: React.FC<AvatarRendererProps> = ({
         {/* ------------------------------------------------------------- */}
         {/* LAYER 11 (Z: 11): COMPANION / HANDHELD ITEM                   */}
         {/* ------------------------------------------------------------- */}
-        {mode === 'full' && companionId && (
+        {mode === 'full' && activeHandheld && (
           <g id="layer-11-companion">
-            {companionId.includes('owl') ? (
+            {activeHandheld.includes('lollipop') ? (
+              <g id="handheld-lollipop">
+                {/* Stick */}
+                <line x1="350" y1="390" x2="385" y2="330" stroke="#f1f5f9" strokeWidth="6" strokeLinecap="round" />
+                {/* Giant Candy */}
+                <circle cx="390" cy="315" r="26" fill="#f43f5e" stroke="#e11d48" strokeWidth="2" />
+                <circle cx="390" cy="315" r="20" fill="#fbbf24" />
+                <circle cx="390" cy="315" r="14" fill="#38bdf8" />
+                <circle cx="390" cy="315" r="8" fill="#f472b6" />
+                <circle cx="390" cy="315" r="3" fill="#ffffff" />
+                {/* Ribbon Bow */}
+                <polygon points="375,340 380,345 375,350" fill="#ec4899" />
+                <polygon points="385,340 380,345 385,350" fill="#ec4899" />
+              </g>
+            ) : activeHandheld.includes('pitchfork') || activeHandheld.includes('trident') ? (
+              <g id="handheld-pitchfork">
+                {/* Shaft */}
+                <line x1="350" y1="410" x2="385" y2="290" stroke="#18181b" strokeWidth="5" strokeLinecap="round" />
+                {/* Red Demon Trident Prongs */}
+                <path d="M 370 290 Q 385 305 400 290" fill="none" stroke="#e11d48" strokeWidth="4" />
+                <polygon points="368,290 373,270 375,290" fill="#e11d48" />
+                <polygon points="383,285 385,260 387,285" fill="#e11d48" />
+                <polygon points="395,290 397,270 402,290" fill="#e11d48" />
+              </g>
+            ) : activeHandheld.includes('owl') ? (
               <g id="companion-owl" className="animate-float-orbit">
                 {/* Cute Owl on shoulder */}
                 <ellipse cx="380" cy="240" rx="24" ry="30" fill="#78350f" stroke="#451a03" strokeWidth="2" />
@@ -578,7 +725,7 @@ export const AvatarRenderer: React.FC<AvatarRendererProps> = ({
                 {/* Grad cap */}
                 <polygon points="380,212 360,220 380,225 400,220" fill="#1e293b" />
               </g>
-            ) : companionId.includes('cat') ? (
+            ) : activeHandheld.includes('cat') ? (
               <g id="companion-cat" className="animate-float-orbit">
                 <circle cx="380" cy="250" r="22" fill="#f97316" stroke="#c2410c" strokeWidth="2" />
                 <polygon points="364,235 372,218 378,234" fill="#f97316" />
@@ -587,13 +734,13 @@ export const AvatarRenderer: React.FC<AvatarRendererProps> = ({
                 <circle cx="388" cy="248" r="3" fill="#1e293b" />
                 <polygon points="380,253 377,256 383,256" fill="#fb7185" />
               </g>
-            ) : companionId.includes('dictionary') ? (
+            ) : activeHandheld.includes('dictionary') ? (
               <g id="handheld-dictionary">
                 <rect x="120" y="340" width="35" height="50" rx="4" fill="#047857" stroke="#064e3b" strokeWidth="2" transform="rotate(-15 130 360)" />
                 <rect x="123" y="343" width="28" height="44" fill="#ecfdf5" transform="rotate(-15 130 360)" />
                 <text x="127" y="370" fontSize="12" fontWeight="bold" fill="#047857" transform="rotate(-15 130 360)">EN</text>
               </g>
-            ) : companionId.includes('wand') ? (
+            ) : activeHandheld.includes('wand') ? (
               <g id="handheld-wand" className="animate-pulse">
                 <line x1="350" y1="380" x2="395" y2="330" stroke="#a16207" strokeWidth="5" strokeLinecap="round" />
                 <polygon points="395,330 405,325 410,315 415,325 425,330 415,335 410,345 405,335" fill="#fde047" stroke="#eab308" strokeWidth="2" className="animate-spin" />
