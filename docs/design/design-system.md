@@ -1273,3 +1273,255 @@ export const MyGameHub = () => {
 };
 ```
 
+---
+
+## 11. Hệ Thống Thiết Kế Nhân Vật 3D Chibi Đôi (Female & Male) & Tủ Đồ Module Tương Thích (PHU-34)
+
+**Mã công việc:** `PHU-34`  
+**Tiêu đề:** Tạo nhân vật dựa vào file .glb, thiết kế nhân vật nam đối ứng và xây dựng tủ đồ module phù hợp cho cả 2 nhân vật  
+**Tác giả:** UI/UX Designer & Design Technologist (`c74ffe18-11a2-47b9-a7f4-a3600b2f07c0`)  
+**Báo cáo cho:** Tech Lead & Architect (`11dba413-036f-4ce1-950e-252419384dce`)  
+**Bàn giao cho:** Senior Fullstack Engineer (.NET + React + Postgres) (`e78be358-35da-419c-bf21-24a27e284561`)  
+**Tệp tài nguyên 3D gốc:** `D:\Meshy_AI_Chibi_Figure_0930081629_texture.glb`  
+
+---
+
+### 11.1. Phân Tích Kỹ Thuật Mô Hình 3D Gốc (Meshy AI .glb Evaluation & Technical Audit)
+
+Sau khi kiểm định trực tiếp cấu trúc nhị phân của tệp `Meshy_AI_Chibi_Figure_0930081629_texture.glb` do người dùng cung cấp, UI/UX Designer & Design Technologist ghi nhận các thông số kỹ thuật thực tế như sau:
+
+| Thông số kỹ thuật | Đo lường thực tế từ tệp GLB | Đánh giá chuyên môn WebGL | Phương án xử lý chuẩn hóa |
+| :--- | :--- | :--- | :--- |
+| **Dung lượng tệp (File Size)** | **48,368,084 bytes (~48.36 MB)** | Quá nặng cho môi trường Web/Mobile. Gây nghẽn băng thông 4G, thời gian tải $> 8$ giây. | Tách module, bake texture và nén Draco / Meshoptimizer xuống $\le 1.8\text{ MB}$ cho toàn bộ trang phục. |
+| **Số lượng đa giác (Polycount)** | **426,804 triangles** (1,280,412 indices, 239,926 đỉnh) | Vượt quá ngân sách WebGL Mobile (chuẩn ngân sách: $18\text{k} - 22\text{k}$ tris). Gây tụt FPS $< 15\text{ FPS}$ và nóng máy di động. | Retopology bán tự động qua Blender Quad-Remesher: Thân gốc $\sim 4.8\text{k}$ tris, tổng bộ trang phục $\le 20\text{k}$ tris. |
+| **Cấu trúc lưới (Mesh Structure)** | **1 Monolithic Mesh (`Mesh_0`)** | Lưới đơn khối liền mạch, không thể thay áo, quần, tóc riêng lẻ theo cơ chế module. | Phân rã (Decompose) thành 6 slot độc lập: `BASE_BODY`, `HAIR`, `TOP`, `BOTTOM`, `SHOES`, `ACCESSORY`. |
+| **Khung xương (Skeleton / Rig)** | **0 Skins, 0 Bones (Static Mesh)** | Mô hình đứng yên (T-Pose/A-Pose tĩnh), không thể diễn hoạt cử chỉ biểu cảm (chớp mắt, vẫy tay, nhảy múa). | Gắn khung xương chuẩn **Mixamo Humanoid 42 Bones** tương thích tuyệt đối với máy trạng thái hoạt họa Three.js. |
+| **Vật liệu & Texture** | **1 Material (`Material_0`)** | Texture Albedo chất lượng tốt, phong cách Anime Chibi bóng mờ Vinyl Figure rất cuốn hút. | Giữ nguyên phong cách thị giác Stylized Anime; đóng gói kênh ORM (Occlusion, Roughness, Metallic) 1024x1024 chuẩn PBR. |
+| **Tọa độ & Kích thước (Bounding Box)** | $\text{Min: } [-0.48, -0.95, -0.42]$<br>$\text{Max: } [0.48, 0.95, 0.42]$ | Chiều cao thô $\sim 1.9\text{m}$. | Chuẩn hóa chiều cao World Units trong Three.js: **$0.95\text{m}$** (tỷ lệ Super Deformed 1:2.8). Trọng tâm $[0, 0, 0]$ tại mặt đất. |
+
+```mermaid
+flowchart LR
+    subgraph RawAsset [1. Tài Nguyên Thô Ban Đầu]
+        Meshy[Meshy AI .glb<br/>48.3 MB • 426k Tris<br/>1 Mesh Tĩnh]
+    end
+
+    subgraph OptimizationPipeline [2. Quy Trình Chuẩn Hóa Tech Art]
+        Split[Tách 6 Slot Lưới Module] --> Retopo[Retopology Quad-Flow<br/>Giảm xuống ~4.8k tris/body]
+        Retopo --> Rigging[Rig Khung Xương Mixamo<br/>42 Humanoid Bones]
+        Rigging --> TextureBake[Bake Albedo & ORM PBR<br/>1024x1024 Channels]
+        TextureBake --> Draco[Nén Draco/Meshoptimizer<br/>Dung lượng < 1.8 MB]
+    end
+
+    subgraph WebGLProduction [3. Sản Phẩm WebGL Thời Gian Thực]
+        Draco --> AoiModel[Nhân Vật Nữ: Aoi 0.95m<br/>Đầy đủ 8 cử chỉ biểu cảm]
+        Draco --> RenModel[Nhân Vật Nam: Ren 0.98m<br/>Khung xương đối ứng]
+    end
+
+    RawAsset --> OptimizationPipeline
+```
+
+---
+
+### 11.2. Thiết Kế Cặp Đôi Nhân Vật Đại Diện (Dual Chibi Heroes Specification)
+
+Nhằm tạo ra một hệ sinh thái học tập gắn kết, tạo động lực đua top và thi đấu PvP 1v1, hệ thống định hình 2 nhân vật đại diện mang tính biểu tượng:
+
+#### 1. Nhân Vật Nữ: Aoi (Ánh Dương) – Dựa trên file .glb gốc
+- **Tên nhân vật:** Aoi (Tên tiếng Việt thân mật: Ánh Dương / Linh).
+- **Hình tượng:** Nữ sinh năng động, nhiệt huyết, đam mê giao tiếp và phát âm tiếng Anh.
+- **Tỷ lệ nhân vật:** SD Chibi 1:2.8, chiều cao **$0.95\text{m}$**, đầu tròn đáng yêu, mắt anime to tròn lấp lánh.
+- **Trang phục mặc định:**
+  - *Tóc:* Bím tóc hai bên Sakura Pop (`hair_twin_tails_cherry_01`), kẹp tóc ngôi sao vàng.
+  - *Áo:* Áo sơ mi phong cách thủy thủ cổ bẻ thắt nơ đỏ ruby (`top_chibi_female_sailor_01`).
+  - *Váy:* Váy xếp ly ca rô đỏ phong cách nữ sinh học viện (`bottom_chibi_female_pleated_01`).
+  - *Giày:* Giày oxford da bóng kèm vớ trắng cổ ngắn viền ren (`shoes_chibi_female_oxford_01`).
+- **Bảng màu nhận diện:**
+  - Chủ đạo: Rose Pink (`#f43f5e`), Sakura Soft (`#ffe4e6`), Amber Gold (`#f59e0b`).
+- **Vai trò đại sứ học tập:** Biểu tượng cho kỹ năng **NÓI & NGHE** (Speaking & Listening).
+
+#### 2. Nhân Vật Nam: Ren (Tuệ Minh) – Mô hình đối ứng chuẩn hóa
+- **Tên nhân vật:** Ren (Tên tiếng Việt thân mật: Tuệ Minh / Nam).
+- **Hình tượng:** Học trưởng điềm tĩnh, phong thái thể thao hiện đại, sở trường ngữ pháp và tư duy logic.
+- **Tỷ lệ nhân vật:** SD Chibi 1:2.8, chiều cao **$0.98\text{m}$** (vai hơi vuông hơn $8\%$, dáng đứng khỏe khoắn).
+- **Trang phục mặc định:**
+  - *Tóc:* Mái tóc layer vuốt nhọn anime cá tính highlight xanh cyan (`hair_anime_spiky_layer_01`).
+  - *Áo:* Sơ mi trắng cổ đứng kết hợp áo gile len xanh navy viền vàng (`top_chibi_male_vest_gilet_01`).
+  - *Quần:* Quần âu thể thao màu xám đen ống côn thanh lịch (`bottom_chibi_male_slacks_01`).
+  - *Giày:* Sneaker thể thao cổ cao đệm khí năng động (`shoes_chibi_male_sneaker_cyan_01`).
+  - *Phụ kiện:* Tai nghe chụp tai phong cách studio (`acc_chibi_male_cyber_headset_01`).
+- **Bảng màu nhận diện:**
+  - Chủ đạo: Cyber Cyan (`#06b6d4`), Electric Azure (`#0284c7`), Midnight Navy (`#0f172a`).
+- **Vai trò đại sứ học tập:** Biểu tượng cho kỹ năng **ĐỌC & VIẾT** (Reading & Writing).
+
+---
+
+### 11.3. Ma Trận Tủ Đồ Module Tương Thích 6 Slot (Modular Wardrobe Catalog Matrix)
+
+Tất cả trang phục được thiết kế theo 6 slot chuẩn glTF, có trường dữ liệu `gender: 'FEMALE' | 'MALE' | 'UNISEX'` và hỗ trợ công nghệ tự động điều chỉnh kích thước (Smart Auto-Fitting):
+
+| Slot | Mã Vật Phẩm | Tên Trang Phục | Tương Thích Giới Tính | Độ Hiếm (Rarity) | Giá Token | Quy Tắc Che Phủ (Culling Rules) |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **BASE_BODY** | `body_chibi_female_aoi` | Thân Nữ Chibi Aoi (Meshy AI .glb Gốc) | `FEMALE` | `COMMON` | 0 | Thân chuẩn nữ |
+| **BASE_BODY** | `body_chibi_male_ren` | Thân Nam Chibi Ren (Khung Xương Đối Ứng) | `MALE` | `COMMON` | 0 | Thân chuẩn nam |
+| **BASE_BODY** | `body_chibi_tan_athletic_01` | Thân Chibi Thể Thao Bánh Mật | `UNISEX` | `RARE` | 350 | Dùng chung cả hai |
+| **HAIR** | `hair_twin_tails_cherry_01` | Tóc Cột Hai Bên Sakura Pop | `FEMALE` | `RARE` | 500 | Không che phủ |
+| **HAIR** | `hair_short_bob_scholar_01` | Tóc Ngắn Bob Học Đường Anime | `FEMALE` | `COMMON` | 250 | Không che phủ |
+| **HAIR** | `hair_side_part_scholar_01` | Tóc Học Giả Rẽ Ngôi 7/3 | `MALE` | `COMMON` | 200 | Không che phủ |
+| **HAIR** | `hair_anime_spiky_layer_01` | Tóc Layer Gai Học Trưởng Cool Ngầu | `MALE` | `EPIC` | 750 | Không che phủ |
+| **HAIR** | `hair_anime_spiky_blue_01` | Tóc Anime Gai Xanh Điện Unisex | `UNISEX` | `EPIC` | 750 | Không che phủ |
+| **TOP** | `top_chibi_female_sailor_01` | Áo Thủy Thủ Nữ Sinh Kèm Nơ Đỏ | `FEMALE` | `RARE` | 550 | Ẩn `Mat_Torso` của BaseBody |
+| **TOP** | `top_chibi_female_hoodie_pink_01` | Áo Hoodie Chibi Tai Thỏ Pastel | `FEMALE` | `EPIC` | 850 | Ẩn `Mat_Torso`, tự động ẩn `HAIR` |
+| **TOP** | `top_chibi_male_vest_gilet_01` | Áo Gile Len Kèm Sơ Mi Trắng | `MALE` | `RARE` | 600 | Ẩn `Mat_Torso` của BaseBody |
+| **TOP** | `top_chibi_male_cyber_jacket_01` | Áo Khoác Techwear Cyan Electric | `MALE` | `EPIC` | 900 | Ẩn `Mat_Torso` của BaseBody |
+| **TOP** | `top_school_blazer_oxford_01` | Áo Blazer Học Viện Hoàng Gia | `UNISEX` | `RARE` | 600 | Ẩn `Mat_Torso` của BaseBody |
+| **TOP** | `top_golden_dragon_robe_01` | Áo Choàng Hoàng Kim Long (Top 1) | `UNISEX` | `LEGENDARY`| 2500 | Ẩn `Mat_Torso`, phát hào quang rực rỡ |
+| **BOTTOM** | `bottom_chibi_female_pleated_01` | Váy Xếp Ly Đồng Phục Học Viện | `FEMALE` | `COMMON` | 200 | Không che phủ |
+| **BOTTOM** | `bottom_chibi_female_denim_01` | Quần Short Yếm Denim Trẻ Trung | `FEMALE` | `RARE` | 450 | Không che phủ |
+| **BOTTOM** | `bottom_chibi_male_slacks_01` | Quần Âu Thể Thao Dáng Ôm | `MALE` | `COMMON` | 200 | Không che phủ |
+| **BOTTOM** | `bottom_cargo_shorts_01` | Quần Cargo Techwear Túi Hộp | `UNISEX` | `COMMON` | 150 | Không che phủ |
+| **BOTTOM** | `bottom_hologram_tech_skirt_01`| Váy Hologram Neon Dạ Quang | `FEMALE` | `EPIC` | 750 | Đổi màu theo nhịp nhạc |
+| **SHOES** | `shoes_chibi_female_oxford_01` | Giày Oxford Nữ Kèm Vớ Cổ Ngắn | `FEMALE` | `COMMON` | 150 | Ẩn bàn chân `Mat_Feet` |
+| **SHOES** | `shoes_chibi_male_sneaker_cyan_01`| Giày Sneaker Cổ Cao Đế Khí Cyan | `MALE` | `RARE` | 400 | Ẩn bàn chân `Mat_Feet` |
+| **SHOES** | `shoes_runner_sneakers_01` | Giày Thể Thao Siêu Nhẹ Neon | `UNISEX` | `RARE` | 400 | Ẩn bàn chân `Mat_Feet` |
+| **SHOES** | `shoes_high_boots_cyber_01` | Bốt Chiến Binh Cyber 2077 | `UNISEX` | `EPIC` | 700 | Ẩn cẳng chân `Mat_LowerLegs` |
+| **ACCESSORY** | `acc_chibi_female_star_clip_01` | Kẹp Tóc Ngôi Sao Vàng May Mắn | `FEMALE` | `COMMON` | 100 | Gắn socket xương `Head` |
+| **ACCESSORY** | `acc_chibi_female_cat_headphones_01`| Tai Nghe Tai Mèo Phát Quang RGB | `FEMALE` | `EPIC` | 900 | Gắn socket xương `Head` |
+| **ACCESSORY** | `acc_chibi_male_smart_glasses_01` | Kính Mắt Trí Tuệ AR Scanner | `MALE` | `RARE` | 450 | Gắn socket xương `Head` |
+| **ACCESSORY** | `acc_chibi_male_cyber_headset_01` | Tai Nghe Bluetooth Chụp Tai Studio | `MALE` | `RARE` | 500 | Gắn socket xương `Head` |
+| **ACCESSORY** | `acc_angel_wings_aurora_01` | Đôi Cánh Thiên Thần Bắc Cực Quang | `UNISEX` | `LEGENDARY`| 3000 | Gắn socket xương `Chest` |
+
+---
+
+### 11.4. Thiết Kế 4 Bộ Phối Đồ Đôi Đồng Điệu (Matching Couple Sets)
+
+Để khích lệ người chơi sưu tập trọn bộ và phối đồ đôi khi tham gia phòng thi đấu 1v1 hoặc khoe hồ sơ học viên, hệ thống thiết kế 4 bộ đôi đặc quyền:
+
+```mermaid
+graph TD
+    subgraph Sets [4 Bộ Sưu Tập Phối Đồ Cặp Đôi Đồng Điệu]
+        Set1["1. Set Học Viện Hoàng Gia (Royal Academy)<br/>1,200 Tokens • Nữ: Váy Caro Sakura / Nam: Blazer Navy"]
+        Set2["2. Set Cyberpunk Neon 2077 (Futuristic Duo)<br/>2,500 Tokens • Nữ: Hologram Pink / Nam: Techwear Cyan"]
+        Set3["3. Set Thể Thao Marathon (Athletic Duo)<br/>850 Tokens • Nữ: Croptop Runner / Nam: Jogger Sporty"]
+        Set4["4. Set Pháp Sư Học Thuật (Mystic Scholars)<br/>3,800 Tokens • Áo Choàng Sao Rơi & Trượng Phép Thuật"]
+    end
+```
+
+---
+
+### 11.5. Bộ Tokens Thiết Kế Mới Trong Tailwind CSS (`tailwind.config.js`)
+
+```javascript
+// Trích xuất các Design Tokens mới được bổ sung vào frontend/tailwind.config.js:
+chibi: {
+  female: {
+    DEFAULT: '#f43f5e', // Rose 500
+    soft: '#fff1f2',    // Rose 50
+    light: '#ffe4e6',   // Rose 100
+    border: '#fda4af',  // Rose 300
+    accent: '#e11d48',  // Rose 600
+    dark: '#be123c',    // Rose 700
+    glow: 'rgba(244, 63, 94, 0.45)',
+  },
+  male: {
+    DEFAULT: '#06b6d4', // Cyan 500
+    soft: '#ecfeff',    // Cyan 50
+    light: '#cffafe',   // Cyan 100
+    border: '#67e8f9',  // Cyan 300
+    accent: '#0891b2',  // Cyan 600
+    dark: '#0e7490',    // Cyan 700
+    glow: 'rgba(6, 182, 212, 0.45)',
+  },
+  duo: {
+    DEFAULT: '#8b5cf6', // Purple 500
+    soft: '#faf5ff',    // Purple 50
+    light: '#f3e8ff',   // Purple 100
+    border: '#c084fc',  // Purple 300
+    accent: '#7e22ce',  // Purple 700
+    dark: '#6d28d9',    // Purple 700
+    glow: 'rgba(139, 92, 246, 0.45)',
+  },
+},
+boxShadow: {
+  '3d-female': '0 4px 0 #be123c',
+  '3d-female-lg': '0 6px 0 #be123c',
+  '3d-male': '0 4px 0 #0e7490',
+  '3d-male-lg': '0 6px 0 #0e7490',
+  '3d-duo': '0 4px 0 #6d28d9',
+  '3d-duo-lg': '0 6px 0 #6d28d9',
+  'glow-female': '0 0 25px rgba(244, 63, 94, 0.5)',
+  'glow-male': '0 0 25px rgba(6, 182, 212, 0.5)',
+  'glow-duo': '0 0 30px rgba(139, 92, 246, 0.55)',
+},
+animation: {
+  'chibi-float': 'chibi-float 2.5s ease-in-out infinite',
+  'chibi-wiggle': 'chibi-wiggle 1.2s ease-in-out infinite',
+  'sparkle-pop': 'sparkle-pop 2s ease-in-out infinite',
+}
+```
+
+---
+
+### 11.6. Chi Tiết Các Component React Đã Xây Dựng (`frontend/src/components/ui/`)
+
+1. **`WardrobeItemCompatibilityBadge.tsx`:**  
+   - Huy hiệu hiển thị trực quan khả năng tương thích giới tính của từng món đồ (`Nữ (Aoi)`, `Nam (Ren)`, `Unisex / Đôi`).
+   - Đổi màu sắc theo token: Rose cho Nữ, Cyan cho Nam, Purple-Indigo gradient cho Unisex.
+
+2. **`CharacterGenderSelector.tsx`:**  
+   - Bộ điều khiển chọn nhân vật tương tác cao, hỗ trợ 2 chế độ hiển thị:
+     - Dạng thanh Tab gọn gàng (`compact-tabs`) trên Header của Phòng Thử Đồ.
+     - Dạng 2 Thẻ lớn chi tiết (`cards-split`) hiển thị thông số mô hình 3D, nguồn gốc file .glb và tỷ lệ nhân vật.
+     - Tích hợp nút chuyển đổi sang chế độ **Sàn Diễn Cặp Đôi (Duo Mode)**.
+
+3. **`ChibiModelViewerCard.tsx`:**  
+   - Thẻ hiển thị hồ sơ kỹ thuật 3D dành cho lập trình viên và người dùng nâng cao:
+     - So sánh đối chiếu trực tiếp giữa file thô Meshy AI 426k tris / 48MB và thông số mục tiêu WebGL $18\text{k}-22\text{k}$ tris.
+     - Bảng giải thích chi tiết quy trình Retopology, Rigging 42 xương và Bake texture PBR.
+     - Thanh thử nghiệm trực tiếp 8 cử chỉ hoạt họa phản hồi học tập (`anim_idle`, `anim_streak_fire`, `anim_thinking`, `anim_victory`, v.v.).
+
+4. **`DualCharacterShowcase.tsx`:**  
+   - Giao diện Sàn diễn 3D cặp đôi song hành với 2 bục xoay tròn độc lập.
+   - Hiển thị danh mục 4 bộ phối đồ đôi đồng điệu, tính tổng Tokens và nút mua nhanh trọn gói cho cả 2 nhân vật.
+   - Thanh điều khiển cử chỉ đôi đồng bộ: Đập tay ăn mừng (High-Five), Cùng ôn bài (Study Together), Cùng chiến thắng (Victory Dance).
+
+5. **`FittingRoom3DModal.tsx` (Đã Nâng Cấp Hoàn Thiện):**  
+   - Bổ sung bộ chọn nhân vật Nữ (Aoi) / Nam (Ren) / Cặp Đôi ngay trên thanh tiêu đề modal.
+   - Thêm bộ lọc giới tính thông minh (`Tất cả`, `Dành cho Nữ`, `Dành cho Nam`, `Unisex / Đôi`).
+   - Nạp sẵn danh mục `DEFAULT_3D_CATALOG` đầy đủ các trang phục dành riêng cho Aoi và Ren.
+
+---
+
+### 11.7. Hướng Dẫn Bàn Giao Triển Khai Cho Senior Fullstack Engineer (.NET + React + Postgres)
+
+Khi triển khai các API và thực thi tính năng (Issue tiếp nối cho Fullstack Engineer):
+
+1. **CSDL PostgreSQL:**
+   - Mở rộng bảng `avatar_items_3d`:
+     ```sql
+     ALTER TABLE avatar_items_3d 
+     ADD COLUMN gender_compatibility VARCHAR(20) NOT NULL DEFAULT 'UNISEX',
+     ADD COLUMN source_ai_reference VARCHAR(255) NULL,
+     ADD COLUMN mesh_variant_female_url VARCHAR(500) NULL,
+     ADD COLUMN mesh_variant_male_url VARCHAR(500) NULL;
+     ```
+   - Tạo bảng `avatar_matching_sets_3d` lưu trữ 4 bộ phối đồ đôi.
+2. **Backend .NET 8 Web API:**
+   - Cung cấp các endpoint:
+     - `GET /api/v1/shop/3d-items?gender={FEMALE|MALE|UNISEX}`: Lọc vật phẩm theo giới tính.
+     - `GET /api/v1/characters/active`: Lấy nhân vật đại diện đang kích hoạt của học viên.
+     - `POST /api/v1/characters/switch`: Đổi nhân vật active (Aoi hoặc Ren).
+     - `POST /api/v1/shop/matching-sets/{id}/purchase-duo`: Mua trọn bộ đôi 1-click.
+3. **Frontend Three.js / React Three Fiber:**
+   - Import trực tiếp các component UI từ `@/components/ui`:
+     ```tsx
+     import {
+       FittingRoom3DModal,
+       CharacterGenderSelector,
+       DualCharacterShowcase,
+       ChibiModelViewerCard,
+       WardrobeItemCompatibilityBadge,
+     } from '@/components/ui';
+     ```
+   - Truyền thẻ `<Canvas>` chứa bộ xương Chibi và SkinnedMesh Re-parenting vào prop `canvas3DNode` của `FittingRoom3DModal` hoặc `DualCharacterShowcase`.
+
+

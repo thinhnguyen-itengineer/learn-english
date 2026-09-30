@@ -110,3 +110,16 @@ export * from './AnimationStateHUD';
 // 6. Master Split-View Live 3D Fitting Room Studio Modal
 export * from './FittingRoom3DModal';
 
+// 3D Chibi Dual Characters (Female Aoi & Male Ren) & Matching Wardrobes (PHU-34)
+// 7. Wardrobe Item Gender Compatibility Badge
+export * from './WardrobeItemCompatibilityBadge';
+
+// 8. Chibi Character Gender Selector (Aoi vs Ren vs Duo)
+export * from './CharacterGenderSelector';
+
+// 9. 3D Model Technical Inspector & Retopology Pipeline Card
+export * from './ChibiModelViewerCard';
+
+// 10. Dual Character 3D Showroom & Matching Outfits Showcase
+export * from './DualCharacterShowcase';
+

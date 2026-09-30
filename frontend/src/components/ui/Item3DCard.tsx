@@ -14,6 +14,7 @@ import {
   User,
 } from 'lucide-react';
 import { RarityBadge } from './RarityBadge';
+import { WardrobeItemCompatibilityBadge } from './WardrobeItemCompatibilityBadge';
 
 export type Slot3D = 'BASE_BODY' | 'HAIR' | 'TOP' | 'BOTTOM' | 'SHOES' | 'ACCESSORY';
 export type Rarity3D = 'COMMON' | 'RARE' | 'EPIC' | 'LEGENDARY';
@@ -194,8 +195,11 @@ export const Item3DCard: React.FC<Item3DCardProps> = ({
           <p className="text-[11px] text-slate-400 line-clamp-1">{item.description}</p>
         )}
 
-        {/* 3D Specs Chips: Triangles & File Size */}
-        <div className="flex items-center gap-1.5 text-[10px] text-slate-400 font-mono mt-0.5">
+        {/* 3D Specs Chips & Gender Compatibility Badge */}
+        <div className="flex items-center flex-wrap gap-1.5 text-[10px] text-slate-400 font-mono mt-0.5">
+          {item.gender && (
+            <WardrobeItemCompatibilityBadge gender={item.gender} size="xs" />
+          )}
           {formattedPolys && (
             <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-slate-800/80 border border-slate-700/60 text-slate-300">
               <Layers className="w-2.5 h-2.5 text-cyan-400" />
