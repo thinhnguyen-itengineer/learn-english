@@ -90,3 +90,23 @@ export * from './UserProfileShowcaseCard';
 
 // 8. Personal Wardrobe & Inventory Management Modal
 export * from './WardrobeModal';
+
+// 3D Chibi Live Fitting Room & Modular Wardrobe Studio (PHU-30)
+// 1. Camera Orbit Controls HUD (360 Rotation, Zoom, Lighting Rig, Presets)
+export * from './OrbitControlsHUD';
+
+// 2. 3D Wardrobe Item Card (6 Slots, Polycount, Rarity & Conflict Warnings)
+export * from './Item3DCard';
+
+// 3. Try-On Previewing Action Dock (Bulk Purchase, Revert & Save to Preset)
+export * from './FittingRoomActionDock';
+
+// 4. 5 Outfit Presets Manager (Inline Renaming, 1-Click Equip & Slot Save)
+export * from './PresetSelector3D';
+
+// 5. Gamification Emotional Animation States Controller (8 Chibi States)
+export * from './AnimationStateHUD';
+
+// 6. Master Split-View Live 3D Fitting Room Studio Modal
+export * from './FittingRoom3DModal';
+

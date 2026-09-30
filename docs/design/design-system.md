@@ -1113,3 +1113,163 @@ export const UserHubPage = () => {
   );
 };
 ```
+
+---
+
+## 10. Hệ Thống Thiết Kế UI/UX: 3D Chibi Live Fitting Room, Camera Orbit Controls HUD & Animation States (Issue PHU-30)
+
+**Tài liệu bổ sung:** Đặc tả thiết kế không gian 3D Studio, Live Fitting Room, HUD điều khiển Orbit 360°, Thẻ vật phẩm 3D 6 slot, Thanh tác vụ mặc thử và 5 Presets trang phục  
+**Tác giả:** UI/UX Designer & Design Technologist (`c74ffe18-11a2-47b9-a7f4-a3600b2f07c0`)  
+**Báo cáo cho:** Tech Lead & Software Architect (`11dba413-036f-4ce1-950e-252419384dce`)  
+**Dự án:** `learn-english` (Paperclip Issue `PHU-30`, tham chiếu kiến trúc `PHU-29` và đặc tả `PHU-28`)  
+**Người nhận chuyển giao:** Senior Fullstack Engineer (`e78be358-35da-419c-bf21-24a27e284561`)  
+
+---
+
+### 10.1. Triết Lý Thiết Kế Không Gian 3D Chibi & Trải Nghiệm Mặc Thử (3D Studio Philosophy)
+
+Dựa trên yêu cầu giữ chân học viên và nâng cấp đồ họa game hóa của dự án `learn-english`, không gian 3D Chibi được định hình theo phong cách **Vinyl Figure Toy / Stylized Anime Chibi (Tỷ lệ Super Deformed 1:2.8)** kết hợp sàn diễn thời trang công nghệ cao:
+1. **Bố Cục Cân Đối Split-View (45% 3D Viewport / 55% Bảng Điều Khiển):**
+   - **Bên Trái (45%):** Khung nhìn 3D Canvas WebGL trực quan, nơi nhân vật Chibi đứng trên bục tròn phát quang (Turntable Pedestal) với ánh sáng 3 điểm Studio mềm mại và bóng đổ tiếp xúc (Contact Shadows).
+   - **Bên Phải (55%):** Bảng danh mục tủ đồ module và cửa hàng vật phẩm với 6 tab phân tầng slot rõ ràng, bộ lọc độ hiếm và quản lý 5 Presets trang phục.
+   - **Mobile Responsiveness:** Tự động chuyển đổi thành Stack View linh hoạt (3D Viewport 40vh phía trên, Bảng danh mục cuộn mượt phía dưới) đảm bảo diện tích chạm tối thiểu 44x44px cho ngón tay.
+2. **Tương Tác Xúc Giác & Đắm Chìm 360° (Tactile 360 Orbit Interaction):**
+   - Người dùng có thể chạm kéo chuột xoay 360°, phóng to/thu nhỏ cự ly $1.2\text{m} - 3.0\text{m}$, hoặc kích hoạt chế độ tự động xoay showroom ($0.5\text{ rad/s}$).
+   - HUD điều khiển nổi được thiết kế theo phong cách kính vi mạch mờ (Glassmorphism), không che khuất nhân vật.
+3. **Phản Hồi Thử Đồ Tức Thời (Zero-Friction Instant Try-On):**
+   - Bất kỳ món đồ nào trong cửa hàng khi chạm vào đều lập tức xuất hiện trên nhân vật với nhãn huy hiệu **"Đang thử ✨" (Previewing)**.
+   - Thanh tác vụ đáy (`FittingRoomActionDock`) tự động trượt lên, cung cấp nút **Hủy thử (Revert)**, **Mua ngay (Buy Now)**, **Mua toàn bộ giỏ thử đồ (Buy All Outfits)** và **Lưu thành Preset**.
+
+---
+
+### 10.2. Hệ Thống Design Tokens Mới (Tailwind CSS 3D Tokens)
+
+#### 1. Bảng Màu Không Gian 3D Studio & 6 Slot Phân Tầng
+
+| Token Name | Hex Code | Ứng Dụng Trong Giao Diện |
+| :--- | :--- | :--- |
+| `studio3d.canvas` | `#0b0f19` | Nền Canvas WebGL sâu thẳm, tôn vinh ánh sáng nhân vật |
+| `studio3d.stage` | `#1e293b` | Bề mặt sàn showroom sàn diễn thời trang |
+| `studio3d.pedestal` | `#334155` | Bục xoay tròn 3D Chibi với viền LED |
+| `studio3d.orbitHud` | `rgba(15, 23, 42, 0.85)` | Nền kính mờ cho HUD xoay 360° và góc camera |
+| `slot3d.basebody` | `#f43f5e` | Slot `BASE_BODY` (Cơ thể Chibi, màu hồng đào) |
+| `slot3d.hair` | `#f59e0b` | Slot `HAIR` (Mái tóc anime, màu vàng hổ phách) |
+| `slot3d.top` | `#3b82f6` | Slot `TOP` (Trang phục trên, màu lam điện) |
+| `slot3d.bottom` | `#10b981` | Slot `BOTTOM` (Trang phục dưới, màu lục ngọc) |
+| `slot3d.shoes` | `#8b5cf6` | Slot `SHOES` (Giày dép sneaker, màu tím oải hương) |
+| `slot3d.accessory`| `#ec4899` | Slot `ACCESSORY` (Phụ kiện mũ/kính/cánh, màu hồng neon) |
+| `tryon.amber` | `#f59e0b` | Huy hiệu và viền trạng thái "Đang thử đồ" (Previewing) |
+| `tryon.glow` | `rgba(245, 158, 11, 0.45)` | Hào quang tỏa sáng của món đồ đang mặc thử |
+
+#### 2. Micro-Animations & Hiệu Ứng 3D
+
+| Animation Class | Thời Lượng / Easing | Hành Vi & Mục Đích |
+| :--- | :--- | :--- |
+| `animate-orbit-spin-slow` | 20s linear infinite | Bàn xoay 3D tự động xoay chậm nhẹ nhàng khi nhàn rỗi |
+| `animate-pedestal-spin` | 15s linear infinite | Hiệu ứng vòng xoay hạt ánh sáng dưới chân bục đứng |
+| `animate-sparkle-float` | 2s ease-in-out infinite | Ngôi sao lấp lánh bay lơ lửng khi thử món đồ mới |
+| `animate-streak-flame` | 1s ease-in-out infinite | Lửa bùng cháy quanh chân nhân vật ở trạng thái `STREAK` (Combo $\ge 3$) |
+| `animate-dizzy-wobble` | 1.2s ease-in-out infinite | Rung lắc bối rối khi trả lời sai hoặc chọn nhầm đáp án |
+
+---
+
+### 10.3. Chi Tiết Các Component UI Mới Trong Thư Viện (`frontend/src/components/ui/`)
+
+#### 1. `OrbitControlsHUD.tsx` (HUD Điều Khiển Camera & Ánh Sáng 360°)
+- **Đặc điểm:**
+  - Vòng la bàn 360° hiển thị góc Yaw thực tế (ví dụ: `0°`, `90°`, `180°`).
+  - Phím xoay nhanh trái/phải từng nấc $45^\circ$ và phím lật nhanh $180^\circ$ (xem trước / xem sau lưng).
+  - Phím bật/tắt tự động xoay 360° (`Auto-Rotate`).
+  - Thanh trượt và nút phóng to / thu nhỏ Zoom ($1.2\text{m} - 3.0\text{m}$) kèm tỷ lệ %.
+  - Nút chuyển nhanh 5 góc nhìn chuẩn: Toàn thân (`full`), Cận cảnh mặt (`face`), Chính diện (`front`), Góc nghiêng (`side`), Sau lưng (`back`).
+  - Menu chuyển đổi 4 kịch bản ánh sáng Studio: `Studio 3-Point`, `Nắng Ban Ngày`, `Hoàng Hôn Ấm`, `Cyberpunk Neon`.
+
+#### 2. `Item3DCard.tsx` (Thẻ Vật Phẩm 3D Theo 6 Slot Chuẩn glTF)
+- **Đặc điểm:**
+  - Định dạng hiển thị chuẩn theo JSON Schema `AvatarItem3D` (`PHU-28`).
+  - Phân loại trực quan theo 6 slot (`BASE_BODY`, `HAIR`, `TOP`, `BOTTOM`, `SHOES`, `ACCESSORY`).
+  - Rarity Badges chuẩn mực (`Common`, `Rare`, `Epic`, `Legendary`) kèm viền phát quang.
+  - Hiển thị thông số kỹ thuật 3D: Số đa giác (`2.8k tris`), Kích thước tệp (`240 KB`).
+  - Nhãn cảnh báo xung đột trang phục (`hide_slots_when_equipped`): Cảnh báo rõ ràng nếu mặc áo trùm đầu sẽ ẩn tóc/mũ.
+  - Phản hồi trạng thái đa tầng: `Đang mặc`, `Đang thử ✨`, `Đã sở hữu`, `Yêu cầu Level X`, `Mua bằng Token`.
+
+#### 3. `FittingRoomActionDock.tsx` (Thanh Tác Vụ Mặc Thử Nổi)
+- **Đặc điểm:**
+  - Tự động xuất hiện ở đáy màn hình khi có ít nhất 1 món đồ đang mặc thử.
+  - Thanh danh sách các món đang thử (Pills Carousel) với hình thu nhỏ và nút gỡ nhanh `[x]`.
+  - Nút "Hủy thử" (`Revert`): Khôi phục nhân vật về outfit đã lưu.
+  - Nút "Mua toàn bộ" (`Buy All Outfits`): Tính tổng Token và hỗ trợ thanh toán 1-click.
+  - Nút "Lưu thành Preset" (`Save as Preset`): Lưu trực tiếp set đồ vào 1 trong 5 slot preset.
+
+#### 4. `PresetSelector3D.tsx` (Quản Lý 5 Bộ Trang Phục Yêu Thích)
+- **Đặc điểm:**
+  - Quản lý đúng 5 slot preset tương ứng bảng CSDL `avatar_presets_3d`.
+  - Hỗ trợ đổi tên trực tiếp (Inline Rename) cho từng bộ trang phục (ví dụ: *Chiến Đấu 1v1*, *Đồng Phục Đi Học*, *Ninja Siêu Cấp*).
+  - 1-click Áp dụng (`Mặc set này`) đổi ngay toàn bộ 6 slot trang phục.
+  - Thao tác "Lưu trang phục hiện tại" ghi đè cấu hình vào slot mong muốn.
+
+#### 5. `AnimationStateHUD.tsx` (Máy Trạng Thái Hoạt Họa & Phản Hồi Học Tập)
+- **Đặc điểm:**
+  - Điều khiển 8 trạng thái hoạt họa Chibi:
+    1. `IDLE`: Thở nhịp nhàng, nhún nhảy theo nhịp nhạc 60 BPM.
+    2. `THINKING`: Ngón trỏ lên cằm, nghiêng đầu 15°, bong bóng suy nghĩ `...`.
+    3. `CORRECT`: Nở nụ cười tươi, giơ hai tay chữ V chiến thắng.
+    4. `STREAK`: Lộn nhào 360°, hào quang lửa bốc cháy quanh chân (`Combo x3+`).
+    5. `CONFUSED`: Gãi đầu bối rối, giọt mồ hôi rơi `💧`.
+    6. `TRYON`: Xoay người một vòng khoe đồ mới, sao lấp lánh (Sparkle VFX).
+    7. `VICTORY`: Vũ đạo Chibi sôi động, bắn pháo hoa Confetti rực rỡ.
+    8. `DEFEAT`: Ngồi bệt ôm gối, đám mây xám mưa bay.
+  - Tự động kích hoạt pháo hoa giấy Confetti khi kích hoạt trạng thái `VICTORY`.
+
+#### 6. `FittingRoom3DModal.tsx` (Giao Diện Phòng Thử Đồ Master Split-View)
+- **Đặc điểm:**
+  - Bố cục Split-View 45% 3D Viewport (trái) và 55% Tủ đồ & Cửa hàng (phải).
+  - Tích hợp liền mạch: Có thể nhận trực tiếp node `<Canvas>` Three.js từ `@react-three/fiber` qua prop `canvas3DNode`, hoặc tự động hiển thị Stage Studio 3D Turntable với hiệu ứng đổ bóng và nhịp thở nhân vật nếu chưa nạp WebGL context.
+  - Tích hợp toàn diện `OrbitControlsHUD`, `FittingRoomActionDock`, `PresetSelector3D` và `AnimationStateHUD`.
+
+---
+
+### 10.4. Hướng Dẫn Tích Hợp Cho Kỹ Sư Fullstack (PHU-31)
+
+```tsx
+import React, { useState } from 'react';
+import {
+  FittingRoom3DModal,
+  OrbitControlsHUD,
+  Item3DCard,
+  PresetSelector3D,
+  AnimationStateHUD,
+  AvatarItem3DData,
+} from '@/components/ui';
+
+export const MyGameHub = () => {
+  const [isFittingRoomOpen, setIsFittingRoomOpen] = useState(true);
+  const [tokens, setTokens] = useState(2500);
+
+  return (
+    <FittingRoom3DModal
+      isOpen={isFittingRoomOpen}
+      onClose={() => setIsFittingRoomOpen(false)}
+      userTokenBalance={tokens}
+      userLevel={8}
+      // Senior Fullstack Engineer có thể truyền Canvas Three.js vào đây:
+      // canvas3DNode={<Canvas><ChibiModel /><OrbitControls /></Canvas>}
+      onPurchaseItem={async (item: AvatarItem3DData) => {
+        // Gọi API backend POST /api/v1/shop/3d-items/{id}/purchase
+        setTokens((prev) => prev - item.priceTokens);
+        return true;
+      }}
+      onPurchaseAll={async (items: AvatarItem3DData[]) => {
+        const total = items.reduce((s, i) => s + i.priceTokens, 0);
+        setTokens((prev) => prev - total);
+        return true;
+      }}
+      onSavePreset={(slot, name) => {
+        // Gọi API POST /api/v1/avatar-3d/presets
+        console.log(`Lưu preset slot ${slot} với tên ${name}`);
+      }}
+    />
+  );
+};
+```
+
